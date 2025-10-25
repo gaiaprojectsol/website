@@ -13,12 +13,11 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
       text-align: center;
       padding: 0 1rem;
     }
-
     h1 {
       font-size: 2.5rem;
       white-space: pre-line;
@@ -27,7 +26,6 @@
       animation: typing 6s steps(60, end), blink-caret 0.8s step-end infinite;
       margin-bottom: 2rem;
     }
-
     p {
       font-size: 1rem;
       opacity: 0;
@@ -36,50 +34,125 @@
       animation-delay: 6.5s;
       line-height: 1.5;
     }
-
     a {
       color: #00ff99;
       text-decoration: none;
       font-weight: bold;
     }
+    a:hover { text-decoration: underline; }
+    @keyframes typing { from { width: 0 } to { width: 100% } }
+    @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #00ff99 } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    a:hover {
-      text-decoration: underline;
+    /* --- Donation Section --- */
+    #donate {
+      margin-top: 4rem;
+      border-top: 1px solid #00ff99;
+      padding-top: 2rem;
+      width: 100%;
+      max-width: 600px;
     }
-
-    @keyframes typing {
-      from { width: 0 }
-      to { width: 100% }
+    input, textarea, button {
+      background: #000;
+      color: #00ff99;
+      border: 1px solid #00ff99;
+      border-radius: 4px;
+      padding: 0.6rem;
+      margin-top: 0.6rem;
+      width: 90%;
+      max-width: 480px;
+      font-family: 'Courier New', monospace;
     }
-
-    @keyframes blink-caret {
-      from, to { border-color: transparent }
-      50% { border-color: #00ff99 }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
+    button:hover { background: #00ff99; color: #000; cursor: pointer; }
+    #status { margin-top: 1rem; font-size: 0.9rem; }
   </style>
+
+  <!-- Solana Libraries -->
+  <script src="https://unpkg.com/@solana/web3.js@1.75.0/lib/index.iife.js"></script>
+  <script src="https://unpkg.com/@solana/spl-memo@0.1.5/lib/index.iife.js"></script>
 </head>
 <body>
-  <h2>
-COMING SOON
-  </h2>
+
   <h1>
+COMING SOON
 THE GAIA PROJECT
-  </h1>
-  <h2>
 WHERE THE PLAYERS DECIDE HOW THE WORLD IS BUILT
-  </h2>
+  </h1>
 
   <p>
-    If you’d like to show your support for this project, come and follow us on 
-    <a href="https://x.com/gaiaprojectsol" target="_blank">X</a>.<br><br>
+    If you’d like to show your support for this project, follow us on
+    <a href="https://x.com/yourhandle" target="_blank">X</a>.<br><br>
     You can also donate to help cover the initial development costs — this will pre-order you one of the
-    <strong>Genesis NFTs</strong>, marking your place in the creation of the world and allowing you to help
-    shape its destiny. Details coming soon!
+    <strong>Genesis NFTs</strong>, marking your place in creation and allowing you to help shape the world. The first 100 Donations of 0.1 SOL will receive custom named character NFTs when they are released.
   </p>
+
+  <!-- Donation + Memo Section -->
+  <div id="donate">
+    <h2>🪙 Support the Project</h2>
+    <button id="connectBtn">🔌 Connect Phantom Wallet</button><br><br>
+
+    <input type="text" id="nameInput" placeholder="Your Name (for inclusion in the game)" /><br>
+    <textarea id="memoInput" rows="3" placeholder="Optional message to include with your donation..."></textarea><br>
+    <button id="sendBtn">🚀 Send 0.1 SOL + Memo</button>
+
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const web3 = solanaWeb3;
+    const MemoProgram = splMemo.MemoProgram;
+    const RECIPIENT = new web3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
+    const LAMPORTS = 0.1 * web3.LAMPORTS_PER_SOL; // 0.1 SOL
+
+    const connectBtn = document.getElementById('connectBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const statusEl = document.getElementById('status');
+    let provider = null;
+
+    connectBtn.onclick = async () => {
+      try {
+        const resp = await window.solana.connect();
+        provider = window.solana;
+        statusEl.innerText = "✅ Connected: " + resp.publicKey.toString();
+      } catch (err) {
+        statusEl.innerText = "❌ Connection failed.";
+      }
+    };
+
+    sendBtn.onclick = async () => {
+      if (!provider || !provider.publicKey) {
+        statusEl.innerText = "❌ Connect Phantom first.";
+        return;
+      }
+
+      const connection = new web3.Connection(web3.clusterApiUrl('devnet'));
+      const name = document.getElementById('nameInput').value.trim();
+      const memoText = document.getElementById('memoInput').value.trim();
+      const fullMemo = name ? `${name}: ${memoText || "Support donation"}` : memoText || "Support donation";
+
+      const instructions = [
+        web3.SystemProgram.transfer({
+          fromPubkey: provider.publicKey,
+          toPubkey: RECIPIENT,
+          lamports: LAMPORTS,
+        }),
+        MemoProgram.memo({ memo: fullMemo, programId: MemoProgram.programId })
+      ];
+
+      const tx = new web3.Transaction().add(...instructions);
+      tx.feePayer = provider.publicKey;
+      tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+      try {
+        const signed = await provider.signTransaction(tx);
+        const sig = await connection.sendRawTransaction(signed.serialize());
+        statusEl.innerHTML = `✅ Transaction sent! 
+          <a href="https://solscan.io/tx/${sig}?cluster=devnet" target="_blank">View on SolScan</a>`;
+      } catch (err) {
+        console.error(err);
+        statusEl.innerText = "❌ Transaction failed: " + err.message;
+      }
+    };
+  </script>
 </body>
 </html>
