@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Gaia Project — Send 0.1 SOL + Memo</title>
 <style>
 body{
@@ -26,23 +26,18 @@ a{color:#00ff99}
 
 <input id="memoInput" placeholder="Enter your character name or message"><br>
 <button id="sendBtn">Connect & Send 0.1 SOL</button>
-<p id="status">Waiting for wallet…</p>
+<p id="status">Waiting for wallet …</p>
 
-<!-- ✅ Improved Buffer shim -->
+<!-- ✅ 1.  Load a real Buffer polyfill that matches Node behaviour -->
+<script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.min.js"></script>
 <script>
-window.Buffer = {
-  from: (input, enc) => {
-    if (input instanceof Uint8Array) return input;
-    if (input instanceof ArrayBuffer) return new Uint8Array(input);
-    if (typeof input === "string") return new TextEncoder().encode(input);
-    throw new Error("Unsupported Buffer.from input type");
-  },
-};
+  window.Buffer = buffer.Buffer;   // expose global Buffer before web3.js loads
 </script>
 
-<!-- Load Solana web3.js -->
+<!-- ✅ 2.  Load Solana Web3 -->
 <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
 
+<!-- ✅ 3.  Main logic -->
 <script>
 const statusEl   = document.getElementById("status");
 const sendBtn    = document.getElementById("sendBtn");
@@ -63,7 +58,8 @@ sendBtn.onclick = async ()=>{
     const provider = window.phantom?.solana || window.solana;
     if(!provider?.isPhantom) throw new Error("Phantom wallet not found");
 
-    const resp = await provider.request({ method:"connect" });
+    // Connect Phantom
+    const resp = await provider.request({method:"connect"});
     const pubKey = provider.publicKey?.toString() || resp.publicKey?.toString();
     if(!pubKey) throw new Error("Failed to connect to Phantom");
     statusEl.textContent = "✅ Connected: " + pubKey;
@@ -92,7 +88,7 @@ sendBtn.onclick = async ()=>{
 
     const signed = await provider.signTransaction(tx);
     const sig = await connection.sendRawTransaction(signed.serialize());
-    await connection.confirmTransaction(sig, "confirmed");
+    await connection.confirmTransaction(sig,"confirmed");
 
     statusEl.innerHTML =
       `✅ Sent 0.1 SOL to ${RECIPIENT.toBase58()}<br>`+
@@ -100,7 +96,7 @@ sendBtn.onclick = async ()=>{
       `<a href="https://solscan.io/tx/${sig}" target="_blank">View on Solscan</a>`;
   }catch(err){
     console.error(err);
-    statusEl.textContent = "❌ " + (err.message || "Transaction failed.");
+    statusEl.textContent="❌ "+(err.message||"Transaction failed.");
   }
 };
 </script>
