@@ -1,97 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>The Gaia Project — Send 0.1 SOL + Memo</title>
-  <style>
-    body{
-      background:#000;color:#00ff99;font-family:"Courier New",monospace;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      min-height:100vh;text-align:center;margin:0
-    }
-    h2{margin-bottom:1rem}
-    input,button{
-      background:#000;color:#00ff99;border:1px solid #00ff99;
-      border-radius:6px;padding:.6rem 1rem;margin-top:.6rem;
-      font-family:"Courier New",monospace;width:80%;max-width:400px
-    }
-    button:hover{background:#00ff99;color:#000;cursor:pointer}
-    #status{margin-top:1rem;max-width:600px}
-    a{color:#00ff99}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Gaia Project — Send 0.1 SOL + Memo</title>
+<style>
+body{
+  background:#000;color:#00ff99;font-family:"Courier New",monospace;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;text-align:center;margin:0
+}
+h2{margin-bottom:1rem}
+input,button{
+  background:#000;color:#00ff99;border:1px solid #00ff99;
+  border-radius:6px;padding:.6rem 1rem;margin-top:.6rem;
+  font-family:"Courier New",monospace;width:80%;max-width:400px
+}
+button:hover{background:#00ff99;color:#000;cursor:pointer}
+#status{margin-top:1rem;max-width:600px}
+a{color:#00ff99}
+</style>
 </head>
 <body>
-  <h2>🔌 The Gaia Project — Send 0.1 SOL + Memo</h2>
+<h2>🔌 The Gaia Project — Send 0.1 SOL + Memo</h2>
 
-  <input id="memoInput" placeholder="Enter your character name or message"><br>
-  <button id="sendBtn">Connect & Send 0.1 SOL</button>
-  <p id="status">Waiting for wallet…</p>
+<input id="memoInput" placeholder="Enter your character name or message"><br>
+<button id="sendBtn">Connect & Send 0.1 SOL</button>
+<p id="status">Waiting for wallet…</p>
 
-  <!-- 1️⃣  Load Buffer *before* using it -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js" onload="window.Buffer=window.buffer.Buffer"></script>
+<!-- 1️⃣  Load Buffer polyfill first -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
 
-  <!-- 2️⃣  Load Solana Web3 after Buffer -->
-  <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
+<!-- 2️⃣  Load Solana web3.js -->
+<script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
 
-  <!-- 3️⃣  Main logic -->
-  <script>
+<!-- 3️⃣  Main logic waits until Buffer exists -->
+<script>
+window.addEventListener("load", async () => {
+  // Wait until the Buffer library has defined window.buffer
+  const waitForBuffer = () =>
+    new Promise(resolve => {
+      const check = () => (window.buffer ? resolve() : setTimeout(check, 50));
+      check();
+    });
+  await waitForBuffer();
+
+  // Define global Buffer now that library is loaded
+  window.Buffer = window.buffer.Buffer;
+
   const statusEl   = document.getElementById("status");
   const sendBtn    = document.getElementById("sendBtn");
   const RECIPIENT  = new solanaWeb3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
   const LAMPORTS   = 0.1 * solanaWeb3.LAMPORTS_PER_SOL;
   const MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
 
-  window.addEventListener("load",()=>{
-    if("solana" in window && (window.solana.isPhantom || window.phantom?.solana?.isPhantom)){
-      statusEl.textContent="🟢 Phantom detected — enter a memo and click Send.";
-    }else{
-      statusEl.innerHTML='❌ Phantom not detected. <a href="https://phantom.app/download" target="_blank" style="color:#00ff99;">Install here</a>.';
-    }
-  });
+  if ("solana" in window && (window.solana.isPhantom || window.phantom?.solana?.isPhantom)) {
+    statusEl.textContent = "🟢 Phantom detected — enter a memo and click Send.";
+  } else {
+    statusEl.innerHTML =
+      '❌ Phantom not detected. <a href="https://phantom.app/download" target="_blank" style="color:#00ff99;">Install here</a>.';
+    return;
+  }
 
-  sendBtn.onclick = async ()=>{
-    try{
+  sendBtn.onclick = async () => {
+    try {
       const provider = window.phantom?.solana || window.solana;
-      if(!provider?.isPhantom) throw new Error("Phantom wallet not found");
+      if (!provider?.isPhantom) throw new Error("Phantom wallet not found");
 
-      // Connect popup
-      const resp = await provider.request({method:"connect"});
+      const resp = await provider.request({ method: "connect" });
       const pubKey = provider.publicKey?.toString() || resp.publicKey?.toString();
-      if(!pubKey) throw new Error("Failed to connect to Phantom");
-      statusEl.textContent="✅ Connected: "+pubKey;
+      if (!pubKey) throw new Error("Failed to connect to Phantom");
+      statusEl.textContent = "✅ Connected: " + pubKey;
 
       const connection = new solanaWeb3.Connection(
-        solanaWeb3.clusterApiUrl("mainnet-beta"),"confirmed"
+        solanaWeb3.clusterApiUrl("mainnet-beta"),
+        "confirmed"
       );
 
-      const memoText=document.getElementById("memoInput").value.trim()||"Gaia supporter";
+      const memoText =
+        document.getElementById("memoInput").value.trim() || "Gaia supporter";
 
-      // Build memo + transfer
-      const memoIx=new solanaWeb3.TransactionInstruction({
-        keys:[],programId:MEMO_PROGRAM_ID,data:Buffer.from(memoText,"utf8"),
+      const memoIx = new solanaWeb3.TransactionInstruction({
+        keys: [],
+        programId: MEMO_PROGRAM_ID,
+        data: Buffer.from(memoText, "utf8"),
       });
-      const transferIx=solanaWeb3.SystemProgram.transfer({
-        fromPubkey:provider.publicKey,toPubkey:RECIPIENT,lamports:LAMPORTS,
+
+      const transferIx = solanaWeb3.SystemProgram.transfer({
+        fromPubkey: provider.publicKey,
+        toPubkey: RECIPIENT,
+        lamports: LAMPORTS,
       });
 
-      const tx=new solanaWeb3.Transaction().add(transferIx,memoIx);
-      tx.feePayer=provider.publicKey;
-      tx.recentBlockhash=(await connection.getLatestBlockhash()).blockhash;
+      const tx = new solanaWeb3.Transaction().add(transferIx, memoIx);
+      tx.feePayer = provider.publicKey;
+      tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
-      const signed=await provider.signTransaction(tx);
-      const sig=await connection.sendRawTransaction(signed.serialize());
-      await connection.confirmTransaction(sig,"confirmed");
+      const signed = await provider.signTransaction(tx);
+      const sig = await connection.sendRawTransaction(signed.serialize());
+      await connection.confirmTransaction(sig, "confirmed");
 
-      statusEl.innerHTML=
-        `✅ Sent 0.1 SOL to ${RECIPIENT.toBase58()}<br>`+
-        `📝 Memo: ${memoText}<br>`+
+      statusEl.innerHTML =
+        `✅ Sent 0.1 SOL to ${RECIPIENT.toBase58()}<br>` +
+        `📝 Memo: ${memoText}<br>` +
         `<a href="https://solscan.io/tx/${sig}" target="_blank">View on Solscan</a>`;
-    }catch(err){
+    } catch (err) {
       console.error(err);
-      statusEl.textContent="❌ "+(err.message||"Transaction failed.");
+      statusEl.textContent =
+        "❌ " + (err.message || "Transaction failed.");
     }
   };
-  </script>
+});
+</script>
 </body>
 </html>
