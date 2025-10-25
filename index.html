@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>The Gaia Project — Send 0.1 SOL + Memo</title>
 <style>
 body{
@@ -28,8 +28,18 @@ a{color:#00ff99}
 <button id="sendBtn">Connect & Send 0.1 SOL</button>
 <p id="status">Waiting for wallet…</p>
 
+<!-- ✅ 1. Load the Buffer polyfill *first* and create global Buffer -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
+<script>
+if (window.buffer && window.buffer.Buffer) {
+  window.Buffer = window.buffer.Buffer;
+}
+</script>
+
+<!-- ✅ 2. Load Solana web3.js after Buffer exists -->
 <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
 
+<!-- ✅ 3. Main logic -->
 <script>
 const statusEl   = document.getElementById("status");
 const sendBtn    = document.getElementById("sendBtn");
@@ -50,19 +60,18 @@ sendBtn.onclick = async ()=>{
     const provider = window.phantom?.solana || window.solana;
     if(!provider?.isPhantom) throw new Error("Phantom wallet not found");
 
-    // Connect wallet
-    const resp = await provider.request({ method:"connect" });
+    const resp = await provider.request({method:"connect"});
     const pubKey = provider.publicKey?.toString() || resp.publicKey?.toString();
     if(!pubKey) throw new Error("Failed to connect to Phantom");
-    statusEl.textContent = "✅ Connected: " + pubKey;
+    statusEl.textContent="✅ Connected: "+pubKey;
 
     const connection = new solanaWeb3.Connection(
-      solanaWeb3.clusterApiUrl("mainnet-beta"), "confirmed"
+      solanaWeb3.clusterApiUrl("mainnet-beta"),"confirmed"
     );
 
     const memoText = document.getElementById("memoInput").value.trim() || "Gaia supporter";
 
-    // ✅ Encode memo using native TextEncoder (no Buffer required)
+    // Use TextEncoder for the memo (safe for browsers)
     const memoIx = new solanaWeb3.TransactionInstruction({
       keys: [],
       programId: MEMO_PROGRAM_ID,
@@ -71,8 +80,8 @@ sendBtn.onclick = async ()=>{
 
     const transferIx = solanaWeb3.SystemProgram.transfer({
       fromPubkey: provider.publicKey,
-      toPubkey: RECIPIENT,
-      lamports: LAMPORTS,
+      toPubkey:   RECIPIENT,
+      lamports:   LAMPORTS,
     });
 
     const tx = new solanaWeb3.Transaction().add(transferIx, memoIx);
@@ -81,7 +90,7 @@ sendBtn.onclick = async ()=>{
 
     const signed = await provider.signTransaction(tx);
     const sig = await connection.sendRawTransaction(signed.serialize());
-    await connection.confirmTransaction(sig, "confirmed");
+    await connection.confirmTransaction(sig,"confirmed");
 
     statusEl.innerHTML =
       `✅ Sent 0.1 SOL to ${RECIPIENT.toBase58()}<br>`+
@@ -89,7 +98,7 @@ sendBtn.onclick = async ()=>{
       `<a href="https://solscan.io/tx/${sig}" target="_blank">View on Solscan</a>`;
   }catch(err){
     console.error(err);
-    statusEl.textContent = "❌ " + (err.message || "Transaction failed.");
+    statusEl.textContent="❌ "+(err.message||"Transaction failed.");
   }
 };
 </script>
