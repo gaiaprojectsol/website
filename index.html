@@ -45,7 +45,7 @@
     const connectBtn = document.getElementById('connectBtn');
     const statusEl = document.getElementById('status');
 
-    // Check if Phantom is available
+    // Check for Phantom
     window.addEventListener('load', () => {
       if ('solana' in window && window.solana.isPhantom) {
         statusEl.textContent = '🟢 Phantom detected — click Connect.';
@@ -54,7 +54,27 @@
       }
     });
 
-    // Connect button
+    // Proper modern connection flow
     connectBtn.onclick = async () => {
       try {
-        if (!('solana' in window)) throw new
+        const provider = window.phantom?.solana || window.solana;
+        if (!provider?.isPhantom) throw new Error('Phantom not found');
+
+        // This is the key: use the "request" method instead of connect()
+        const resp = await provider.request({ method: 'connect' });
+        console.log('Phantom connection response:', resp);
+
+        const pubKey = provider.publicKey?.toString() || resp.publicKey?.toString();
+        if (pubKey) {
+          statusEl.textContent = '✅ Connected: ' + pubKey;
+        } else {
+          statusEl.textContent = '⚠️ Connected, but public key not found.';
+        }
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = '❌ ' + (err.message || 'Connection cancelled.');
+      }
+    };
+  </script>
+</body>
+</html>
