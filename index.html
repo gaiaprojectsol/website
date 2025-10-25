@@ -1,59 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Phantom Connect Test</title>
-<style>
-body{
-  background:#000;color:#0f0;font-family:Courier,monospace;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  height:100vh;text-align:center
-}
-button{margin-top:1rem;padding:.6rem 1rem;border:1px solid #0f0;background:#000;color:#0f0;border-radius:6px}
-button:hover{background:#0f0;color:#000;cursor:pointer}
-</style>
-</head>
-<body>
-<h2>🔌 Phantom Wallet Connection Test</h2>
-<p id="status">Waiting…</p>
-<button id="connectBtn">Connect Phantom</button>
+<script type="module">
+  import { Connection, PublicKey, SystemProgram, Transaction, clusterApiUrl } 
+    from "https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js";
 
-<script>
-const connectBtn=document.getElementById("connectBtn");
-const statusEl=document.getElementById("status");
+  const RECIPIENT = new PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
+  const LAMPORTS = 0.1 * 1_000_000_000; // 0.1 SOL = 100 million lamports
 
-async function getProvider(){
-  if("solana" in window){
-    const provider=window.solana;
-    if(provider.isPhantom) return provider;
+  const connectBtn = document.getElementById("connectBtn");
+  const statusEl   = document.getElementById("status");
+
+  async function getProvider() {
+    if ("solana" in window && window.solana.isPhantom) return window.solana;
+    throw new Error("Phantom wallet not found");
   }
-  throw new Error("Phantom wallet not found");
-}
 
-connectBtn.onclick=async()=>{
-  try{
-    const provider=await getProvider();
-    const resp=await provider.connect({onlyIfTrusted:false});
-    statusEl.textContent="✅ Connected: "+resp.publicKey.toString();
-  }catch(e){
-    console.error(e);
-    statusEl.textContent="❌ "+e.message;
-  }
-};
+  connectBtn.onclick = async () => {
+    try {
+      const provider = await getProvider();
+      const resp = await provider.connect({ onlyIfTrusted:false });
+      const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
-// auto-detect on load
-window.addEventListener("load",()=>{
-  if("solana" in window){
-    if(window.solana.isPhantom){
-      statusEl.textContent="🟢 Phantom detected — click Connect.";
-    }else{
-      statusEl.textContent="⚠️ Solana wallet found, but not Phantom.";
+      // ---- build a transfer transaction ----
+      const tx = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: provider.publicKey,
+          toPubkey:   RECIPIENT,
+          lamports:   LAMPORTS,
+        })
+      );
+
+      tx.feePayer = provider.publicKey;
+      tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+      const signed = await provider.signTransaction(tx);
+      const sig    = await connection.sendRawTransaction(signed.serialize());
+      await connection.confirmTransaction(sig,"confirmed");
+
+      statusEl.innerHTML =
+        `✅ Sent 0.1 SOL to<br>${RECIPIENT.toBase58()}<br>`+
+        `<a href="https://solscan.io/tx/${sig}?cluster=devnet" target="_blank">View on Solscan</a>`;
+    } catch (e) {
+      console.error(e);
+      statusEl.textContent = "❌ " + e.message;
     }
-  }else{
-    statusEl.innerHTML='❌ No Phantom wallet detected. <a href="https://phantom.app/download" target="_blank" style="color:#0f0">Install here</a>.';
-  }
-});
+  };
 </script>
-</body>
-</html>
