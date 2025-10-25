@@ -44,7 +44,7 @@
     @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #00ff99 } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* --- Donation Section --- */
+    /* Donation Section */
     #donate {
       margin-top: 4rem;
       border-top: 1px solid #00ff99;
@@ -67,23 +67,23 @@
     #status { margin-top: 1rem; font-size: 0.9rem; }
   </style>
 
-  <!-- Solana Libraries -->
-  <script src="https://unpkg.com/@solana/web3.js@1.75.0/lib/index.iife.js"></script>
+  <!-- Solana libraries -->
+  <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
   <script src="https://unpkg.com/@solana/spl-memo@0.1.5/lib/index.iife.js"></script>
 </head>
 <body>
-
   <h1>
-COMING SOON
 THE GAIA PROJECT
 WHERE THE PLAYERS DECIDE HOW THE WORLD IS BUILT
   </h1>
-
+  <h2>
+    COMING SOON
+  </h2>
   <p>
     If you’d like to show your support for this project, follow us on
     <a href="https://x.com/yourhandle" target="_blank">X</a>.<br><br>
     You can also donate to help cover the initial development costs — this will pre-order you one of the
-    <strong>Genesis NFTs</strong>, marking your place in creation and allowing you to help shape the world. The first 100 Donations of 0.1 SOL will receive custom named character NFTs when they are released.
+    <strong>Genesis NFTs</strong>, marking your place in creation and allowing you to help shape the world.
   </p>
 
   <!-- Donation + Memo Section -->
@@ -109,23 +109,40 @@ WHERE THE PLAYERS DECIDE HOW THE WORLD IS BUILT
     const statusEl = document.getElementById('status');
     let provider = null;
 
-    connectBtn.onclick = async () => {
-      try {
-        const resp = await window.solana.connect();
+    // Wait for wallet to be ready
+    window.onload = () => {
+      if ('solana' in window) {
         provider = window.solana;
-        statusEl.innerText = "✅ Connected: " + resp.publicKey.toString();
-      } catch (err) {
-        statusEl.innerText = "❌ Connection failed.";
+        if (provider.isPhantom) {
+          statusEl.innerText = "🟢 Phantom wallet detected.";
+        } else {
+          statusEl.innerText = "⚠️ Solana wallet detected but not Phantom.";
+        }
+      } else {
+        statusEl.innerHTML = '❌ Phantom not detected. <a href="https://phantom.app/download" target="_blank" style="color:#00ff99">Install here</a>.';
       }
     };
 
+    // Connect button
+    connectBtn.onclick = async () => {
+      try {
+        const resp = await window.solana.connect({ onlyIfTrusted: false });
+        provider = window.solana;
+        statusEl.innerText = "✅ Connected: " + resp.publicKey.toString();
+      } catch (err) {
+        console.error(err);
+        statusEl.innerText = "❌ Connection failed or cancelled.";
+      }
+    };
+
+    // Send 0.1 SOL + memo
     sendBtn.onclick = async () => {
       if (!provider || !provider.publicKey) {
         statusEl.innerText = "❌ Connect Phantom first.";
         return;
       }
 
-      const connection = new web3.Connection(web3.clusterApiUrl('devnet'));
+      const connection = new web3.Connection(web3.clusterApiUrl('devnet')); // change to mainnet-beta when ready
       const name = document.getElementById('nameInput').value.trim();
       const memoText = document.getElementById('memoInput').value.trim();
       const fullMemo = name ? `${name}: ${memoText || "Support donation"}` : memoText || "Support donation";
@@ -146,7 +163,8 @@ WHERE THE PLAYERS DECIDE HOW THE WORLD IS BUILT
       try {
         const signed = await provider.signTransaction(tx);
         const sig = await connection.sendRawTransaction(signed.serialize());
-        statusEl.innerHTML = `✅ Transaction sent! 
+        await connection.confirmTransaction(sig, 'confirmed');
+        statusEl.innerHTML = `✅ Transaction successful! 
           <a href="https://solscan.io/tx/${sig}?cluster=devnet" target="_blank">View on SolScan</a>`;
       } catch (err) {
         console.error(err);
@@ -156,3 +174,4 @@ WHERE THE PLAYERS DECIDE HOW THE WORLD IS BUILT
   </script>
 </body>
 </html>
+
