@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>The Gaia Project — Send 0.1 SOL + Memo</title>
 <style>
 body{
@@ -28,16 +28,17 @@ a{color:#00ff99}
 <button id="sendBtn">Connect & Send 0.1 SOL</button>
 <p id="status">Waiting for wallet …</p>
 
-<!-- ✅ 1.  Load a real Buffer polyfill that matches Node behaviour -->
-<script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.min.js"></script>
+<!-- ✅ 1️⃣ Load the full Buffer polyfill from cdnjs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
 <script>
-  window.Buffer = buffer.Buffer;   // expose global Buffer before web3.js loads
+  /* ensure global Buffer reference exists exactly as Node exports it */
+  window.Buffer = window.buffer.Buffer;
 </script>
 
-<!-- ✅ 2.  Load Solana Web3 -->
+<!-- ✅ 2️⃣ Load Solana web3.js AFTER Buffer is defined -->
 <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
 
-<!-- ✅ 3.  Main logic -->
+<!-- ✅ 3️⃣ Main logic -->
 <script>
 const statusEl   = document.getElementById("status");
 const sendBtn    = document.getElementById("sendBtn");
@@ -88,7 +89,7 @@ sendBtn.onclick = async ()=>{
 
     const signed = await provider.signTransaction(tx);
     const sig = await connection.sendRawTransaction(signed.serialize());
-    await connection.confirmTransaction(sig,"confirmed");
+    await connection.confirmTransaction(sig, "confirmed");
 
     statusEl.innerHTML =
       `✅ Sent 0.1 SOL to ${RECIPIENT.toBase58()}<br>`+
@@ -96,7 +97,7 @@ sendBtn.onclick = async ()=>{
       `<a href="https://solscan.io/tx/${sig}" target="_blank">View on Solscan</a>`;
   }catch(err){
     console.error(err);
-    statusEl.textContent="❌ "+(err.message||"Transaction failed.");
+    statusEl.textContent = "❌ " + (err.message || "Transaction failed.");
   }
 };
 </script>
