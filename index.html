@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Gaia Project — Send 0.1 SOL + Memo (Mainnet)</title>
+<title>The Gaia Project — Send 0.1 SOL</title>
 <style>
 body{
   background:#000;color:#00ff99;font-family:"Courier New",monospace;
@@ -11,7 +11,7 @@ body{
   height:100vh;text-align:center;margin:0
 }
 h2{margin-bottom:1rem}
-input,button{
+button{
   background:#000;color:#00ff99;border:1px solid #00ff99;
   border-radius:6px;padding:.6rem 1rem;margin-top:.6rem;
   font-family:"Courier New",monospace;width:80%;max-width:400px
@@ -22,9 +22,8 @@ a{color:#00ff99}
 </style>
 </head>
 <body>
-<h2>🔌 The Gaia Project — Send 0.1 SOL + Memo</h2>
+<h2>🔌 The Gaia Project — Send 0.1 SOL</h2>
 
-<input id="memoInput" placeholder="Enter your character name" /><br>
 <button id="connectBtn">Connect Phantom & Send 0.1 SOL</button>
 <p id="status">Waiting for wallet...</p>
 
@@ -38,8 +37,6 @@ window.Buffer = buffer.Buffer;
 
 const RECIPIENT = new solanaWeb3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
 const LAMPORTS  = 0.1 * solanaWeb3.LAMPORTS_PER_SOL;
-const MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
-
 const connectBtn = document.getElementById("connectBtn");
 const statusEl   = document.getElementById("status");
 
@@ -58,21 +55,13 @@ connectBtn.onclick = async ()=>{
       solanaWeb3.clusterApiUrl("mainnet-beta"), "confirmed"
     );
 
-    const memoText = document.getElementById("memoInput").value.trim() || "Gaia supporter";
-
-    const memoInstruction = new solanaWeb3.TransactionInstruction({
-      keys: [],
-      programId: MEMO_PROGRAM_ID,
-      data: Buffer.from(memoText, "utf8"),
-    });
-
-    const transferInstruction = solanaWeb3.SystemProgram.transfer({
-      fromPubkey: provider.publicKey,
-      toPubkey:   RECIPIENT,
-      lamports:   LAMPORTS,
-    });
-
-    const tx = new solanaWeb3.Transaction().add(transferInstruction, memoInstruction);
+    const tx = new solanaWeb3.Transaction().add(
+      solanaWeb3.SystemProgram.transfer({
+        fromPubkey: provider.publicKey,
+        toPubkey:   RECIPIENT,
+        lamports:   LAMPORTS,
+      })
+    );
     tx.feePayer = provider.publicKey;
     tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
@@ -82,7 +71,6 @@ connectBtn.onclick = async ()=>{
 
     statusEl.innerHTML =
       `✅ Sent 0.1 SOL to ${RECIPIENT.toBase58()}<br>`+
-      `📝 Memo: ${memoText}<br>`+
       `<a href="https://solscan.io/tx/${sig}" target="_blank">View on Solscan</a>`;
   }catch(e){
     console.error(e);
@@ -92,7 +80,7 @@ connectBtn.onclick = async ()=>{
 
 window.addEventListener("load",()=>{
   if("solana" in window && window.solana.isPhantom){
-    statusEl.textContent="🟢 Phantom detected — enter a name and click Send.";
+    statusEl.textContent="🟢 Phantom detected — click the button to connect and send.";
   }else{
     statusEl.innerHTML='❌ Phantom not detected. <a href="https://phantom.app/download" target="_blank">Install here</a>.';
   }
