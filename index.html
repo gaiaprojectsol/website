@@ -28,17 +28,21 @@ a{color:#00ff99}
 <button id="sendBtn">Connect & Send 0.1 SOL</button>
 <p id="status">Waiting for wallet…</p>
 
-<!-- 1️⃣  Minimal Buffer shim -->
+<!-- ✅ Improved Buffer shim -->
 <script>
 window.Buffer = {
-  from: (str, enc) => new Uint8Array(new TextEncoder().encode(str))
+  from: (input, enc) => {
+    if (input instanceof Uint8Array) return input;
+    if (input instanceof ArrayBuffer) return new Uint8Array(input);
+    if (typeof input === "string") return new TextEncoder().encode(input);
+    throw new Error("Unsupported Buffer.from input type");
+  },
 };
 </script>
 
-<!-- 2️⃣  Load Solana Web3.js after the shim -->
+<!-- Load Solana web3.js -->
 <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
 
-<!-- 3️⃣  Main logic -->
 <script>
 const statusEl   = document.getElementById("status");
 const sendBtn    = document.getElementById("sendBtn");
@@ -59,7 +63,6 @@ sendBtn.onclick = async ()=>{
     const provider = window.phantom?.solana || window.solana;
     if(!provider?.isPhantom) throw new Error("Phantom wallet not found");
 
-    // Connect wallet
     const resp = await provider.request({ method:"connect" });
     const pubKey = provider.publicKey?.toString() || resp.publicKey?.toString();
     if(!pubKey) throw new Error("Failed to connect to Phantom");
@@ -71,14 +74,12 @@ sendBtn.onclick = async ()=>{
 
     const memoText = document.getElementById("memoInput").value.trim() || "Gaia supporter";
 
-    // Memo instruction (uses our shimmed Buffer)
     const memoIx = new solanaWeb3.TransactionInstruction({
       keys: [],
       programId: MEMO_PROGRAM_ID,
       data: Buffer.from(memoText, "utf8"),
     });
 
-    // 0.1 SOL transfer
     const transferIx = solanaWeb3.SystemProgram.transfer({
       fromPubkey: provider.publicKey,
       toPubkey:   RECIPIENT,
