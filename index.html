@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Gaia Project — Send 0.1 SOL + Memo</title>
+<title>The Gaia Project — Send 0.1 SOL + Memo (Mainnet)</title>
 <style>
 body{
   background:#000;color:#00ff99;font-family:"Courier New",monospace;
@@ -24,21 +24,22 @@ a{color:#00ff99}
 <body>
 <h2>🔌 The Gaia Project — Send 0.1 SOL + Memo</h2>
 
-<input id="memoInput" placeholder="Enter your character name (memo)" /><br>
+<input id="memoInput" placeholder="Enter your character name" /><br>
 <button id="connectBtn">Connect Phantom & Send 0.1 SOL</button>
 <p id="status">Waiting for wallet...</p>
 
-<!-- Polyfill for Buffer -->
+<!-- Buffer polyfill -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
 
-<!-- Solana libraries -->
+<!-- Solana Web3.js -->
 <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
-<script src="https://unpkg.com/@solana/spl-memo@0.1.5/lib/index.iife.js"></script>
-
 <script>
-window.Buffer = buffer.Buffer; // fix for web3.js in browser
+window.Buffer = buffer.Buffer;
+
 const RECIPIENT = new solanaWeb3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
 const LAMPORTS  = 0.1 * solanaWeb3.LAMPORTS_PER_SOL;
+const MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
+
 const connectBtn = document.getElementById("connectBtn");
 const statusEl   = document.getElementById("status");
 
@@ -54,20 +55,24 @@ connectBtn.onclick = async ()=>{
     statusEl.textContent = "✅ Connected: " + resp.publicKey.toString();
 
     const connection = new solanaWeb3.Connection(
-      solanaWeb3.clusterApiUrl("devnet"), "confirmed"
+      solanaWeb3.clusterApiUrl("mainnet-beta"), "confirmed"
     );
 
     const memoText = document.getElementById("memoInput").value.trim() || "Gaia supporter";
-    const instructions = [
-      solanaWeb3.SystemProgram.transfer({
-        fromPubkey: provider.publicKey,
-        toPubkey:   RECIPIENT,
-        lamports:   LAMPORTS,
-      }),
-      splMemo.MemoProgram.memo({ memo: memoText })
-    ];
 
-    const tx = new solanaWeb3.Transaction().add(...instructions);
+    const memoInstruction = new solanaWeb3.TransactionInstruction({
+      keys: [],
+      programId: MEMO_PROGRAM_ID,
+      data: Buffer.from(memoText, "utf8"),
+    });
+
+    const transferInstruction = solanaWeb3.SystemProgram.transfer({
+      fromPubkey: provider.publicKey,
+      toPubkey:   RECIPIENT,
+      lamports:   LAMPORTS,
+    });
+
+    const tx = new solanaWeb3.Transaction().add(transferInstruction, memoInstruction);
     tx.feePayer = provider.publicKey;
     tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
@@ -78,14 +83,13 @@ connectBtn.onclick = async ()=>{
     statusEl.innerHTML =
       `✅ Sent 0.1 SOL to ${RECIPIENT.toBase58()}<br>`+
       `📝 Memo: ${memoText}<br>`+
-      `<a href="https://solscan.io/tx/${sig}?cluster=devnet" target="_blank">View on Solscan</a>`;
+      `<a href="https://solscan.io/tx/${sig}" target="_blank">View on Solscan</a>`;
   }catch(e){
     console.error(e);
     statusEl.textContent = "❌ " + e.message;
   }
 };
 
-// Detect Phantom on load
 window.addEventListener("load",()=>{
   if("solana" in window && window.solana.isPhantom){
     statusEl.textContent="🟢 Phantom detected — enter a name and click Send.";
