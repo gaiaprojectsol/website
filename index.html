@@ -28,10 +28,16 @@ a{color:#00ff99}
 <button id="sendBtn">Connect & Send 0.1 SOL</button>
 <p id="status">Waiting for wallet...</p>
 
+<!-- ✅ Buffer polyfill (needed for browsers) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
+
 <!-- Solana web3.js -->
 <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
 
 <script>
+// ✅ Fix: make Buffer available globally for Solana + memo encoding
+window.Buffer = buffer.Buffer;
+
 const statusEl   = document.getElementById("status");
 const sendBtn    = document.getElementById("sendBtn");
 const RECIPIENT  = new solanaWeb3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
@@ -51,20 +57,19 @@ sendBtn.onclick = async ()=>{
     const provider = window.phantom?.solana || window.solana;
     if(!provider?.isPhantom) throw new Error("Phantom wallet not found");
 
-    // Request connection popup
+    // Request wallet connection
     const resp = await provider.request({ method:"connect" });
     const pubKey = provider.publicKey?.toString() || resp.publicKey?.toString();
     if(!pubKey) throw new Error("Failed to connect to Phantom");
-
     statusEl.textContent = "✅ Connected: " + pubKey;
 
     const connection = new solanaWeb3.Connection(
       solanaWeb3.clusterApiUrl("mainnet-beta"), "confirmed"
     );
 
-    // Build transaction: transfer + memo
     const memoText = document.getElementById("memoInput").value.trim() || "Gaia supporter";
 
+    // ✅ Use Buffer to encode memo text (now works)
     const memoInstruction = new solanaWeb3.TransactionInstruction({
       keys: [],
       programId: MEMO_PROGRAM_ID,
@@ -81,7 +86,6 @@ sendBtn.onclick = async ()=>{
     tx.feePayer = provider.publicKey;
     tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
-    // Ask Phantom to sign & send
     const signed = await provider.signTransaction(tx);
     const sig = await connection.sendRawTransaction(signed.serialize());
     await connection.confirmTransaction(sig, "confirmed");
