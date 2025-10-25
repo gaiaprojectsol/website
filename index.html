@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Gaia Project — Coming Soon</title>
   <style>
     body {
@@ -34,17 +34,13 @@
       animation-delay: 6.5s;
       line-height: 1.5;
     }
-    a {
-      color: #00ff99;
-      text-decoration: none;
-      font-weight: bold;
-    }
+    a { color: #00ff99; text-decoration: none; font-weight: bold; }
     a:hover { text-decoration: underline; }
+
     @keyframes typing { from { width: 0 } to { width: 100% } }
     @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #00ff99 } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* Donation Section */
     #donate {
       margin-top: 4rem;
       border-top: 1px solid #00ff99;
@@ -65,20 +61,45 @@
     }
     button:hover { background: #00ff99; color: #000; cursor: pointer; }
     #status { margin-top: 1rem; font-size: 0.9rem; }
-  </style>
 
-  <!-- Solana libraries -->
-  <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
-  <script src="https://unpkg.com/@solana/spl-memo@0.1.5/lib/index.iife.js"></script>
+    /* Modal */
+    #thankyouModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      color: #00ff99;
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+    #thankyouModal.show {
+      display: flex;
+      opacity: 1;
+    }
+    .modal-content {
+      border: 1px solid #00ff99;
+      border-radius: 8px;
+      padding: 2rem;
+      max-width: 400px;
+      background: #000;
+      box-shadow: 0 0 20px rgba(0, 255, 153, 0.3);
+    }
+  </style>
 </head>
 <body>
   <h1>
+COMING SOON
 THE GAIA PROJECT
 WHERE THE PLAYERS DECIDE HOW THE WORLD IS BUILT
   </h1>
-  <h2>
-    COMING SOON
-  </h2>
+
   <p>
     If you’d like to show your support for this project, follow us on
     <a href="https://x.com/yourhandle" target="_blank">X</a>.<br><br>
@@ -86,7 +107,6 @@ WHERE THE PLAYERS DECIDE HOW THE WORLD IS BUILT
     <strong>Genesis NFTs</strong>, marking your place in creation and allowing you to help shape the world.
   </p>
 
-  <!-- Donation + Memo Section -->
   <div id="donate">
     <h2>🪙 Support the Project</h2>
     <button id="connectBtn">🔌 Connect Phantom Wallet</button><br><br>
@@ -98,36 +118,40 @@ WHERE THE PLAYERS DECIDE HOW THE WORLD IS BUILT
     <p id="status"></p>
   </div>
 
+  <div id="thankyouModal">
+    <div class="modal-content">
+      <h3>✨ Thank you for supporting The Gaia Project ✨</h3>
+      <p>Your Genesis NFT pre-order has been recorded.<br>
+      Together, we shape the new world.</p>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
+  <script src="https://unpkg.com/@solana/spl-memo@0.1.5/lib/index.iife.js"></script>
   <script>
     const web3 = solanaWeb3;
     const MemoProgram = splMemo.MemoProgram;
     const RECIPIENT = new web3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
     const LAMPORTS = 0.1 * web3.LAMPORTS_PER_SOL; // 0.1 SOL
 
-    const connectBtn = document.getElementById('connectBtn');
-    const sendBtn = document.getElementById('sendBtn');
-    const statusEl = document.getElementById('status');
+    const connectBtn = document.getElementById("connectBtn");
+    const sendBtn = document.getElementById("sendBtn");
+    const statusEl = document.getElementById("status");
+    const modal = document.getElementById("thankyouModal");
     let provider = null;
 
-    // Wait for wallet to be ready
-    window.onload = () => {
-      if ('solana' in window) {
-        provider = window.solana;
-        if (provider.isPhantom) {
-          statusEl.innerText = "🟢 Phantom wallet detected.";
-        } else {
-          statusEl.innerText = "⚠️ Solana wallet detected but not Phantom.";
-        }
-      } else {
-        statusEl.innerHTML = '❌ Phantom not detected. <a href="https://phantom.app/download" target="_blank" style="color:#00ff99">Install here</a>.';
+    async function getProvider() {
+      if ("phantom" in window && window.phantom?.solana?.isPhantom) {
+        return window.phantom.solana;
       }
-    };
+      statusEl.innerHTML = '❌ Phantom not detected. <a href="https://phantom.app/download" target="_blank" style="color:#00ff99">Install here</a>.';
+      throw new Error("Phantom not installed");
+    }
 
-    // Connect button
     connectBtn.onclick = async () => {
       try {
-        const resp = await window.solana.connect({ onlyIfTrusted: false });
-        provider = window.solana;
+        provider = await getProvider();
+        const resp = await provider.connect({ onlyIfTrusted: false });
         statusEl.innerText = "✅ Connected: " + resp.publicKey.toString();
       } catch (err) {
         console.error(err);
@@ -135,37 +159,43 @@ WHERE THE PLAYERS DECIDE HOW THE WORLD IS BUILT
       }
     };
 
-    // Send 0.1 SOL + memo
     sendBtn.onclick = async () => {
-      if (!provider || !provider.publicKey) {
-        statusEl.innerText = "❌ Connect Phantom first.";
-        return;
-      }
-
-      const connection = new web3.Connection(web3.clusterApiUrl('devnet')); // change to mainnet-beta when ready
-      const name = document.getElementById('nameInput').value.trim();
-      const memoText = document.getElementById('memoInput').value.trim();
-      const fullMemo = name ? `${name}: ${memoText || "Support donation"}` : memoText || "Support donation";
-
-      const instructions = [
-        web3.SystemProgram.transfer({
-          fromPubkey: provider.publicKey,
-          toPubkey: RECIPIENT,
-          lamports: LAMPORTS,
-        }),
-        MemoProgram.memo({ memo: fullMemo, programId: MemoProgram.programId })
-      ];
-
-      const tx = new web3.Transaction().add(...instructions);
-      tx.feePayer = provider.publicKey;
-      tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-
       try {
-        const signed = await provider.signTransaction(tx);
-        const sig = await connection.sendRawTransaction(signed.serialize());
-        await connection.confirmTransaction(sig, 'confirmed');
+        provider = provider || await getProvider();
+        if (!provider.publicKey) {
+          await provider.connect();
+        }
+
+        const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+        const name = document.getElementById("nameInput").value.trim();
+        const memoText = document.getElementById("memoInput").value.trim();
+        const fullMemo = name ? `${name}: ${memoText || "Support donation"}` : memoText || "Support donation";
+
+        const instructions = [
+          web3.SystemProgram.transfer({
+            fromPubkey: provider.publicKey,
+            toPubkey: RECIPIENT,
+            lamports: LAMPORTS,
+          }),
+          MemoProgram.memo({ memo: fullMemo })
+        ];
+
+        const tx = new web3.Transaction().add(...instructions);
+        tx.feePayer = provider.publicKey;
+        tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+        const signedTx = await provider.signTransaction(tx);
+        const sig = await connection.sendRawTransaction(signedTx.serialize());
+        await connection.confirmTransaction(sig, "confirmed");
+
         statusEl.innerHTML = `✅ Transaction successful! 
           <a href="https://solscan.io/tx/${sig}?cluster=devnet" target="_blank">View on SolScan</a>`;
+
+        modal.classList.add("show");
+        setTimeout(() => {
+          modal.classList.remove("show");
+        }, 4000);
+
       } catch (err) {
         console.error(err);
         statusEl.innerText = "❌ Transaction failed: " + err.message;
@@ -174,4 +204,3 @@ WHERE THE PLAYERS DECIDE HOW THE WORLD IS BUILT
   </script>
 </body>
 </html>
-
