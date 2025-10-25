@@ -1,206 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Gaia Project — Coming Soon</title>
-  <style>
-    body {
-      background-color: #000;
-      color: #00ff99;
-      font-family: 'Courier New', monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      text-align: center;
-      padding: 0 1rem;
-    }
-    h1 {
-      font-size: 2.5rem;
-      white-space: pre-line;
-      overflow: hidden;
-      border-right: 0.15em solid #00ff99;
-      animation: typing 6s steps(60, end), blink-caret 0.8s step-end infinite;
-      margin-bottom: 2rem;
-    }
-    p {
-      font-size: 1rem;
-      opacity: 0;
-      max-width: 600px;
-      animation: fadeIn 3s ease-in forwards;
-      animation-delay: 6.5s;
-      line-height: 1.5;
-    }
-    a { color: #00ff99; text-decoration: none; font-weight: bold; }
-    a:hover { text-decoration: underline; }
-
-    @keyframes typing { from { width: 0 } to { width: 100% } }
-    @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #00ff99 } }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    #donate {
-      margin-top: 4rem;
-      border-top: 1px solid #00ff99;
-      padding-top: 2rem;
-      width: 100%;
-      max-width: 600px;
-    }
-    input, textarea, button {
-      background: #000;
-      color: #00ff99;
-      border: 1px solid #00ff99;
-      border-radius: 4px;
-      padding: 0.6rem;
-      margin-top: 0.6rem;
-      width: 90%;
-      max-width: 480px;
-      font-family: 'Courier New', monospace;
-    }
-    button:hover { background: #00ff99; color: #000; cursor: pointer; }
-    #status { margin-top: 1rem; font-size: 0.9rem; }
-
-    /* Modal */
-    #thankyouModal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.85);
-      color: #00ff99;
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
-    }
-    #thankyouModal.show {
-      display: flex;
-      opacity: 1;
-    }
-    .modal-content {
-      border: 1px solid #00ff99;
-      border-radius: 8px;
-      padding: 2rem;
-      max-width: 400px;
-      background: #000;
-      box-shadow: 0 0 20px rgba(0, 255, 153, 0.3);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Phantom Connect Test</title>
+<style>
+body{
+  background:#000;color:#0f0;font-family:Courier,monospace;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100vh;text-align:center
+}
+button{margin-top:1rem;padding:.6rem 1rem;border:1px solid #0f0;background:#000;color:#0f0;border-radius:6px}
+button:hover{background:#0f0;color:#000;cursor:pointer}
+</style>
 </head>
 <body>
-  <h1>
-COMING SOON
-THE GAIA PROJECT
-WHERE THE PLAYERS DECIDE HOW THE WORLD IS BUILT
-  </h1>
+<h2>🔌 Phantom Wallet Connection Test</h2>
+<p id="status">Waiting…</p>
+<button id="connectBtn">Connect Phantom</button>
 
-  <p>
-    If you’d like to show your support for this project, follow us on
-    <a href="https://x.com/yourhandle" target="_blank">X</a>.<br><br>
-    You can also donate to help cover the initial development costs — this will pre-order you one of the
-    <strong>Genesis NFTs</strong>, marking your place in creation and allowing you to help shape the world.
-  </p>
+<script>
+const connectBtn=document.getElementById("connectBtn");
+const statusEl=document.getElementById("status");
 
-  <div id="donate">
-    <h2>🪙 Support the Project</h2>
-    <button id="connectBtn">🔌 Connect Phantom Wallet</button><br><br>
+async function getProvider(){
+  if("solana" in window){
+    const provider=window.solana;
+    if(provider.isPhantom) return provider;
+  }
+  throw new Error("Phantom wallet not found");
+}
 
-    <input type="text" id="nameInput" placeholder="Your Name (for inclusion in the game)" /><br>
-    <textarea id="memoInput" rows="3" placeholder="Optional message to include with your donation..."></textarea><br>
-    <button id="sendBtn">🚀 Send 0.1 SOL + Memo</button>
+connectBtn.onclick=async()=>{
+  try{
+    const provider=await getProvider();
+    const resp=await provider.connect({onlyIfTrusted:false});
+    statusEl.textContent="✅ Connected: "+resp.publicKey.toString();
+  }catch(e){
+    console.error(e);
+    statusEl.textContent="❌ "+e.message;
+  }
+};
 
-    <p id="status"></p>
-  </div>
-
-  <div id="thankyouModal">
-    <div class="modal-content">
-      <h3>✨ Thank you for supporting The Gaia Project ✨</h3>
-      <p>Your Genesis NFT pre-order has been recorded.<br>
-      Together, we shape the new world.</p>
-    </div>
-  </div>
-
-  <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
-  <script src="https://unpkg.com/@solana/spl-memo@0.1.5/lib/index.iife.js"></script>
-  <script>
-    const web3 = solanaWeb3;
-    const MemoProgram = splMemo.MemoProgram;
-    const RECIPIENT = new web3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
-    const LAMPORTS = 0.1 * web3.LAMPORTS_PER_SOL; // 0.1 SOL
-
-    const connectBtn = document.getElementById("connectBtn");
-    const sendBtn = document.getElementById("sendBtn");
-    const statusEl = document.getElementById("status");
-    const modal = document.getElementById("thankyouModal");
-    let provider = null;
-
-    async function getProvider() {
-      if ("phantom" in window && window.phantom?.solana?.isPhantom) {
-        return window.phantom.solana;
-      }
-      statusEl.innerHTML = '❌ Phantom not detected. <a href="https://phantom.app/download" target="_blank" style="color:#00ff99">Install here</a>.';
-      throw new Error("Phantom not installed");
+// auto-detect on load
+window.addEventListener("load",()=>{
+  if("solana" in window){
+    if(window.solana.isPhantom){
+      statusEl.textContent="🟢 Phantom detected — click Connect.";
+    }else{
+      statusEl.textContent="⚠️ Solana wallet found, but not Phantom.";
     }
-
-    connectBtn.onclick = async () => {
-      try {
-        provider = await getProvider();
-        const resp = await provider.connect({ onlyIfTrusted: false });
-        statusEl.innerText = "✅ Connected: " + resp.publicKey.toString();
-      } catch (err) {
-        console.error(err);
-        statusEl.innerText = "❌ Connection failed or cancelled.";
-      }
-    };
-
-    sendBtn.onclick = async () => {
-      try {
-        provider = provider || await getProvider();
-        if (!provider.publicKey) {
-          await provider.connect();
-        }
-
-        const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
-        const name = document.getElementById("nameInput").value.trim();
-        const memoText = document.getElementById("memoInput").value.trim();
-        const fullMemo = name ? `${name}: ${memoText || "Support donation"}` : memoText || "Support donation";
-
-        const instructions = [
-          web3.SystemProgram.transfer({
-            fromPubkey: provider.publicKey,
-            toPubkey: RECIPIENT,
-            lamports: LAMPORTS,
-          }),
-          MemoProgram.memo({ memo: fullMemo })
-        ];
-
-        const tx = new web3.Transaction().add(...instructions);
-        tx.feePayer = provider.publicKey;
-        tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-
-        const signedTx = await provider.signTransaction(tx);
-        const sig = await connection.sendRawTransaction(signedTx.serialize());
-        await connection.confirmTransaction(sig, "confirmed");
-
-        statusEl.innerHTML = `✅ Transaction successful! 
-          <a href="https://solscan.io/tx/${sig}?cluster=devnet" target="_blank">View on SolScan</a>`;
-
-        modal.classList.add("show");
-        setTimeout(() => {
-          modal.classList.remove("show");
-        }, 4000);
-
-      } catch (err) {
-        console.error(err);
-        statusEl.innerText = "❌ Transaction failed: " + err.message;
-      }
-    };
-  </script>
+  }else{
+    statusEl.innerHTML='❌ No Phantom wallet detected. <a href="https://phantom.app/download" target="_blank" style="color:#0f0">Install here</a>.';
+  }
+});
+</script>
 </body>
 </html>
