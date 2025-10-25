@@ -1,89 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>The Gaia Project — Test Send</title>
-  <style>
-    body {
-      background:#000; color:#00ff99;
-      font-family:"Courier New",monospace;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      height:100vh; text-align:center; margin:0;
-    }
-    h2 { margin-bottom:1rem; }
-    button {
-      background:#000; color:#00ff99;
-      border:1px solid #00ff99; border-radius:6px;
-      padding:.6rem 1rem; margin-top:1rem;
-      font-family:"Courier New",monospace;
-    }
-    button:hover { background:#00ff99; color:#000; cursor:pointer; }
-    #status { margin-top:1rem; max-width:600px; }
-    a { color:#00ff99; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Gaia Project — Send 0.1 SOL + Memo</title>
+<style>
+body{
+  background:#000;color:#00ff99;font-family:"Courier New",monospace;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100vh;text-align:center;margin:0
+}
+h2{margin-bottom:1rem}
+input,button{
+  background:#000;color:#00ff99;border:1px solid #00ff99;
+  border-radius:6px;padding:.6rem 1rem;margin-top:.6rem;
+  font-family:"Courier New",monospace;width:80%;max-width:400px
+}
+button:hover{background:#00ff99;color:#000;cursor:pointer}
+#status{margin-top:1rem;max-width:600px}
+a{color:#00ff99}
+</style>
 </head>
 <body>
-  <h2>🔌 The Gaia Project — Send 0.1 SOL Test</h2>
-  <p id="status">Waiting for wallet...</p>
-  <button id="connectBtn">Connect Phantom & Send 0.1 SOL</button>
+<h2>🔌 The Gaia Project — Send 0.1 SOL + Memo</h2>
 
-  <!-- Solana library -->
-  <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
-  <script>
-    const RECIPIENT = new solanaWeb3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
-    const LAMPORTS = 0.1 * solanaWeb3.LAMPORTS_PER_SOL; // 0.1 SOL
-    const connectBtn = document.getElementById("connectBtn");
-    const statusEl = document.getElementById("status");
+<input id="memoInput" placeholder="Enter your character name (memo)" /><br>
+<button id="connectBtn">Connect Phantom & Send 0.1 SOL</button>
+<p id="status">Waiting for wallet...</p>
 
-    async function getProvider() {
-      if ("solana" in window && window.solana.isPhantom) return window.solana;
-      throw new Error("Phantom wallet not found");
-    }
+<!-- Polyfill for Buffer -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
 
-    connectBtn.onclick = async () => {
-      try {
-        const provider = await getProvider();
-        const resp = await provider.connect({ onlyIfTrusted:false });
-        statusEl.textContent = "✅ Connected: " + resp.publicKey.toString();
+<!-- Solana libraries -->
+<script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
+<script src="https://unpkg.com/@solana/spl-memo@0.1.5/lib/index.iife.js"></script>
 
-        // --- create transfer ---
-        const connection = new solanaWeb3.Connection(
-          solanaWeb3.clusterApiUrl("devnet"), "confirmed"
-        );
-        const tx = new solanaWeb3.Transaction().add(
-          solanaWeb3.SystemProgram.transfer({
-            fromPubkey: provider.publicKey,
-            toPubkey: RECIPIENT,
-            lamports: LAMPORTS,
-          })
-        );
-        tx.feePayer = provider.publicKey;
-        tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+<script>
+window.Buffer = buffer.Buffer; // fix for web3.js in browser
+const RECIPIENT = new solanaWeb3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
+const LAMPORTS  = 0.1 * solanaWeb3.LAMPORTS_PER_SOL;
+const connectBtn = document.getElementById("connectBtn");
+const statusEl   = document.getElementById("status");
 
-        const signed = await provider.signTransaction(tx);
-        const sig = await connection.sendRawTransaction(signed.serialize());
-        await connection.confirmTransaction(sig, "confirmed");
+async function getProvider(){
+  if("solana" in window && window.solana.isPhantom) return window.solana;
+  throw new Error("Phantom wallet not found");
+}
 
-        statusEl.innerHTML =
-          `✅ Sent 0.1 SOL to<br>${RECIPIENT.toBase58()}<br>` +
-          `<a href="https://solscan.io/tx/${sig}?cluster=devnet" target="_blank">View on Solscan</a>`;
-      } catch (e) {
-        console.error(e);
-        statusEl.textContent = "❌ " + e.message;
-      }
-    };
+connectBtn.onclick = async ()=>{
+  try{
+    const provider = await getProvider();
+    const resp = await provider.connect({onlyIfTrusted:false});
+    statusEl.textContent = "✅ Connected: " + resp.publicKey.toString();
 
-    // Detect Phantom on load
-    window.addEventListener("load", () => {
-      if ("solana" in window && window.solana.isPhantom) {
-        statusEl.textContent = "🟢 Phantom detected — click button to connect and send.";
-      } else {
-        statusEl.innerHTML =
-          '❌ Phantom not detected. <a href="https://phantom.app/download" target="_blank">Install here</a>.';
-      }
-    });
-  </script>
+    const connection = new solanaWeb3.Connection(
+      solanaWeb3.clusterApiUrl("devnet"), "confirmed"
+    );
+
+    const memoText = document.getElementById("memoInput").value.trim() || "Gaia supporter";
+    const instructions = [
+      solanaWeb3.SystemProgram.transfer({
+        fromPubkey: provider.publicKey,
+        toPubkey:   RECIPIENT,
+        lamports:   LAMPORTS,
+      }),
+      splMemo.MemoProgram.memo({ memo: memoText })
+    ];
+
+    const tx = new solanaWeb3.Transaction().add(...instructions);
+    tx.feePayer = provider.publicKey;
+    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+    const signed = await provider.signTransaction(tx);
+    const sig = await connection.sendRawTransaction(signed.serialize());
+    await connection.confirmTransaction(sig, "confirmed");
+
+    statusEl.innerHTML =
+      `✅ Sent 0.1 SOL to ${RECIPIENT.toBase58()}<br>`+
+      `📝 Memo: ${memoText}<br>`+
+      `<a href="https://solscan.io/tx/${sig}?cluster=devnet" target="_blank">View on Solscan</a>`;
+  }catch(e){
+    console.error(e);
+    statusEl.textContent = "❌ " + e.message;
+  }
+};
+
+// Detect Phantom on load
+window.addEventListener("load",()=>{
+  if("solana" in window && window.solana.isPhantom){
+    statusEl.textContent="🟢 Phantom detected — enter a name and click Send.";
+  }else{
+    statusEl.innerHTML='❌ Phantom not detected. <a href="https://phantom.app/download" target="_blank">Install here</a>.';
+  }
+});
+</script>
 </body>
 </html>
