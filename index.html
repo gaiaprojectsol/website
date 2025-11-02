@@ -1,52 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Send 0.1 SOL</title>
+  <meta charset="UTF-8" />
+  <title>Send 0.1 SOL</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 100px;
+      background: #0b0c10;
+      color: #fff;
+    }
+    h2 {
+      color: #14F195;
+    }
+    button {
+      font-size: 18px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 10px;
+      background-color: #14F195;
+      color: #000;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background-color: #0bb07b;
+    }
+  </style>
 </head>
-<body style="font-family:sans-serif;text-align:center;margin-top:100px;">
+<body>
   <h2>Send 0.1 SOL</h2>
   <p>Click below to send 0.1 SOL to the project wallet.</p>
-  <button id="send" style="padding:12px 24px;font-size:16px;">Send 0.1 SOL with Phantom</button>
+  <button id="send">Send 0.1 SOL with Phantom</button>
 
-  <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
-  <script>
-  (async () => {
-    const { Connection, PublicKey, SystemProgram, Transaction } = solanaWeb3;
+  <!-- ✅ ESM import (no eval) -->
+  <script type="module">
+    import {
+      Connection,
+      PublicKey,
+      SystemProgram,
+      Transaction
+    } from "https://esm.sh/@solana/web3.js@1.95.3";
+
     const connection = new Connection("https://api.mainnet-beta.solana.com");
-    const recipient = new PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
+    const recipient = new PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs"); // 👇 YOUR WALLET HERE 👇
 
-    const btn = document.getElementById("send");
+    const button = document.getElementById("send");
 
-    btn.onclick = async () => {
-      if (!window.solana) {
-        alert("Install Phantom → https://phantom.app");
-        return;
-      }
-
+    button.addEventListener("click", async () => {
       try {
-        await window.solana.connect({ onlyIfTrusted: false });
+        // 1️⃣ Detect Phantom
+        if (!window.solana || !window.solana.isPhantom) {
+          alert("Please install the Phantom wallet → https://phantom.app");
+          return;
+        }
+
+        // 2️⃣ Request connection
+        const provider = window.solana;
+        await provider.connect();
+
+        // 3️⃣ Create transfer transaction
         const tx = new Transaction().add(
           SystemProgram.transfer({
-            fromPubkey: window.solana.publicKey,
+            fromPubkey: provider.publicKey,
             toPubkey: recipient,
-            lamports: 0.1 * 1e9, // 0.1 SOL
+            lamports: 0.1 * 1e9 // 0.1 SOL
           })
         );
 
-        tx.feePayer = window.solana.publicKey;
+        tx.feePayer = provider.publicKey;
         tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
-        const signed = await window.solana.signTransaction(tx);
+        // 4️⃣ Sign + send
+        const signed = await provider.signTransaction(tx);
         const sig = await connection.sendRawTransaction(signed.serialize());
-        alert("✅ Sent!\n\nTx signature:\n" + sig);
-        window.open("https://explorer.solana.com/tx/" + sig, "_blank");
-      } catch (e) {
-        console.error(e);
-        alert("❌ Error: " + e.message);
+        await connection.confirmTransaction(sig, "confirmed");
+
+        // 5️⃣ Success message + link
+        alert("✅ Transaction sent!\n\nSignature:\n" + sig);
+        window.open(`https://explorer.solana.com/tx/${sig}`, "_blank");
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error: " + err.message);
       }
-    };
-  })();
+    });
   </script>
 </body>
 </html>
