@@ -1,55 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Buy Gaia Spark – 0.1 SOL</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 100px; }
-    button {
-      font-size: 20px;
-      padding: 14px 30px;
-      background-color: #14F195;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    button:hover { background-color: #0bb07b; }
-    input {
-      margin-top: 20px;
-      padding: 10px;
-      font-size: 16px;
-      width: 250px;
-      text-align: center;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Send 0.1 SOL with Phantom</title>
 </head>
-<body>
+<body style="font-family:sans-serif; text-align:center; margin-top:100px;">
+  <h2>Send 0.1 SOL with a Memo</h2>
+  <input id="memo" placeholder="Enter memo" style="padding:8px;width:250px;">
+  <br><br>
+  <button id="send">Send 0.1 SOL</button>
 
-  <h1>Buy Your Gaia Spark NFT</h1>
-  <p>Send <b>0.1 SOL</b> to start your journey.</p>
+<script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+<script src="https://unpkg.com/@solana/spl-memo@0.1.3/lib/index.iife.min.js"></script>
+<script>
+const {Connection,PublicKey,SystemProgram,Transaction}=solanaWeb3;
+const {createMemoInstruction}=splMemo;
+const connection=new Connection("https://api.mainnet-beta.solana.com");
+const recipient=new PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
+const btn=document.getElementById("send");
 
-  <input id="memo" type="text" placeholder="Enter your Genean name">
-  <br>
-
-  <a id="payLink" target="_blank">
-    <button>Pay 0.1 SOL with Phantom</button>
-  </a>
-
-  <script>
-    const recipient = "7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs";  // <-- replace with your wallet
-    const link = document.getElementById("payLink");
-    const memoInput = document.getElementById("memo");
-
-    function updateLink() {
-      const memo = encodeURIComponent(memoInput.value.trim() || "GaiaSpark");
-      // Solana Pay format:
-      link.href = `solana:${recipient}?amount=0.1&memo=${memo}&label=Gaia%20Spark&message=Purchase%20Gaia%20Spark`;
-    }
-
-    memoInput.addEventListener("input", updateLink);
-    updateLink();
-  </script>
-
+btn.onclick=async()=>{
+  if(!window.solana){alert("Install Phantom at https://phantom.app");return;}
+  await window.solana.connect();
+  const memo=document.getElementById("memo").value.trim()||"GaiaSpark";
+  const tx=new Transaction().add(
+    SystemProgram.transfer({
+      fromPubkey:window.solana.publicKey,
+      toPubkey:recipient,
+      lamports:0.1*1e9,
+    }),
+    createMemoInstruction(memo)
+  );
+  tx.feePayer=window.solana.publicKey;
+  tx.recentBlockhash=(await connection.getLatestBlockhash()).blockhash;
+  const signed=await window.solana.signTransaction(tx);
+  const sig=await connection.sendRawTransaction(signed.serialize());
+  alert("Sent! Tx: "+sig);
+};
+</script>
 </body>
 </html>
