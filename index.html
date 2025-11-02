@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Send 0.1 SOL</title>
+  <title>Send 0.1 SOL with Memo</title>
   <style>
     body {
       font-family: sans-serif;
@@ -27,11 +27,22 @@
     button:hover {
       background-color: #0bb07b;
     }
+    input {
+      font-size: 16px;
+      padding: 10px;
+      margin: 10px 0;
+      width: 260px;
+      border-radius: 6px;
+      border: none;
+    }
   </style>
 </head>
 <body>
   <h2>Send 0.1 SOL</h2>
-  <p>Click below to send 0.1 SOL to the project wallet.</p>
+  <p>Enter a memo (optional), then click below to send 0.1 SOL to the project wallet.</p>
+
+  <input id="memo" type="text" placeholder="Enter memo (optional)" />
+  <br>
   <button id="send">Send 0.1 SOL with Phantom</button>
 
   <!-- ✅ ESM import (no eval) -->
@@ -42,8 +53,10 @@
       SystemProgram,
       Transaction
     } from "https://esm.sh/@solana/web3.js@1.95.3";
+    import { createMemoInstruction } from "https://esm.sh/@solana/spl-memo@0.1.3";
 
-    const connection = new Connection("https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b");
+    // ✅ Helius RPC
+    const connection = new Connection("https://api.devnet.solana.com");
     const recipient = new PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
 
     const button = document.getElementById("send");
@@ -60,7 +73,7 @@
         const provider = window.solana;
         await provider.connect();
 
-        // 3️⃣ Create transfer transaction
+        // 3️⃣ Build transaction
         const tx = new Transaction().add(
           SystemProgram.transfer({
             fromPubkey: provider.publicKey,
@@ -69,15 +82,20 @@
           })
         );
 
+        // 4️⃣ Add memo if provided
+        const memoText = document.getElementById("memo").value.trim();
+        if (memoText) {
+          tx.add(createMemoInstruction(memoText));
+        }
+
         tx.feePayer = provider.publicKey;
         tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
-        // 4️⃣ Sign + send
+        // 5️⃣ Sign & send
         const signed = await provider.signTransaction(tx);
         const sig = await connection.sendRawTransaction(signed.serialize());
         await connection.confirmTransaction(sig, "confirmed");
 
-        // 5️⃣ Success message + link
         alert("✅ Transaction sent!\n\nSignature:\n" + sig);
         window.open(`https://explorer.solana.com/tx/${sig}`, "_blank");
       } catch (err) {
