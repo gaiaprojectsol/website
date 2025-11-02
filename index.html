@@ -7,11 +7,17 @@
     body {
       font-family: sans-serif;
       text-align: center;
-      margin-top: 100px;
+      margin: 0;
+      padding: 0;
       background: #0b0c10;
       color: #fff;
     }
+    main {
+      margin-top: 80px;
+      padding: 20px;
+    }
     h2 { color: #14F195; }
+    h3 { font-weight: normal; color: #ccc; }
     button {
       font-size: 18px;
       padding: 12px 28px;
@@ -31,17 +37,47 @@
       border-radius: 6px;
       border: none;
     }
+    img {
+      width: 280px;
+      max-width: 80%;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 0 20px rgba(20,241,149,0.3);
+    }
+    .disclaimer {
+      font-size: 13px;
+      color: #aaa;
+      margin-top: 40px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
-  <h2>Pre-Order 'Gaia Spark NFT from the Gaia Project' </h2>
-  <h3>Enter your Genean Name in the field below and be part of the Gaia Projects history</h3>
-  <p>Enter your custom name for your genean, then click below to send 0.1 SOL to the project wallet.</p>
+  <main>
+    <!-- 🖼️ Gaia Spark NFT image -->
+    <img src="gaia-spark.png" alt="Gaia Spark NFT preview" id="spark-image">
 
-  <input id="memo" type="text" placeholder="e.g. Lord Fardrosan" />
-  <br />
-  <button id="send">Send 0.1 SOL with Phantom</button>
+    <h2>Pre-Order “Gaia Spark NFT”</h2>
+    <h3>Enter your Genean Name below and become part of Gaia Project history.</h3>
+    <p>Type your custom name for your Genean, then click below to send 0.1 SOL to the project wallet.</p>
 
+    <input id="memo" type="text" placeholder="e.g. Lord Fardrosan" />
+    <br />
+    <button id="send">Send 0.1 SOL with Phantom</button>
+
+    <!-- ⚠️ Disclaimer -->
+    <p class="disclaimer">
+      <strong>Disclaimer:</strong> This site enables users to pre-order the Gaia Spark NFT
+      by sending SOL on the Solana blockchain. All transactions are final and non-refundable.
+      Always verify the wallet address before confirming in your wallet.
+      By proceeding, you acknowledge and accept the risks associated with blockchain transactions.
+    </p>
+  </main>
+
+  <!-- ✅ Phantom logic -->
   <script type="module">
     import {
       Connection,
@@ -51,10 +87,10 @@
       TransactionInstruction
     } from "https://esm.sh/@solana/web3.js@1.95.3";
 
-    // ---- Configure network and recipient ----
-    const connection = new Connection("https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b");
+    const connection = new Connection(
+      "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b"
+    );
     const recipient = new PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
-
     const button = document.getElementById("send");
 
     button.addEventListener("click", async () => {
@@ -67,7 +103,6 @@
         const provider = window.solana;
         await provider.connect();
 
-        // --- Build the transfer ---
         const tx = new Transaction().add(
           SystemProgram.transfer({
             fromPubkey: provider.publicKey,
@@ -76,7 +111,7 @@
           })
         );
 
-        // --- Add memo (direct instruction) ---
+        // Add memo (optional Genean name)
         const memoText = document.getElementById("memo").value.trim();
         if (memoText) {
           const memoIx = new TransactionInstruction({
