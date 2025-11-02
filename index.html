@@ -11,9 +11,7 @@
       background: #0b0c10;
       color: #fff;
     }
-    h2 {
-      color: #14F195;
-    }
+    h2 { color: #14F195; }
     button {
       font-size: 18px;
       padding: 12px 28px;
@@ -24,9 +22,7 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    button:hover {
-      background-color: #0bb07b;
-    }
+    button:hover { background-color: #0bb07b; }
     input {
       font-size: 16px;
       padding: 10px;
@@ -42,20 +38,19 @@
   <p>Enter a memo (optional), then click below to send 0.1 SOL to the project wallet.</p>
 
   <input id="memo" type="text" placeholder="Enter memo (optional)" />
-  <br>
+  <br />
   <button id="send">Send 0.1 SOL with Phantom</button>
 
-  <!-- ✅ ESM import (no eval) -->
   <script type="module">
     import {
       Connection,
       PublicKey,
       SystemProgram,
-      Transaction
+      Transaction,
+      TransactionInstruction
     } from "https://esm.sh/@solana/web3.js@1.95.3";
-    import { createMemoInstruction } from "https://esm.sh/@solana/spl-memo@0.1.3";
 
-    // ✅ Helius RPC
+    // ---- Configure network and recipient ----
     const connection = new Connection("https://api.devnet.solana.com");
     const recipient = new PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
 
@@ -63,35 +58,37 @@
 
     button.addEventListener("click", async () => {
       try {
-        // 1️⃣ Detect Phantom
         if (!window.solana || !window.solana.isPhantom) {
           alert("Please install the Phantom wallet → https://phantom.app");
           return;
         }
 
-        // 2️⃣ Request connection
         const provider = window.solana;
         await provider.connect();
 
-        // 3️⃣ Build transaction
+        // --- Build the transfer ---
         const tx = new Transaction().add(
           SystemProgram.transfer({
             fromPubkey: provider.publicKey,
             toPubkey: recipient,
-            lamports: 0.1 * 1e9 // 0.1 SOL
+            lamports: 0.1 * 1e9
           })
         );
 
-        // 4️⃣ Add memo if provided
+        // --- Add memo (direct instruction) ---
         const memoText = document.getElementById("memo").value.trim();
         if (memoText) {
-          tx.add(createMemoInstruction(memoText));
+          const memoIx = new TransactionInstruction({
+            keys: [],
+            programId: new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+            data: new TextEncoder().encode(memoText)
+          });
+          tx.add(memoIx);
         }
 
         tx.feePayer = provider.publicKey;
         tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
-        // 5️⃣ Sign & send
         const signed = await provider.signTransaction(tx);
         const sig = await connection.sendRawTransaction(signed.serialize());
         await connection.confirmTransaction(sig, "confirmed");
