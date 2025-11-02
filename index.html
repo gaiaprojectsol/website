@@ -2,49 +2,51 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Send 0.1 SOL with Memo</title>
+<title>Send 0.1 SOL</title>
 </head>
 <body style="font-family:sans-serif;text-align:center;margin-top:100px;">
-<h2>Send 0.1 SOL with a Memo</h2>
-<input id="memo" placeholder="Enter memo" style="padding:8px;width:250px;">
-<br><br>
-<button id="send">Send 0.1 SOL</button>
+  <h2>Send 0.1 SOL</h2>
+  <p>Click below to send 0.1 SOL to the project wallet.</p>
+  <button id="send" style="padding:12px 24px;font-size:16px;">Send 0.1 SOL with Phantom</button>
 
-<script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
-<script src="https://unpkg.com/@solana/spl-memo@0.1.3/lib/index.iife.min.js"></script>
-<script>
-(async () => {
-  const {Connection,PublicKey,SystemProgram,Transaction}=solanaWeb3;
-  const {createMemoInstruction}=splMemo;
-  const connection=new Connection("https://api.mainnet-beta.solana.com");
-  const recipient=new PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
-  const btn=document.getElementById("send");
+  <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+  <script>
+  (async () => {
+    const { Connection, PublicKey, SystemProgram, Transaction } = solanaWeb3;
+    const connection = new Connection("https://api.mainnet-beta.solana.com");
+    const recipient = new PublicKey("YOUR_WALLET_ADDRESS_HERE"); // Replace this
 
-  btn.onclick=async()=>{
-    if(!window.solana){alert("Install Phantom → https://phantom.app");return;}
-    try{
-      await window.solana.connect({onlyIfTrusted:false});
-      const memo=document.getElementById("memo").value.trim()||"GaiaSpark";
-      const tx=new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey:window.solana.publicKey,
-          toPubkey:recipient,
-          lamports:0.1*1e9
-        }),
-        createMemoInstruction(memo)
-      );
-      tx.feePayer=window.solana.publicKey;
-      tx.recentBlockhash=(await connection.getLatestBlockhash()).blockhash;
-      const signed=await window.solana.signTransaction(tx);
-      const sig=await connection.sendRawTransaction(signed.serialize());
-      alert("✅ Sent!\nTx: "+sig);
-      window.open("https://explorer.solana.com/tx/"+sig,"_blank");
-    }catch(e){
-      console.error(e);
-      alert("❌ Error: "+e.message);
-    }
-  };
-})();
-</script>
+    const btn = document.getElementById("send");
+
+    btn.onclick = async () => {
+      if (!window.solana) {
+        alert("Install Phantom → https://phantom.app");
+        return;
+      }
+
+      try {
+        await window.solana.connect({ onlyIfTrusted: false });
+        const tx = new Transaction().add(
+          SystemProgram.transfer({
+            fromPubkey: window.solana.publicKey,
+            toPubkey: recipient,
+            lamports: 0.1 * 1e9, // 0.1 SOL
+          })
+        );
+
+        tx.feePayer = window.solana.publicKey;
+        tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+        const signed = await window.solana.signTransaction(tx);
+        const sig = await connection.sendRawTransaction(signed.serialize());
+        alert("✅ Sent!\n\nTx signature:\n" + sig);
+        window.open("https://explorer.solana.com/tx/" + sig, "_blank");
+      } catch (e) {
+        console.error(e);
+        alert("❌ Error: " + e.message);
+      }
+    };
+  })();
+  </script>
 </body>
 </html>
