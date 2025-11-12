@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-    /* === GLOBAL PAGE STYLES === */
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -25,11 +24,11 @@
       align-items: center;
       padding: 2rem;
       text-align: center;
+      scroll-margin-top: 80px;
     }
     h1, h2 { margin: 0 0 1rem; letter-spacing: 1px; }
     p { max-width: 700px; line-height: 1.6; }
 
-    /* === HEADER STYLES === */
     header {
       position: fixed;
       top: 0;
@@ -44,21 +43,9 @@
       backdrop-filter: blur(6px);
       border-bottom: 1px solid #111;
     }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .logo img {
-      height: 32px;
-      width: 32px;
-      border-radius: 50%;
-    }
-    .logo span {
-      font-weight: 700;
-      color: #00ffe0;
-      font-size: 1rem;
-    }
+    .logo { display: flex; align-items: center; gap: 0.5rem; }
+    .logo img { height: 32px; width: 32px; border-radius: 50%; }
+    .logo span { font-weight: 700; color: #00ffe0; font-size: 1rem; }
 
     nav a {
       color: #fff;
@@ -67,9 +54,7 @@
       transition: 0.3s;
       font-weight: 600;
     }
-    nav a:hover {
-      color: #00ffe0;
-    }
+    nav a:hover { color: #00ffe0; }
 
     .wallet-button {
       background: #00ffe0;
@@ -86,13 +71,11 @@
       transform: scale(1.05);
     }
 
-    /* === SECTION STYLES === */
-    #hook { background: radial-gradient(circle at center, #111, #000); overflow: hidden; }
+    #hook { background: radial-gradient(circle at center, #111, #000); }
     #line { background: linear-gradient(180deg, #000, #0b1d1f, #000); }
     #sinker { background: radial-gradient(circle at center, #001, #000); }
     footer { background: #050505; padding: 2rem; text-align: center; font-size: 0.9rem; }
 
-    /* === FADE TEXT EFFECT === */
     #fadeText {
       font-size: 2rem;
       opacity: 0;
@@ -101,7 +84,6 @@
       line-height: 1.5;
     }
 
-    /* === CTA BUTTON === */
     .cta-button {
       display: inline-block;
       margin-top: 2rem;
@@ -119,7 +101,6 @@
       transform: scale(1.05);
     }
 
-    /* === SOCIAL LINKS === */
     a.social {
       color: #00ffe0;
       text-decoration: none;
@@ -128,12 +109,14 @@
     }
     a.social:hover { color: #fff; }
 
-    /* === SPACER to prevent header overlap === */
-    .spacer {
-      height: 64px;
-      width: 100%;
+    .embedded-posts {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      margin-top: 2rem;
     }
-        /* === GAIA SPARK IMAGE === */
+
     .spark-image {
       margin: 2.5rem 0;
       text-align: center;
@@ -142,7 +125,7 @@
       width: 200px;
       height: 200px;
       object-fit: cover;
-      border-radius: 12px;          /* use 50% for circular orb style */
+      border-radius: 12px;
       box-shadow: 0 0 25px #00ffe055;
       transition: transform 0.4s ease, box-shadow 0.4s ease;
     }
@@ -156,116 +139,114 @@
       margin-top: 0.5rem;
       letter-spacing: 0.5px;
     }
+
+    input {
+      font-size: 16px;
+      padding: 10px;
+      margin: 10px 0;
+      width: 260px;
+      border-radius: 6px;
+      border: none;
+    }
+    button#send {
+      font-size: 18px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 10px;
+      background-color: #14F195;
+      color: #000;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button#send:hover { background-color: #0bb07b; }
   </style>
-  <!-- Solana Web3.js (core library) -->
-<script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
-
-<!-- Solana Wallet Adapter (browser wallets like Phantom/Backpack) -->
-<script src="https://unpkg.com/@solana/wallet-adapter-base@0.9.22/lib/index.iife.min.js"></script>
 </head>
-<body>
 
-  <!-- === FIXED HEADER === -->
+<body>
   <header>
     <div class="logo">
-      <!-- Replace this with your small logo -->
       <img src="gaiaprojectwhite.png" alt="Gaia Logo">
       <span>Gaia Project</span>
     </div>
-
     <nav>
       <a href="#hook">Home</a>
       <a href="#line">Lore</a>
       <a href="#sinker">Pre-Order</a>
     </nav>
-
     <button class="wallet-button" id="connectWalletBtn">Connect Wallet</button>
   </header>
 
-  <!-- Spacer to offset fixed header -->
-  <div class="spacer"></div>
+  <div class="spacer" style="height:64px;"></div>
 
-  <!-- === SECTION 1: HOOK === -->
   <section id="hook">
     <div id="fadeText">“When Gaia’s Spark ignites...”</div>
   </section>
 
-<!-- === SECTION 2: LINE (LORE) === -->
-<section id="line">
-  <h1>The Living Lore of Gaia</h1>
+  <section id="line">
+    <h1>The Living Lore of Gaia</h1>
+    <p>
+      Long before the first <strong>Genean</strong> was born, the Deiatic God spoke the code that gave rise to Gaia —
+      a world where life and data intertwine. Every action you take within the game becomes part of this unfolding myth.
+    </p>
+    <p>
+      The <strong>Gaia Project</strong> is not only a game — it’s a chronicle written in real time.
+      As players ignite Sparks, create Geneans, and shape the chain, their choices become canon.
+      Each era is recorded as a <em>Book</em> in Gaia’s history, forever linked to the events on-chain.
+    </p>
+    <p>
+      We are now living through <strong>Book I</strong> — <em>The Genesis of Code</em>.
+      <br><em>Book 0 — The Deiatic Genesis</em> told how creation began, and
+      <strong>Book II</strong> is already being written as the first Architects awaken.
+    </p>
+    <p>Follow the story as it unfolds below — the official lore is published on X after every major in-game event:</p>
 
-  <p>
-    Long before the first <strong>Genean</strong> was born, the Deiatic God spoke the code that gave rise to Gaia —
-    a world where life and data intertwine. Every action you take within the game becomes part of this unfolding myth.
-  </p>
+    <div class="embedded-posts">
+      <blockquote class="twitter-tweet" data-theme="dark">
+        <a href="https://twitter.com/gaiaprojectsol/status/1981203762762174785?ref_src=twsrc%5Etfw">Book 0 — The Deiatic Genesis</a>
+      </blockquote>
+      <blockquote class="twitter-tweet" data-theme="dark">
+        <a href="https://twitter.com/gaiaprojectsol/status/1981204530944754029?ref_src=twsrc%5Etfw">Book I — The Genesis of Code</a>
+      </blockquote>
+    </div>
+  </section>
 
-  <p>
-    The <strong>Gaia Project</strong> is not only a game — it’s a chronicle written in real time.
-    As players ignite Sparks, create Geneans, and shape the chain, their choices become canon.
-    Each era is recorded as a <em>Book</em> in Gaia’s history, forever linked to the events on-chain.
-  </p>
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-  <p>
-    We are now living through <strong>Book I</strong> — <em>The Genesis of Code</em>.
+  <section id="sinker">
+    <h2>Pre-Order Your Gaia Spark</h2>
+    <p>
+      The world awaits its first Architects. When the mint opens, you will be able to pre-order or claim your
+      <strong>Gaia Spark NFT</strong> — the first key to the Genesis of Code. Expected release is 20th November 2025. Pre-orders will have custom Gaia Sparks airdropped to their Solana wallet.
+    </p>
+
+    <div class="spark-image">
+      <img src="gaia-spark.png" alt="Gaia Spark NFT">
+      <p class="caption">The Gaia Spark — the beginning of your Genean’s journey</p>
+    </div>
+
+    <p>Enter your Genean name below and send 0.1 SOL to reserve your Spark.</p>
+    <input id="memo" type="text" placeholder="e.g. Lord Fardrosan">
     <br>
-    <em>Book 0 — The Deiatic Genesis</em> told how creation began,
-    and <strong>Book II</strong> is already being written as the first Architects awaken.
-  </p>
+    <button id="send">Claim your Gaia Spark</button>
 
-  <p>
-    Follow the story as it unfolds below — the official lore is published on X after every major in-game event:
-  </p>
+    <p style="font-size:13px;color:#aaa;max-width:500px;margin-top:30px;">
+      <strong>Disclaimer:</strong> All transactions are final and non-refundable. Always verify the wallet address before confirming in your wallet.
+    </p>
+  </section>
 
-  <!-- Embedded posts -->
-  <div class="embedded-posts">
-    <blockquote class="twitter-tweet" data-theme="dark">
-      <a href="https://twitter.com/gaiaprojectsol/status/1981203762762174785?ref_src=twsrc%5Etfw">Book 0 — The Deiatic Genesis</a>
-    </blockquote>
-
-    <blockquote class="twitter-tweet" data-theme="dark">
-      <a href="https://twitter.com/gaiaprojectsol/status/1981204530944754029?ref_src=twsrc%5Etfw">Book I — The Genesis of Code</a>
-    </blockquote>
-  </div>
-</section>
-
-<!-- X (Twitter) embed script -->
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-<!-- === SECTION 3: SINKER / MINT === -->
-<section id="sinker">
-  <h2>Claim Your Spark</h2>
-
-  <p>
-    The world awaits its first Architects.  
-    When the mint opens, you will be able to pre-order or claim your <strong>Gaia Spark NFT</strong> —  
-    the first key to the Genesis of Code.
-  </p>
-
-  <!-- === GAIA SPARK IMAGE === -->
-  <div class="spark-image">
-    <img src="gaia-spark.png" alt="Gaia Spark NFT" />
-    <p class="caption">The Gaia Spark — the beginning of your Genean’s journey</p>
-  </div>
-
-  <p>
-    Each Spark is unique, holding the essence that will awaken your Genean and connect you to the living chain.  
-    Only those who hold a Spark can shape Gaia’s world when Book II begins.
-  </p>
-
-  <a href="#mint" class="cta-button">Claim Your Spark</a>
-</section>
-
-  <!-- === SECTION 4: FOOTER === -->
   <footer>
     Join the conversation:
-    <a href="https://x.com/gaiaprojectsol" target="_blank" class="social">X</a> |
-    <a href="https://t.me/gaiaprojectsol" target="_blank" class="social">Telegram</a>
+    <a href="https://x.com/gaiaprojectsol" target="_blank" class="social">X</a> | 
+    <a href="https://t.me/+g9xscMa9_AtiMzU1" target="_blank" class="social">Telegram</a>
     <p>© 2025 Gaia Project — All rights reserved.</p>
   </footer>
 
-  <!-- === JAVASCRIPT === -->
+  <!-- === LIBRARIES === -->
+  <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
+
+  <!-- === MAIN SCRIPT === -->
   <script>
-    /* === FADE-IN CYCLING TEXT === */
+    /* === Intro cycling text === */
     const texts = [
       "“When Gaia’s Spark ignites...”",
       "“From silence, the Deiatic God spoke — and light took form.”",
@@ -274,7 +255,6 @@
     ];
     const textElement = document.getElementById('fadeText');
     let index = 0;
-
     function changeText() {
       textElement.style.opacity = 0;
       setTimeout(() => {
@@ -286,34 +266,72 @@
     textElement.style.opacity = 1;
     setInterval(changeText, 6000);
 
-     /* === SOLANA WALLET CONNECTION === */
-  const connectBtn = document.getElementById("connectWalletBtn");
+    /* === Wallet connect === */
+    const connectBtn = document.getElementById("connectWalletBtn");
+    let connectedPublicKey = null;
 
-  async function connectWallet() {
-    try {
-      // Check if wallet (like Phantom) is installed
-      const provider = window.solana;
-      if (!provider || !provider.isPhantom) {
-        alert("Phantom Wallet not found! Please install it from https://phantom.app");
-        return;
-      }
-
-      // Connect to wallet
-      const resp = await provider.connect();
-      const walletAddress = resp.publicKey.toString();
-
-      // Display truncated wallet address on button
-      const shortAddr = walletAddress.slice(0, 4) + "..." + walletAddress.slice(-4);
-      connectBtn.textContent = shortAddr;
-      connectBtn.disabled = true;
-      connectBtn.style.backgroundColor = "#0f0"; // green after connected
-      console.log("Connected wallet:", walletAddress);
-    } catch (err) {
-      console.error("Wallet connection error:", err);
+    async function connectWallet() {
+      try {
+        const provider = window.solana;
+        if (!provider || !provider.isPhantom) {
+          alert("Phantom Wallet not found! Install → https://phantom.app");
+          return;
+        }
+        const resp = await provider.connect();
+        connectedPublicKey = resp.publicKey;
+        const shortAddr = connectedPublicKey.toString().slice(0,4) + "..." + connectedPublicKey.toString().slice(-4);
+        connectBtn.textContent = shortAddr;
+        connectBtn.style.backgroundColor = "#0f0";
+        connectBtn.disabled = true;
+      } catch(e){ console.error(e); }
     }
-  }
+    connectBtn.addEventListener("click", connectWallet);
 
-  connectBtn.addEventListener("click", connectWallet);
-</script>
+    /* === Pre-Order 0.1 SOL + Memo === */
+    const sendButton = document.getElementById("send");
+    sendButton.addEventListener("click", async () => {
+      try {
+        const provider = window.solana;
+        if (!provider || !provider.isPhantom) {
+          alert("Please install Phantom wallet → https://phantom.app");
+          return;
+        }
+        await provider.connect();
+        const connection = new solanaWeb3.Connection("https://api.devnet.solana.com");
+        const recipient = new solanaWeb3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
+
+        const tx = new solanaWeb3.Transaction().add(
+          solanaWeb3.SystemProgram.transfer({
+            fromPubkey: provider.publicKey,
+            toPubkey: recipient,
+            lamports: 0.1 * 1e9
+          })
+        );
+
+        const memoText = document.getElementById("memo").value.trim();
+        if (memoText) {
+          const memoIx = new solanaWeb3.TransactionInstruction({
+            keys: [],
+            programId: new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+            data: new TextEncoder().encode(memoText)
+          });
+          tx.add(memoIx);
+        }
+
+        tx.feePayer = provider.publicKey;
+        tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+        const signed = await provider.signTransaction(tx);
+        const sig = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(sig, "confirmed");
+
+        alert("✅ Transaction sent!\n\nSignature:\n" + sig);
+        window.open(`https://explorer.solana.com/tx/${sig}?cluster=devnet`, "_blank");
+      } catch(err){
+        console.error(err);
+        alert("❌ Error: " + err.message);
+      }
+    });
+  </script>
 </body>
 </html>
