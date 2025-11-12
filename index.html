@@ -306,7 +306,7 @@
           return;
         }
         await provider.connect();
-        const connection = new solanaWeb3.Connection("https://api.devnet.solana.com");
+        const connection = new solanaWeb3.Connection("https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b");
         const recipient = new solanaWeb3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
 
         const tx = new solanaWeb3.Transaction().add(
