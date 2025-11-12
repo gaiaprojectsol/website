@@ -243,15 +243,11 @@
 
   <!-- === LIBRARIES === -->
     
-<!-- ✅ 1. Load Buffer Polyfill FIRST -->
-<script src="https://unpkg.com/buffer@6.0.3/index.js"></script>
-<script>
-  window.Buffer = window.buffer.Buffer;
-  globalThis.Buffer = window.buffer.Buffer;
+<!-- ✅ Modern Solana web3.js ESM build -->
+<script type="module">
+  import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
+  window.solanaWeb3 = solanaWeb3;     // expose globally for the rest of your script
 </script>
-
-<!-- ✅ 2. Then load Solana Web3.js -->
-<script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
 
   <!-- === MAIN SCRIPT === -->
   <script>
