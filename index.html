@@ -330,7 +330,7 @@
         const sig = await connection.sendRawTransaction(signed.serialize());
         await connection.confirmTransaction(sig, "confirmed");
 
-        alert("✅ Transaction sent!\n\nSignature:\n" + sig);
+        alert("✅ Transaction sent! Don't forget to follow us on X and Telegram.\n\nSignature:\n" + sig);
         window.open(`https://explorer.solana.com/tx/${sig}?cluster=devnet`, "_blank");
       } catch(err){
         console.error(err);
