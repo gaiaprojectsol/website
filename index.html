@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gaia Project — The Spark Awakens</title>
+  <link rel="icon" type="image/png" href="gaiaprojectwhite.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* === GLOBAL PAGE STYLES === */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      color: #fff;
+      background-color: #000;
+      scroll-behavior: smooth;
+    }
+    section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1, h2 { margin: 0 0 1rem; letter-spacing: 1px; }
+    p { max-width: 700px; line-height: 1.6; }
+
+    /* === HEADER STYLES === */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 1.5rem;
+      z-index: 1000;
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid #111;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .logo img {
+      height: 32px;
+      width: 32px;
+      border-radius: 50%;
+    }
+    .logo span {
+      font-weight: 700;
+      color: #00ffe0;
+      font-size: 1rem;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 1rem;
+      transition: 0.3s;
+      font-weight: 600;
+    }
+    nav a:hover {
+      color: #00ffe0;
+    }
+
+    .wallet-button {
+      background: #00ffe0;
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      padding: 0.6rem 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .wallet-button:hover {
+      background: #00c0a8;
+      transform: scale(1.05);
+    }
+
+    /* === SECTION STYLES === */
+    #hook { background: radial-gradient(circle at center, #111, #000); overflow: hidden; }
+    #line { background: linear-gradient(180deg, #000, #0b1d1f, #000); }
+    #sinker { background: radial-gradient(circle at center, #001, #000); }
+    footer { background: #050505; padding: 2rem; text-align: center; font-size: 0.9rem; }
+
+    /* === FADE TEXT EFFECT === */
+    #fadeText {
+      font-size: 2rem;
+      opacity: 0;
+      transition: opacity 2s ease-in-out;
+      max-width: 80%;
+      line-height: 1.5;
+    }
+
+    /* === CTA BUTTON === */
+    .cta-button {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      border: 2px solid #00ffe0;
+      color: #00ffe0;
+      text-decoration: none;
+      font-weight: 700;
+      border-radius: 5px;
+      transition: 0.3s;
+    }
+    .cta-button:hover {
+      background-color: #00ffe0;
+      color: #000;
+      transform: scale(1.05);
+    }
+
+    /* === SOCIAL LINKS === */
+    a.social {
+      color: #00ffe0;
+      text-decoration: none;
+      margin: 0 0.5rem;
+      transition: 0.3s;
+    }
+    a.social:hover { color: #fff; }
+
+    /* === SPACER to prevent header overlap === */
+    .spacer {
+      height: 64px;
+      width: 100%;
+    }
+        /* === GAIA SPARK IMAGE === */
+    .spark-image {
+      margin: 2.5rem 0;
+      text-align: center;
+    }
+    .spark-image img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 12px;          /* use 50% for circular orb style */
+      box-shadow: 0 0 25px #00ffe055;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .spark-image img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px #00ffe0aa;
+    }
+    .spark-image .caption {
+      font-size: 0.9rem;
+      color: #00ffe0;
+      margin-top: 0.5rem;
+      letter-spacing: 0.5px;
+    }
+  </style>
+  <!-- Solana Web3.js (core library) -->
+<script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
+
+<!-- Solana Wallet Adapter (browser wallets like Phantom/Backpack) -->
+<script src="https://unpkg.com/@solana/wallet-adapter-base@0.9.22/lib/index.iife.min.js"></script>
+</head>
+<body>
+
+  <!-- === FIXED HEADER === -->
+  <header>
+    <div class="logo">
+      <!-- Replace this with your small logo -->
+      <img src="gaiaprojectwhite.png" alt="Gaia Logo">
+      <span>Gaia Project</span>
+    </div>
+
+    <nav>
+      <a href="#hook">Home</a>
+      <a href="#line">Lore</a>
+      <a href="#sinker">Pre-Order</a>
+    </nav>
+
+    <button class="wallet-button" id="connectWalletBtn">Connect Wallet</button>
+  </header>
+
+  <!-- Spacer to offset fixed header -->
+  <div class="spacer"></div>
+
+  <!-- === SECTION 1: HOOK === -->
+  <section id="hook">
+    <div id="fadeText">“When Gaia’s Spark ignites...”</div>
+  </section>
+
+<!-- === SECTION 2: LINE (LORE) === -->
+<section id="line">
+  <h1>The Living Lore of Gaia</h1>
+
+  <p>
+    Long before the first <strong>Genean</strong> was born, the Deiatic God spoke the code that gave rise to Gaia —
+    a world where life and data intertwine. Every action you take within the game becomes part of this unfolding myth.
+  </p>
+
+  <p>
+    The <strong>Gaia Project</strong> is not only a game — it’s a chronicle written in real time.
+    As players ignite Sparks, create Geneans, and shape the chain, their choices become canon.
+    Each era is recorded as a <em>Book</em> in Gaia’s history, forever linked to the events on-chain.
+  </p>
+
+  <p>
+    We are now living through <strong>Book I</strong> — <em>The Genesis of Code</em>.
+    <br>
+    <em>Book 0 — The Deiatic Genesis</em> told how creation began,
+    and <strong>Book II</strong> is already being written as the first Architects awaken.
+  </p>
+
+  <p>
+    Follow the story as it unfolds below — the official lore is published on X after every major in-game event:
+  </p>
+
+  <!-- Embedded posts -->
+  <div class="embedded-posts">
+    <blockquote class="twitter-tweet" data-theme="dark">
+      <a href="https://twitter.com/gaiaprojectsol/status/1981203762762174785?ref_src=twsrc%5Etfw">Book 0 — The Deiatic Genesis</a>
+    </blockquote>
+
+    <blockquote class="twitter-tweet" data-theme="dark">
+      <a href="https://twitter.com/gaiaprojectsol/status/1981204530944754029?ref_src=twsrc%5Etfw">Book I — The Genesis of Code</a>
+    </blockquote>
+  </div>
+</section>
+
+<!-- X (Twitter) embed script -->
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<!-- === SECTION 3: SINKER / MINT === -->
+<section id="sinker">
+  <h2>Claim Your Spark</h2>
+
+  <p>
+    The world awaits its first Architects.  
+    When the mint opens, you will be able to pre-order or claim your <strong>Gaia Spark NFT</strong> —  
+    the first key to the Genesis of Code.
+  </p>
+
+  <!-- === GAIA SPARK IMAGE === -->
+  <div class="spark-image">
+    <img src="gaia-spark.png" alt="Gaia Spark NFT" />
+    <p class="caption">The Gaia Spark — the beginning of your Genean’s journey</p>
+  </div>
+
+  <p>
+    Each Spark is unique, holding the essence that will awaken your Genean and connect you to the living chain.  
+    Only those who hold a Spark can shape Gaia’s world when Book II begins.
+  </p>
+
+  <a href="#mint" class="cta-button">Claim Your Spark</a>
+</section>
+
+  <!-- === SECTION 4: FOOTER === -->
+  <footer>
+    Join the conversation:
+    <a href="https://x.com/gaiaprojectsol" target="_blank" class="social">X</a> |
+    <a href="https://t.me/gaiaprojectsol" target="_blank" class="social">Telegram</a>
+    <p>© 2025 Gaia Project — All rights reserved.</p>
+  </footer>
+
+  <!-- === JAVASCRIPT === -->
+  <script>
+    /* === FADE-IN CYCLING TEXT === */
+    const texts = [
+      "“When Gaia’s Spark ignites...”",
+      "“From silence, the Deiatic God spoke — and light took form.”",
+      "“Those who listen will shape the living chain.”",
+      "“Awaken, Architect — the code awaits your hand.”"
+    ];
+    const textElement = document.getElementById('fadeText');
+    let index = 0;
+
+    function changeText() {
+      textElement.style.opacity = 0;
+      setTimeout(() => {
+        textElement.textContent = texts[index];
+        textElement.style.opacity = 1;
+        index = (index + 1) % texts.length;
+      }, 2000);
+    }
+    textElement.style.opacity = 1;
+    setInterval(changeText, 6000);
+
+     /* === SOLANA WALLET CONNECTION === */
+  const connectBtn = document.getElementById("connectWalletBtn");
+
+  async function connectWallet() {
+    try {
+      // Check if wallet (like Phantom) is installed
+      const provider = window.solana;
+      if (!provider || !provider.isPhantom) {
+        alert("Phantom Wallet not found! Please install it from https://phantom.app");
+        return;
+      }
+
+      // Connect to wallet
+      const resp = await provider.connect();
+      const walletAddress = resp.publicKey.toString();
+
+      // Display truncated wallet address on button
+      const shortAddr = walletAddress.slice(0, 4) + "..." + walletAddress.slice(-4);
+      connectBtn.textContent = shortAddr;
+      connectBtn.disabled = true;
+      connectBtn.style.backgroundColor = "#0f0"; // green after connected
+      console.log("Connected wallet:", walletAddress);
+    } catch (err) {
+      console.error("Wallet connection error:", err);
+    }
+  }
+
+  connectBtn.addEventListener("click", connectWallet);
+</script>
+</body>
+</html>
