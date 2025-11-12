@@ -242,12 +242,16 @@
   </footer>
 
   <!-- === LIBRARIES === -->
-    <script src="https://unpkg.com/buffer@6.0.3/index.js"></script>
-  <script>
+    
+<!-- ✅ 1. Load Buffer Polyfill FIRST -->
+<script src="https://unpkg.com/buffer@6.0.3/index.js"></script>
+<script>
   window.Buffer = window.buffer.Buffer;
-  </script>
-  
-  <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
+  globalThis.Buffer = window.buffer.Buffer;
+</script>
+
+<!-- ✅ 2. Then load Solana Web3.js -->
+<script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
 
   <!-- === MAIN SCRIPT === -->
   <script>
