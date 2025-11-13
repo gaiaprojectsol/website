@@ -311,7 +311,7 @@ async function updateSolanaTime() {
     const epochInfo = await epochRes.json();
     const slot = epochInfo.result.absoluteSlot;
 
-    const timeRes = await fetch("https://api.mainnet-beta.solana.com", {
+    const timeRes = await fetch("https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
