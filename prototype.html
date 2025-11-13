@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Genean Allocation</title>
+
+<!-- FAVICON -->
+<link rel="icon" type="image/png" href="gaiaprojectwhite.png" />
+
+<style>
+  body {
+    background:#050505;
+    color:#e5e5e5;
+    font-family:Arial,sans-serif;
+    padding:0;
+    margin:0;
+  }
+
+  /* === ANNOUNCEMENT BANNER === */
+  #announcementBanner{
+    width:100%;
+    text-align:center;
+    padding:12px;
+    background:#222;
+    color:#fff;
+    font-size:16px;
+    box-shadow:0 0 15px #00ffaa55;
+    border-bottom:1px solid #444;
+  }
+
+  #prototypeDisclaimer{
+    text-align:center;
+    margin-top:5px;
+    font-size:13px;
+    color:#bbbbbb;
+    padding-bottom:10px;
+  }
+
+  /* === GAIA HEADER BANNER === */
+  #gaiaHeader{
+    width:100%;
+    text-align:center;
+    padding:18px 0;
+    background:linear-gradient(90deg,#010e0e,#032424,#010e0e);
+    color:#66ffcc;
+    font-size:22px;
+    font-weight:bold;
+    letter-spacing:1px;
+    box-shadow:0 0 25px #00ffaa33;
+    border-bottom:1px solid #003322;
+  }
+
+  #solanaClock{
+    width:90%;
+    margin:15px auto;
+    text-align:center;
+    padding:10px;
+    font-size:16px;
+    background:#0f0f0f;
+    border:1px solid #333;
+    border-radius:8px;
+    box-shadow:0 0 10px #00ffaa33;
+  }
+
+  .container{
+    max-width:480px;
+    margin:auto;
+    background:#111;
+    padding:20px;
+    border-radius:10px;
+    border:1px solid #333;
+    box-shadow:0 0 20px #00ffaa22;
+  }
+
+  .wallet-connect{
+    display:block;
+    margin:0 auto 15px auto;
+    background:#6f3cff;
+    padding:12px 20px;
+    border-radius:8px;
+    border:none;
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+    box-shadow:0 0 12px #6f3cff77;
+  }
+
+  select{
+    width:100%;
+    padding:12px;
+    margin-bottom:20px;
+    border-radius:8px;
+    background:#222;
+    color:#fff;
+    border:1px solid #444;
+  }
+
+  img{
+    width:100%;
+    border-radius:10px;
+    margin-bottom:15px;
+    box-shadow:0 0 15px #00ffcc22;
+    transition:0.3s ease-out;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:20px;
+  }
+  table td{
+    padding:10px;
+    border-bottom:1px solid #333;
+  }
+
+  .btn{
+    width:34px;
+    height:34px;
+    border:none;
+    background:#333;
+    color:#fff;
+    font-size:22px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:0.15s;
+  }
+
+  .btn:hover:not(:disabled){
+    background:#00ffaa44;
+    box-shadow:0 0 10px #00ffaa66;
+  }
+
+  .btn:disabled{
+    opacity:.3;
+    cursor:not-allowed;
+  }
+
+  .value-box{
+    display:inline-block;
+    width:32px;
+    text-align:center;
+    font-size:18px;
+    padding:5px;
+  }
+
+  #remaining{
+    text-align:center;
+    font-size:18px;
+    margin:15px 0;
+  }
+
+  .submit{
+    width:100%;
+    background:#16a085;
+    border:none;
+    padding:14px;
+    font-size:18px;
+    border-radius:8px;
+    cursor:pointer;
+    color:white;
+    box-shadow:0 0 10px #16a085aa;
+  }
+
+  .submit:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+  }
+
+  /* === PROGRESS BAR === */
+  #progressContainer{
+    background:#222;
+    border:1px solid #444;
+    height:20px;
+    border-radius:10px;
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+
+  #progressBar{
+    height:100%;
+    width:0%;
+    background:#66ff99;
+    box-shadow:0 0 10px #66ff99;
+    transition: width 0.3s ease-out;
+  }
+
+  /* === SOCIAL FOOTER === */
+  #socialFooter{
+    margin-top:30px;
+    padding:20px 0;
+    text-align:center;
+    background:#0d0d0d;
+    border-top:1px solid #333;
+    box-shadow:0 0 15px #00ffaa22;
+  }
+
+  #socialFooter a{
+    color:#66ffcc;
+    text-decoration:none;
+    margin:0 10px;
+    font-size:18px;
+  }
+
+  #socialFooter a:hover{
+    color:#00ffaa;
+    text-shadow:0 0 10px #00ffaa;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- ==== ANNOUNCEMENT BANNER ==== -->
+<div id="announcementBanner">
+  ⚠️ Prototype Only — This Is Not the Final Version
+</div>
+
+<!-- ==== GAIA HEADER ==== -->
+<div id="gaiaHeader">
+  🌍 GAIA PROJECT — GENEAN INTERACTION PROTOTYPE
+</div>
+
+<div id="prototypeDisclaimer">
+  This prototype is for preview purposes only.  
+  The final released version may differ.
+</div>
+
+
+<!-- SOLANA CLOCK -->
+<div id="solanaClock">Loading Solana Time...</div>
+
+<div class="container">
+
+  <button class="wallet-connect" onclick="loadWalletGeneans()">
+    Connect Wallet
+  </button>
+
+  <!-- Genean Picker -->
+  <select id="geneanSelect" onchange="loadSelectedGenean()" disabled>
+    <option value="">Select a Genean</option>
+  </select>
+
+  <!-- Genean Image -->
+  <img id="geneanImg" src="" alt="Genean Image"/>
+
+  <h2 id="geneanName"></h2>
+
+  <!-- Status -->
+  <div id="geneanStatus"
+       style="text-align:center; margin-bottom:10px; font-size:18px; text-shadow:0 0 8px #00ffaa55;">
+  </div>
+
+  <!-- Total Points -->
+  <div id="geneanTotalPoints" 
+       style="text-align:center; margin-bottom:10px; font-size:16px; color:#ccc;">
+  </div>
+
+  <!-- Progress Bar -->
+  <div id="progressContainer">
+    <div id="progressBar"></div>
+  </div>
+
+  <div id="remaining">Points left to allocate: <b id="pointsLeft">3</b></div>
+
+  <table><tbody id="attributeTable"></tbody></table>
+
+  <button class="submit" id="submitBtn" disabled>Submit Allocation</button>
+</div>
+
+<!-- SOCIAL FOOTER -->
+<div id="socialFooter">
+  <a href="https://twitter.com/gaiaprojectsol" target="_blank">Twitter</a>
+  <a href="https://t.me/+mncoosKFcA5lMTNl" target="_blank">Telegram</a>
+</div>
+
+<!-- PREORDER BUTTON AT VERY BOTTOM -->
+<div id="preorderBottom" style="text-align:center; padding:25px 0;">
+  <a href="https://gaiaproject.world/#mint"
+     style="
+        background:#6f3cff;
+        padding:14px 26px;
+        border-radius:10px;
+        color:white;
+        text-decoration:none;
+        font-size:18px;
+        box-shadow:0 0 15px #6f3cff88;
+        display:inline-block;
+     ">
+    🔮 Pre-order Your Genean
+  </a>
+</div>
+
+<script>
+/* -----------------------------------------------------
+   SOLANA CLOCK — RELIABLE VERSION
+----------------------------------------------------- */
+
+async function updateSolanaTime() {
+  try {
+    const epochRes = await fetch("https://api.mainnet-beta.solana.com", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "getEpochInfo"
+      })
+    });
+
+    const epochInfo = await epochRes.json();
+    const slot = epochInfo.result.absoluteSlot;
+
+    const timeRes = await fetch("https://api.mainnet-beta.solana.com", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "getBlockTime",
+        params: [slot]
+      })
+    });
+
+    const timeData = await timeRes.json();
+    const timestamp = timeData.result;
+
+    if (!timestamp) {
+      document.getElementById("solanaClock").innerHTML = "Solana Time Unavailable";
+      return;
+    }
+
+    const utc = new Date(timestamp * 1000)
+      .toISOString()
+      .replace("T", " ")
+      .replace("Z", "");
+
+    document.getElementById("solanaClock").innerHTML =
+      "Solana UTC Time: <b>" + utc + "</b>";
+
+  } catch (e) {
+    document.getElementById("solanaClock").innerHTML = "Solana Time Unavailable";
+  }
+}
+
+updateSolanaTime();
+setInterval(updateSolanaTime, 5000);
+
+
+/* -----------------------------------------------------
+   GENEANS IN WALLET (SIMULATED)
+----------------------------------------------------- */
+let walletGeneans = [
+  {
+    id:"0000001",
+    name:"Lord Fardrosan",
+    adultImage:"adult-genean-genesis.png",
+    babyImage:"baby-genean.png",
+    attributes:{
+      Strength:100,Agility:8,Vitality:12,Wisdom:5,Luck:7,
+      Intelligence:6,Spirit:4,Charisma:9,Perception:7,Endurance:11
+    }
+  },
+  {
+    id:"074",
+    name:"Lady Zinthara",
+    adultImage:"adult-genean-genesis.png",
+    babyImage:"baby-genean.png",
+    attributes:{
+      Strength:1,Agility:1,Vitality:1,Wisdom:1,Luck:1,
+      Intelligence:1,Spirit:1,Charisma:1,Perception:1,Endurance:1
+    }
+  }
+];
+
+/* -----------------------------------------------------
+   LOAD WALLET
+----------------------------------------------------- */
+function loadWalletGeneans(){
+  const dropdown = document.getElementById("geneanSelect");
+  dropdown.innerHTML = '<option value="">Select your Genean</option>';
+
+  walletGeneans.forEach(g=>{
+    let opt = document.createElement("option");
+    opt.value = g.id;
+    opt.textContent = g.name;
+    dropdown.appendChild(opt);
+  });
+
+  dropdown.disabled = false;
+  alert("Wallet connected! (Simulated)");
+}
+
+
+/* -----------------------------------------------------
+   STATUS + IMAGES + TOTAL + PROGRESS BAR
+----------------------------------------------------- */
+function updateGeneanStatus() {
+  const total = Object.values(currentGenean.attributes)
+                      .reduce((a,b)=>a+b,0);
+
+  const statusDiv = document.getElementById("geneanStatus");
+  const totalDiv = document.getElementById("geneanTotalPoints");
+
+  if (total < 100) {
+    statusDiv.innerHTML =
+      `<span style="color:#ff6666;"><b>Status: BABY</b></span>`;
+    document.getElementById("geneanImg").src = currentGenean.babyImage;
+  } else {
+    statusDiv.innerHTML =
+      `<span style="color:#66ff99;"><b>Status: ADULT</b></span>`;
+    document.getElementById("geneanImg").src = currentGenean.adultImage;
+  }
+
+  totalDiv.innerHTML = `Total Attribute Points: <b>${total}</b>`;
+
+  updateProgressBar();
+}
+
+
+/* -----------------------------------------------------
+   PROGRESS BAR
+----------------------------------------------------- */
+function updateProgressBar() {
+  const total = Object.values(currentGenean.attributes)
+                      .reduce((a,b)=>a+b,0);
+
+  const bar = document.getElementById("progressBar");
+  let percent;
+
+  if (total < 100) {
+    percent = (total / 100) * 100;
+    bar.style.background = "#ff6666";
+    bar.style.boxShadow = "0 0 10px #ff6666";
+  } else {
+    const adjusted = Math.min(total, 1000);
+    percent = ((adjusted - 100) / 900) * 100;
+    bar.style.background = "#66ff99";
+    bar.style.boxShadow = "0 0 10px #66ff99";
+  }
+
+  bar.style.width = percent + "%";
+}
+
+
+/* -----------------------------------------------------
+   LOAD SELECTED GENEAN
+----------------------------------------------------- */
+let currentGenean = null;
+let remaining = 3;
+
+function loadSelectedGenean(){
+  const id = document.getElementById("geneanSelect").value;
+  if (!id) return;
+
+  currentGenean = walletGeneans.find(g=>g.id===id);
+
+  document.getElementById("geneanName").innerText = currentGenean.name;
+
+  updateGeneanStatus();
+  buildAttributesUI();
+}
+
+
+/* -----------------------------------------------------
+   BUILD ATTRIBUTES TABLE
+----------------------------------------------------- */
+function buildAttributesUI(){
+  remaining = 3;
+  document.getElementById("pointsLeft").innerText = remaining;
+
+  const table = document.getElementById("attributeTable");
+  table.innerHTML = "";
+
+  Object.entries(currentGenean.attributes).forEach(([attr,value])=>{
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><b>${attr}</b><br><small>Current: ${value}</small></td>
+      <td style="text-align:right;">
+        <button class="btn minus" data-attr="${attr}">-</button>
+        <span class="value-box" id="value-${attr}">0</span>
+        <button class="btn plus" data-attr="${attr}">+</button>
+      </td>
+    `;
+    table.appendChild(row);
+  });
+
+  enableButtons();
+}
+
+
+/* -----------------------------------------------------
+   BUTTON LOGIC
+----------------------------------------------------- */
+function enableButtons(){
+  const plus = document.querySelectorAll(".plus");
+  const minus = document.querySelectorAll(".minus");
+  const submit = document.getElementById("submitBtn");
+
+  function update(){
+    document.getElementById("pointsLeft").innerText = remaining;
+
+    plus.forEach(btn => btn.disabled = remaining === 0);
+
+    minus.forEach(btn => {
+      const attr = btn.dataset.attr;
+      const val = parseInt(document.getElementById("value-"+attr).innerText);
+      btn.disabled = val === 0;
+    });
+
+    submit.disabled = remaining !== 0;
+  }
+
+  plus.forEach(btn=>{
+    btn.onclick = ()=>{
+      if (remaining > 0) {
+        const attr = btn.dataset.attr;
+        const box = document.getElementById("value-"+attr);
+        box.innerText = parseInt(box.innerText) + 1;
+        remaining--;
+        update();
+      }
+    };
+  });
+
+  minus.forEach(btn=>{
+    btn.onclick = ()=>{
+      const attr = btn.dataset.attr;
+      const box = document.getElementById("value-"+attr);
+      if (parseInt(box.innerText) > 0) {
+        box.innerText = parseInt(box.innerText) - 1;
+        remaining++;
+        update();
+      }
+    };
+  });
+
+  update();
+}
+
+
+/* -----------------------------------------------------
+   SUBMIT
+----------------------------------------------------- */
+document.getElementById("submitBtn").onclick = ()=>{
+  const result = {};
+  Object.keys(currentGenean.attributes).forEach(attr=>{
+    result[attr] = parseInt(document.getElementById("value-"+attr).innerText);
+  });
+
+  alert("Allocation Submitted:\n" + JSON.stringify(result,null,2));
+};
+</script>
+
+</body>
+</html>
