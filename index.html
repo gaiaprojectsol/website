@@ -27,7 +27,7 @@
       scroll-margin-top: 80px;
     }
     h1, h2 { margin: 0 0 1rem; letter-spacing: 1px; }
-    p { max-width: 700px; mint-height: 1.6; }
+    p { max-width: 700px; line-height: 1.6; }
 
         /* 🟢 ADDED ANNOUNCEMENT BAR STYLES */
     #announcement-bar {
@@ -36,7 +36,7 @@
       left: 0;
       width: 100%;
       height: 32px;
-      background: mintar-gradient(90deg, #00ffe0, #007b6e);
+      background: linear-gradient(90deg, #00ffe0, #007b6e);
       color: #000;
       font-weight: 700;
       overflow: hidden;
@@ -46,9 +46,9 @@
     }
     #announcement-text {
       white-space: nowrap;
-      display: inmint-block;
+      display: inline-block;
       padding-left: 100%;
-      animation: scrollBanner 20s mintar infinite;
+      animation: scrollBanner 20s linear infinite;
     }
     @keyframes scrollBanner {
       0% { transform: translateX(0); }
@@ -98,8 +98,8 @@
     }
 
     #home { background: radial-gradient(circle at center, #111, #000); }
-    #mint { background: mintar-gradient(180deg, #000, #0b1d1f, #000); }
-    #lore { background: radial-gradient(circle at center, #001, #000); }
+    #lore { background: linear-gradient(180deg, #000, #0b1d1f, #000); }
+    #mint { background: radial-gradient(circle at center, #001, #000); }
     footer { background: #050505; padding: 2rem; text-align: center; font-size: 0.9rem; }
 
     #fadeText {
@@ -107,11 +107,11 @@
       opacity: 0;
       transition: opacity 2s ease-in-out;
       max-width: 80%;
-      mint-height: 1.5;
+      line-height: 1.5;
     }
 
     .cta-button {
-      display: inmint-block;
+      display: inline-block;
       margin-top: 2rem;
       padding: 1rem 2rem;
       border: 2px solid #00ffe0;
@@ -204,8 +204,8 @@
     </div>
     <nav>
       <a href="#home">Home</a>
-      <a href="#mint">Lore</a>
-      <a href="#lore">Pre-Order</a>
+      <a href="#lore">Lore</a>
+      <a href="#mint">Pre-Order</a>
     </nav>
     <button class="wallet-button" id="connectWalletBtn">Connect Wallet</button>
   </header>
@@ -216,7 +216,7 @@
     <div id="fadeText">“When Gaia’s Spark ignites...”</div>
   </section>
 
-  <section id="mint">
+  <section id="lore">
     <h1>The Living Lore of Gaia</h1>
     <p>
       Long before the first <strong>Genean</strong> was born, the Deiatic God spoke the code that gave rise to Gaia —
@@ -246,7 +246,7 @@
 
   <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-  <section id="lore">
+  <section id="mint">
     <h2>Pre-Order Your Gaia Spark</h2>
     <p>
       The world awaits its first Architects. When the mint opens, you will be able to pre-order or claim your
@@ -259,7 +259,7 @@
     </div>
 
     <p>Enter your Genean name below and send 0.1 SOL to reserve your Spark.</p>
-    <input id="memo" type="text" placeholder="e.g. Lord Fardrosan">
+    <input id="memo" type="text" placeholder="Type your name here">
     <br>
     <button id="send">Claim your Gaia Spark</button>
 
@@ -296,7 +296,7 @@
     setInterval(() => {
       announceIndex = (announceIndex + 1) % announcements.length;
       banner.textContent = announcements[announceIndex];
-    }, 20000); // change every 20 seconds
+    }, 10000); // change every 10 seconds
 
     /* === Intro cycling text === */
     const texts = [
@@ -329,10 +329,10 @@
   "3. The rare shaped deeply; the common shaped widely.",
   "4. Balance lived between both.",
 
-  "Chapter 6 – The Chainmints",
+  "Chapter 6 – The Chainlines",
   "1. Souls joined in union.",
   "2. Form meant nothing; essence endured.",
-  "3. mintage carried memory through time.",
+  "3. Lineage carried memory through time.",
 
   "Chapter 7 – The Decade Souls",
   "1. Among them rose the Decade Souls.",
