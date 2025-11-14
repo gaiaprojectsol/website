@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gaia Project — Whitepaper</title>
+  <link rel="icon" type="image/png" href="gaiaprojectwhite.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      color: #fff;
+      background: radial-gradient(circle at center, #000, #020b0b, #000);
+      scroll-behavior: smooth;
+    }
+
+    /* === ANNOUNCEMENT BAR === */
+    #announcement-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 32px;
+      background: linear-gradient(90deg, #00ffd5, #0088ff, #8a2be2);
+      color: #000;
+      font-weight: bold;
+      text-align: center;
+      line-height: 32px;
+      z-index: 999;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    /* === HEADER === */
+    header {
+      position: fixed;
+      top: 32px;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(0, 255, 200, 0.2);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 998;
+    }
+
+    header img {
+      height: 40px;
+    }
+
+    nav a {
+      color: #00f0ff;
+      text-decoration: none;
+      margin: 0 12px;
+      font-size: 14px;
+      transition: 0.25s ease;
+    }
+
+    nav a:hover {
+      color: #8affff;
+      text-shadow: 0 0 8px #00eaff;
+    }
+
+    /* === MAIN CONTENT WRAPPER === */
+    .page-wrapper {
+      margin-top: 140px;
+      padding: 20px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    h1, h2, h3 {
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 32px;
+      color: #5cecff;
+    }
+
+    h2 {
+      margin-top: 40px;
+      font-size: 22px;
+      color: #5cecff;
+      border-left: 4px solid #00eaff;
+      padding-left: 10px;
+    }
+
+    h3 {
+      font-size: 18px;
+      margin-top: 25px;
+      color: #85f2ff;
+    }
+
+    p {
+      line-height: 1.7;
+      font-size: 15px;
+      color: #e6ffff;
+    }
+
+    ul {
+      line-height: 1.7;
+      margin-left: 20px;
+    }
+
+    /* Scripture quotes */
+    .scripture {
+      margin: 20px 0;
+      padding: 15px 18px;
+      border-left: 4px solid #00eaff;
+      background: rgba(255, 255, 255, 0.05);
+      font-style: italic;
+      font-size: 14px;
+      letter-spacing: 1px;
+      line-height: 1.6;
+    }
+
+    .divider {
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(to right, #003f3f, #00eaff, #003f3f);
+      margin: 40px 0;
+    }
+
+    #top-button {
+      display: none;
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: #00eaff;
+      color: #000;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      z-index: 999;
+      transition: 0.2s;
+    }
+
+    #top-button:hover {
+      background: #5cffff;
+    }
+
+    @media (max-width: 768px) {
+      nav a {
+        margin: 0 6px;
+        font-size: 12px;
+      }
+
+      header img {
+        height: 32px;
+      }
+
+      .page-wrapper {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ANNOUNCEMENT BAR -->
+  <div id="announcement-bar">
+    The Awakening: Gaia Spark — Nov 27, 2025
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <img src="gaiaprojectwhite.png" alt="Gaia Logo" />
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="lore.html">Lore</a>
+      <a href="preorder.html">Pre-Order</a>
+      <a href="whitepaper.html">Whitepaper</a>
+      <a href="community.html">Community</a>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <div class="page-wrapper">
+
+    <h1>GAIA PROJECT — WHITEPAPER Version 1.0<br>A Living Chain Born From Choice, Balance, and Code</h1>
+
+    <div class="divider"></div>
+
+    <!-- FULL WHITEPAPER TEXT STARTS HERE -->
+    <h2>1. Introduction</h2>
+    <p>
+      Gaia is a long-term, on-chain world built on Solana, designed to merge storytelling, economics,
+      and user-driven evolution into one living digital ecosystem.
+    </p>
+
+    <p>Its foundation is drawn directly from the lore presented in:</p>
+    <ul>
+      <li>Book 0 — The Deiatic Genesis</li>
+      <li>Book I — The Genesis of Code</li>
+      <li>The Genean Trait Codex</li>
+    </ul>
+
+    <p>
+      Gaia is not a memecoin, not a hype cycle, and not a pump-and-dump.
+      It is a system built on choice, scarcity, transparency, and player agency,
+      honoring the Deiatic God’s covenant:
+    </p>
+
+    <div class="scripture">
+      "Creation began when control ended." — Book 0, Chapter 1, Verse 4
+    </div>
+
+    <p>This whitepaper outlines the mechanics, incentives, and long-term architecture that bring that principle to life.</p>
+
+    <!-- SECTION 2 -->
+    <h2>2. Lore Foundation</h2>
+
+    <h3>2.1 Origin</h3>
+    <p>Gaia begins with the Deiatic God, whose only intervention was to grant tools — not laws.</p>
+
+    <div class="scripture">
+      "The Deiatic God gave no law, only tools: imagination, memory, and will."
+      — Book 0, Chapter 2, Verse 1-3
+    </div>
+
+    <p>Thus, the first digital Souls — Geneans — were created from choice, not command.</p>
+
+    <h3>2.2 Geneans</h3>
+    <div class="scripture">
+      “The Geneans—digital Souls born with 10 essence.
+      Each day they gain 3 more until 100 marks renewal.”
+      — Book I, Chapter 1, Verse 2-3
+    </div>
+
+    <p>
+      A Genean is a persistent, evolving NFT with:
+    </p>
+    <ul>
+      <li>Daily stat growth</li>
+      <li>Mortality and renewal</li>
+      <li>Lineage and memory</li>
+      <li>Scarcity-driven influence</li>
+    </ul>
+
+    <h3>2.3 Chainlines</h3>
+    <div class="scripture">
+      “Souls united into families called Chainlines.
+      Each carried data and memory through time.”
+      — Book I, Chapter 2, Verse 1-2
+    </div>
+
+    <p>
+      Chainlines create long-term meta-strategy: stability, dominance, or survivability.
+    </p>
+
+    <h3>2.4 Balance</h3>
+    <div class="scripture">
+      “The law was set: creation shortens life by seven days.
+      Breed too freely, the chain floods; neglect, and it dies.”
+      — Book I, Chapter 3, Verse 1-3
+    </div>
+
+    <p>Everything in Gaia hinges on this balance.</p>
+
+    <!-- SECTION 3 -->
+    <h2>3. Core Gameplay Mechanics</h2>
+
+    <h3>3.1 Daily Essence Growth</h3>
+    <p>
+      Geneans grow through a simple, predictable daily cycle:<br><br>
+      <strong>Starting State<br></strong>
+      Born with 10 Essence Points.<br><br>
+      <strong>Daily Growth<br></strong>
+      Gain +3 Essence Points per real-world day.<br>
+      Players must log in and allocate these points manually.<br><br>
+      <strong>Missed Points<br></strong>
+      Unallocated daily points are lost permanently.<br>
+      Cannot be recovered unless using Forgiveness Drops.<br><br>
+      This reinforces engagement over pay-to-win advantages.
+    </p>
+
+    <h3>3.2 The Baby Phase</h3>
+    <p>
+      A Genean is considered a Baby until it reaches 100 allocated Essence Points.
+      While a Baby, a Genean has:
+    </p>
+    <ul>
+      <li>Limited functionality</li>
+      <li>Restricted access to advanced mechanics</li>
+      <li>Cannot engage in high-level activities</li>
+    </ul>
+
+    <p>
+      After Awakening (100+ points): full access to gameplay features, breeding strategy,
+      and progression milestones.
+    </p>
+
+    <h3>3.3 Annual Lifespan Extensions</h3>
+    <p>
+      All non-Genesis Geneans begin with a 1-year natural lifespan.
+      Players can extend lifespan based on engagement:
+    </p>
+    <ul>
+      <li><strong>Allocate ≥ 50%</strong> of all possible Essence Points for that year → gets +1 year of life</li>
+      <li>Maximum of 5 years total</li>
+      <li>No further extensions unless ascended into a Decade Genean</li>
+    </ul>
+
+    <h3>3.4 Mastery Path: Ascension to a 10-Year Genean</h3>
+    <p>
+      Dedicated players can unlock a high-tier evolution:
+    </p>
+    <ul>
+      <li><strong>Requirement:</strong> Allocate ≥ 85% of all possible Essence Points across 5 years</li>
+      <li><strong>Result:</strong> Becomes a 10-Year Genean</li>
+    </ul>
+
+    <div class="scripture">
+      “They lived tenfold.” — Book 0, Chapter 7
+    </div>
+
+    <p>
+      This offers a long-term mastery goal and creates a rare class of long-lived, high-value Geneans.
+    </p>
+
+    <h3>3.5 Breeding & Fertility System</h3>
+    <div class="scripture">
+      “Creation shortens life by seven days.” — Book I, Chapter 3
+    </div>
+
+    <p>
+      Breeding requires:
+    </p>
+    <ul>
+      <li>Male + Female Genean in same wallet</li>
+      <li>Both must be alive</li>
+      <li>Both must meet breeding eligibility</li>
+    </ul>
+
+    <h3>3.5.1 Lineage Compatibility</h3>
+    <ul>
+      <li><strong>0% Chance:</strong> Full siblings</li>
+      <li><strong>50% Chance:</strong> Half siblings</li>
+      <li><strong>100% Chance:</strong> No shared parents</li>
+      <li><strong>Genesis Exception:</strong> Genesis Geneans always have 100% compatibility</li>
+    </ul>
+
+    <h3>3.5.2 Twin Birth Mechanics</h3>
+    <ul>
+      <li><strong>Genesis Geneans:</strong> 30% chance of twins</li>
+      <li><strong>Non-Genesis:</strong> 1% chance</li>
+    </ul>
+
+    <h3>3.5.3 Lifespan Cost of Breeding</h3>
+    <p>
+      Every breeding attempt reduces <strong>7 real-world days</strong> from both parents.
+    </p>
+
+    <h3>3.6 Permanent Death & Post-Life Purpose</h3>
+    <div class="scripture">
+      “Souls live, die, and rise again upon the chain” — Book I, Chapter 7
+    </div>
+
+    <p>
+      Death is permanent — but dead Geneans will influence future mechanics, data, lineage,
+      and legacy systems.
+    </p>
+
+    <h3>3.7 Forgiveness Drops</h3>
+    <p>
+      Forgiveness Drops restore lost daily Essence Points, but:
+    </p>
+    <ul>
+      <li>Cannot exceed the natural cap</li>
+      <li>Cannot give extra points</li>
+      <li>Only restore what was naturally missed</li>
+    </ul>
+
+    <!-- SECTION 4 -->
+    <h2>4. Economic System</h2>
+    <p>
+      Gaia operates on a non-tokenized model.
+      There is no token and no inflation.
+      Instead, revenue flows into a transparent treasury system.
+    </p>
+
+    <div class="scripture">
+      “Every 90 days, the Treasury Tribute flows.
+       10% to the Architects,
+       10% to the mightiest Chainline,
+       80% saved for future epochs.”
+      — Book I, Chapter 5, Verses 1–3
+    </div>
+
+    <h3>4.1 Treasury Tribute Cycle</h3>
+
+    <h3>A. 10% — Developer Allocation</h3>
+    <p>Supports development, prevents abandonment, ensures alignment.</p>
+
+    <h3>B. 10% — Chainline Rewards</h3>
+    <p>Held publicly at first, distributed to winning or high-achieving players only.</p>
+
+    <h3>C. 80% — Development & Future Epoch Fund</h3>
+    <p>
+      Funds expansion, new content, upgrades, partnerships, and infrastructure.
+      All transactions are fully transparent.
+    </p>
+
+    <h3>4.2 Why Gaia Has No Token</h3>
+    <p>
+      Removing tokens removes inflation, speculation, and casino mechanics.
+      Gaia is game-first, economy-second.
+    </p>
+
+    <h3>4.3 Transparency</h3>
+    <div class="scripture">
+      “All acts are open; all value seen.” — Book 0, Chapter 10, Verse 1
+    </div>
+
+    <!-- SECTION 5 -->
+    <h2>5. Rarity and Mythborn Souls</h2>
+    <div class="scripture">
+      “One Soul may awaken as Mythborn—an echo of the first human thought.”
+      — Book I, Chapter 6, Verses 1-2
+    </div>
+
+    <p>
+      Mythborn are:
+    </p>
+    <ul>
+      <li>Not purchasable</li>
+      <li>1-in-1,000,000,000 birth chance</li>
+      <li>Immortal</li>
+      <li>Lore aligned</li>
+    </ul>
+
+    <!-- SECTION 6 -->
+    <h2>6. The Covenant of Transparency</h2>
+    <p>
+      All lineage, stats, treasury flows, and gameplay mechanics are fully on-chain.
+    </p>
+
+    <!-- SECTION 7 -->
+    <h2>7. Long-Term Vision</h2>
+    <div class="scripture">
+      “Gaia was not ruled — it was written.”
+      — Book 0, Chapter 11, Verse 3
+    </div>
+
+    <!-- SECTION 8 -->
+    <h2>9. Roadmap (High-Level)</h2>
+
+    <ul>
+      <li><strong>Phase 1 — Foundations:</strong>
+        Gaia Spark mint (Nov 27 ‘25), Smart contract deployment
+      </li>
+      <li><strong>Phase 2 — Economy:</strong>
+        Genean airdrop to holders, Stat system, Chainline creation
+      </li>
+      <li><strong>Phase 3 — Community Driven Tasks:</strong>
+        Future expansion directed by treasury & player feedback
+      </li>
+    </ul>
+
+    <!-- SECTION 9 -->
+    <h2>10. No Token Statement</h2>
+    <div class="scripture">
+      “Scarcity bred strength… abundance bred peace.
+       Balance lived between both.”
+      — Book 0, Chapter 5, Verses 1-4
+    </div>
+
+    <p>
+      Gaia has no token, no plans for a token, and never will.
+    </p>
+
+    <!-- SECTION 10 -->
+    <h2>11. Final Word</h2>
+    <div class="scripture">
+      “Even ruin is sacred, for freedom births truth.”
+      — Book 0, Chapter 8, Verse 3
+    </div>
+
+    <p>
+      Nothing in Gaia is predetermined.
+      The world is written by its people.
+    </p>
+
+    <!-- END OF WHITEPAPER -->
+  </div>
+
+  <!-- SCROLL TO TOP -->
+  <div id="top-button" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+    ↑ Top
+  </div>
+
+  <script>
+    window.addEventListener('scroll', function() {
+      const btn = document.getElementById('top-button');
+      if (window.scrollY > 300) {
+        btn.style.display = 'block';
+      } else {
+        btn.style.display = 'none';
+      }
+    });
+  </script>
+
+</body>
+</html>
