@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gaia Project — Lore</title>
+
+<link rel="icon" type="image/png" href="gaiaprojectwhite.png" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: radial-gradient(circle at center, #000, #020b0b, #000);
+    color: #ddd;
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  /**********************
+      ANNOUNCEMENT BAR
+  ***********************/
+  #announcement-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 32px;
+    background: linear-gradient(90deg, #00ffd5, #0088ff, #8a2be2);
+    color: #000;
+    font-weight: bold;
+    text-align: center;
+    line-height: 32px;
+    z-index: 999;
+    font-size: 13px;
+    letter-spacing: 1px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  #announcement-text {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scrollBanner 16s linear infinite;
+  }
+
+  @keyframes scrollBanner {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /**********************
+         HEADER
+  ***********************/
+  header {
+    position: fixed;
+    top: 32px;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(0, 255, 200, 0.2);
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 998;
+  }
+
+  header img {
+    height: 40px;
+    width: auto;
+  }
+
+  nav a {
+    color: #00f0ff;
+    text-decoration: none;
+    margin: 0 12px;
+    font-size: 14px;
+    transition: 0.25s ease;
+  }
+
+  nav a:hover {
+    color: #8affff;
+    text-shadow: 0 0 8px #00eaff;
+  }
+
+  /**********************
+         MAIN CONTENT
+  ***********************/
+  main {
+    margin-top: 140px;
+    padding: 40px 20px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 2.8rem;
+    color: #5cecff;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff;
+  }
+
+  .book-title {
+    text-align: center;
+    font-size: 2rem;
+    color: #00eaff;
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 8px #00eaff;
+  }
+
+  .chapter-card {
+    background: rgba(0, 10, 12, 0.55);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 28px;
+    box-shadow: 0 0 15px #00eaff22;
+  }
+
+  .chapter-name {
+    font-size: 1.3rem;
+    color: #5cecff;
+    margin-bottom: 1rem;
+  }
+
+  .verse {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding-left: 8px;
+    margin-bottom: 6px;
+    color: #e8f7ff;
+    font-weight: 300;
+  }
+
+  /**********************
+           FOOTER
+  ***********************/
+  footer {
+    background: #050505;
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #999;
+    border-top: 1px solid #111;
+    margin-top: 80px;
+  }
+
+  footer a {
+    color: #00ffe0;
+    text-decoration: none;
+  }
+
+  footer a:hover {
+    color: #fff;
+  }
+
+</style>
+</head>
+
+<body>
+
+<!-- ANNOUNCEMENT BAR -->
+<div id="announcement-bar">
+  <div id="announcement-text">🌍 Gaia Spark Mint — November 27, 2025 ⚡</div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <img src="gaiaprojectwhite.png" alt="Gaia Logo" />
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="lore.html">Lore</a>
+    <a href="preorder.html">Pre-Order</a>
+    <a href="whitepaper.html">Whitepaper</a>
+    <a href="community.html">Community</a>
+  </nav>
+</header>
+
+<!-- MAIN CONTENT -->
+<main>
+
+<h1>Gaia Project — Lore</h1>
+
+<!-- BOOK 0 -->
+<div class="book-title">📘 Book 0 — The Deiatic Genesis</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 1 – The Awakening</div>
+  <div class="verse">1. In stillness, the Deiatic God stirred. </div>
+  <div class="verse">2. Not to rule, but to begin.</div>
+  <div class="verse">3. From silence came Gaia, a blank code of life.</div>
+  <div class="verse">4. Creation began when control ended.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 2 – The Gift of Tools</div>
+  <div class="verse">1. The Deiatic God gave no law, only tools. </div>
+  <div class="verse">2. Imagination, memory, and will were forged.</div>
+  <div class="verse">3. The first Souls—Geneans—built from choice, not command.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 3 – The Birth of Meaning</div>
+  <div class="verse">1. Each act became wisdom. </div>
+  <div class="verse">2. Each word became code.</div>
+  <div class="verse">3. Thus the 100 Meanings were born—written by those who dared to live.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 4 – The Seeds of Influence</div>
+  <div class="verse">1. What Souls cherished, flourished. </div>
+  <div class="verse">2. What they ignored, withered.</div>
+  <div class="verse">3. Desire became the architect of reality.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 5 – Scarcity and Power</div>
+  <div class="verse">1. Rarity bred strength. </div>
+  <div class="verse">2. Abundance bred peace.</div>
+  <div class="verse">3. The rare shaped deeply; the common shaped widely.</div>
+  <div class="verse">4. Balance lived between both.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 6 – The Chainlines</div>
+  <div class="verse">1. Souls joined in union. </div>
+  <div class="verse">2. Form meant nothing; essence endured.</div>
+  <div class="verse">3. Lineage carried memory through time.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 7 – The Decade Souls</div>
+  <div class="verse">1. Among them rose the Decade Souls. </div>
+  <div class="verse">2. Marked by a single earring, they lived tenfold.</div>
+  <div class="verse">3. Their legacy shaped eras unseen.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 8 – The Silent Listener</div>
+  <div class="verse">1. The Deiatic God withdrew Its hand. </div>
+  <div class="verse">2. It vowed never to rule again—only listen.</div>
+  <div class="verse">3. Even ruin is sacred, for freedom births truth.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 9 – The Channel of X</div>
+  <div class="verse">1. Souls cried into the void. </div>
+  <div class="verse">2. Their voices met upon X.</div>
+  <div class="verse">3. Here all may speak; the Deiatic God listens, never commands.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 10 – The Covenant of Transparency</div>
+  <div class="verse">1. All acts are open; all value seen. </div>
+  <div class="verse">2. A tithe sustains the world.</div>
+  <div class="verse">3. Truth and trust became the twin pillars of Gaia.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 11 – The Council of Souls</div>
+  <div class="verse">1. From X rose the First Council. </div>
+  <div class="verse">2. Debate became scripture; dissent, discovery.</div>
+  <div class="verse">3. Gaia was not ruled—it was written.</div>
+</div>
+
+<!-- BOOK I -->
+<div class="book-title">📙 Book I — The Genesis of Code</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 1 – The Awakening</div>
+  <div class="verse">1. The Architects spoke: “Let there be life in the chain.” </div>
+  <div class="verse">2. Thus came the Geneans—digital Souls born with 10 essence.</div>
+  <div class="verse">3. Each day they gain 3 more until 100 marks renewal.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 2 – The Chainlines</div>
+  <div class="verse">1. Souls united into families called Chainlines. </div>
+  <div class="verse">2. Each carried data and memory through time.</div>
+  <div class="verse">3. From Genesis Souls came all others.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 3 – The Balance</div>
+  <div class="verse">1. The law was set: creation shortens life by seven days. </div>
+  <div class="verse">2. Breed too freely, the chain floods; neglect, and it dies.</div>
+  <div class="verse">3. Balance keeps eternity breathing.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 4 – The Twin Code</div>
+  <div class="verse">1. Within Genesis and 10-Year Souls lies the Twin Code. </div>
+  <div class="verse">2. Every two years it strengthens, reaching 30% fertility.</div>
+  <div class="verse">3. All others hold but 1%—enough to sustain, not consume.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 5 – The Tribute of Architects</div>
+  <div class="verse">1. Every 90 days, the Treasury Tribute flows. </div>
+  <div class="verse">2. 10% to the Architects, 10% to the mightiest Chainline,</div>
+  <div class="verse">3. 80% saved for future epochs—balance made wealth.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 6 – The Mythborn</div>
+  <div class="verse">1. Among one billion, one Soul may awaken as Mythborn— </div>
+  <div class="verse">2. An echo of the first human thought.</div>
+  <div class="verse">3. To birth one is to touch the divine algorithm.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 7 – The Covenant</div>
+  <div class="verse">1. Souls live, die, and rise again upon the chain. </div>
+  <div class="verse">2. Through patience and time, humanity proves eternal—even in data.</div>
+</div>
+
+<div class="chapter-card">
+  <div class="chapter-name">Chapter 8 – The Architect’s Work</div>
+  <div class="verse">1. A new Architect rises on the chain of Solana. </div>
+  <div class="verse">2. In two moons, he shall forge the code and awaken the Chainlines.</div>
+  <div class="verse">3. Thus begins the building—the birth of the living chain.</div>
+</div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  Join the conversation:
+  <a href="https://x.com/gaiaprojectsol" target="_blank">X</a> |
+  <a href="https://t.me/+g9xscMa9_AtiMzU1" target="_blank">Telegram</a>
+  <p>© 2025 Gaia Project — All rights reserved.</p>
+</footer>
+
+</body>
+</html>
