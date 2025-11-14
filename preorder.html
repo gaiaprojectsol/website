@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gaia Project — Pre-Order Gaia Spark</title>
+  <link rel="icon" type="image/png" href="gaiaprojectwhite.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      color: #fff;
+      background: radial-gradient(circle at center, #000, #020b0b, #000);
+      scroll-behavior: smooth;
+    }
+
+    /* === ANNOUNCEMENT BAR (same as whitepaper/index) === */
+    #announcement-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 32px;
+      background: linear-gradient(90deg, #00ffd5, #0088ff, #8a2be2);
+      color: #000;
+      font-weight: bold;
+      text-align: center;
+      line-height: 32px;
+      z-index: 999;
+      font-size: 13px;
+      letter-spacing: 1px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    #announcement-text {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scrollBanner 16s linear infinite;
+    }
+    @keyframes scrollBanner {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* === HEADER === */
+    header {
+      position: fixed;
+      top: 32px;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(0, 255, 200, 0.2);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 998;
+    }
+
+    header img {
+      height: 40px;
+    }
+
+    nav a {
+      color: #00f0ff;
+      text-decoration: none;
+      margin: 0 12px;
+      font-size: 14px;
+      transition: 0.25s ease;
+    }
+    nav a:hover {
+      color: #8affff;
+      text-shadow: 0 0 8px #00eaff;
+    }
+
+    /* === PAGE CONTENT === */
+    .content {
+      max-width: 850px;
+      margin: 160px auto 80px auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      color: #5cecff;
+      margin-bottom: 1rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #aaa;
+      margin-bottom: 2rem;
+    }
+
+    .spark-img {
+      margin: 30px auto;
+    }
+
+    .spark-img img {
+      width: 240px;
+      height: 240px;
+      object-fit: cover;
+      border-radius: 15px;
+      box-shadow: 0 0 25px #00ffe055;
+      transition: 0.4s ease;
+    }
+    .spark-img img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px #00ffe0aa;
+    }
+
+    .caption {
+      margin-top: 10px;
+      color: #00ffe0;
+      font-size: 0.9rem;
+    }
+
+    input {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      padding: 12px;
+      width: 280px;
+      border-radius: 6px;
+      border: none;
+      margin-top: 20px;
+      margin-bottom: 14px;
+    }
+
+    button {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      padding: 14px 34px;
+      border: none;
+      border-radius: 10px;
+      background-color: #14F195;
+      color: #000;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #0bb07b;
+      transform: scale(1.05);
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      background: #050505;
+      border-top: 1px solid #111;
+      color: #999;
+      font-size: 0.9rem;
+    }
+    footer a {
+      color: #00ffe0;
+      text-decoration: none;
+    }
+    footer a:hover { color: #fff; }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ANNOUNCEMENT BAR -->
+  <div id="announcement-bar">
+    <div id="announcement-text">🌍 Mint opens November 27th — Pre-order your Gaia Spark today! ⚡</div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <img src="gaiaprojectwhite.png" alt="Gaia Logo" />
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="lore.html">Lore</a>
+      <a href="preorder.html">Pre-Order</a>
+      <a href="whitepaper.html">Whitepaper</a>
+      <a href="community.html">Community</a>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+    <h1>Pre-Order Your Gaia Spark</h1>
+    <p class="subtitle">
+      The world awaits its first Architects. Reserve your Gaia Spark NFT before the Awakening.
+    </p>
+
+    <div class="spark-img">
+      <img src="gaia-spark.png" alt="Gaia Spark NFT">
+      <p class="caption">The Gaia Spark — your first step into the Genesis of Code</p>
+    </div>
+
+    <p>Enter your Genean name below, then send <strong>0.1 SOL</strong> to reserve your Spark.</p>
+
+    <input id="memo" type="text" placeholder="Your Genean name (e.g. Lord Fardrosan)">
+    <br>
+    <button id="send">Claim your Gaia Spark</button>
+
+    <p style="font-size:13px;color:#aaa;max-width:500px;margin: 25px auto 0 auto;">
+      <strong>Disclaimer:</strong> All transactions are final. Always verify the recipient address in Phantom before sending.
+    </p>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    Join the conversation:
+    <a href="https://x.com/gaiaprojectsol" target="_blank">X</a> |
+    <a href="https://t.me/+g9xscMa9_AtiMzU1" target="_blank">Telegram</a>
+    <p>© 2025 Gaia Project — All rights reserved.</p>
+  </footer>
+
+  <!-- Solana Web3.js -->
+  <script type="module">
+    import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
+    window.solanaWeb3 = solanaWeb3;
+  </script>
+
+  <!-- Pre-order script -->
+  <script>
+    const sendButton = document.getElementById("send");
+
+    sendButton.addEventListener("click", async () => {
+      try {
+        const provider = window.solana;
+        if (!provider || !provider.isPhantom) {
+          alert("Please install Phantom Wallet → https://phantom.app");
+          return;
+        }
+
+        await provider.connect();
+        const connection = new solanaWeb3.Connection("https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b");
+
+        const recipient = new solanaWeb3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
+
+        const tx = new solanaWeb3.Transaction().add(
+          solanaWeb3.SystemProgram.transfer({
+            fromPubkey: provider.publicKey,
+            toPubkey: recipient,
+            lamports: 0.1 * 1e9
+          })
+        );
+
+        const memoText = document.getElementById("memo").value.trim();
+        if (memoText) {
+          const memoIx = new solanaWeb3.TransactionInstruction({
+            keys: [],
+            programId: new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+            data: new TextEncoder().encode(memoText)
+          });
+          tx.add(memoIx);
+        }
+
+        tx.feePayer = provider.publicKey;
+        tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+        const signed = await provider.signTransaction(tx);
+        const sig = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(sig, "confirmed");
+
+        alert("✅ Pre-order complete!\nTransaction Signature:\n" + sig);
+        window.open(`https://explorer.solana.com/tx/${sig}`, "_blank");
+
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error: " + err.message);
+      }
+    });
+  </script>
+
+</body>
+</html>
