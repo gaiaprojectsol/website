@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gaia — Custom Genean Tracker</title>
+
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #00ffe0;
+      text-shadow: 0 0 12px #00ffe0;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      margin-top: 40px;
+      margin-bottom: 10px;
+      color: #00ffe0;
+    }
+
+    input {
+      width: 420px;
+      max-width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #00ffe033;
+      background: #111;
+      color: #fff;
+      font-size: 15px;
+    }
+
+    button {
+      padding: 12px 22px;
+      background: #00ffe0;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    button:hover {
+      background: #00c8b0;
+    }
+
+    #status {
+      margin: 20px 0;
+      font-size: 18px;
+      color: #00ffe0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    table th, table td {
+      border: 1px solid #222;
+      padding: 10px;
+      text-align: left;
+    }
+
+    table th {
+      background: #111;
+      color: #00ffe0;
+    }
+
+    table tr:nth-child(even) {
+      background: #0d0d0d;
+    }
+
+    .empty {
+      color: #555;
+    }
+
+    a {
+      color: #00ffe0;
+      word-break: break-all;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>🔮 Custom Genean Pre-Order Tracker</h1>
+
+  <p>Enter the receiving wallet address to check how many custom Geneans have been claimed.</p>
+
+  <input id="wallet" type="text" placeholder="Enter receiving wallet address (e.g. gaiaproject.sol)">
+  <button onclick="loadTracker()">Load Tracker</button>
+
+  <div id="status"></div>
+
+  <table id="geneanTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Memo (Genean Name)</th>
+        <th>Sender</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- SCRIPT -->
+  <script type="module">
+    import bs58 from "https://esm.sh/bs58@5.0.0";
+
+    const RPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";
+    const MEMO_PROGRAM = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
+
+    async function rpcCall(method, params) {
+      const res = await fetch(RPC, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method,
+          params
+        })
+      });
+      const json = await res.json();
+      if (json.error) throw new Error(json.error.message);
+      return json.result;
+    }
+
+    function decodeMemo(data) {
+      try {
+        const bytes = bs58.decode(data);
+        return new TextDecoder().decode(bytes);
+      } catch {
+        return null;
+      }
+    }
+
+    function extractMemos(tx) {
+      let memoList = [];
+      if (!tx?.transaction?.message) return memoList;
+
+      const message = tx.transaction.message;
+      const keys = message.accountKeys ?? [];
+
+      // Top-level instructions
+      if (Array.isArray(message.instructions)) {
+        for (const inst of message.instructions) {
+          const program = keys[inst.programIdIndex];
+          if (program === MEMO_PROGRAM) {
+            const memo = decodeMemo(inst.data);
+            if (memo) memoList.push(memo);
+          }
+        }
+      }
+
+      // Inner instructions
+      if (tx.meta?.innerInstructions) {
+        for (const inner of tx.meta.innerInstructions) {
+          if (!inner.instructions) continue;
+          for (const inst of inner.instructions) {
+            const program = keys[inst.programIdIndex];
+            if (program === MEMO_PROGRAM) {
+              const memo = decodeMemo(inst.data);
+              if (memo) memoList.push(memo);
+            }
+          }
+        }
+      }
+
+      return memoList;
+    }
+
+    window.loadTracker = async function () {
+      const wallet = document.getElementById("wallet").value.trim();
+      const status = document.getElementById("status");
+      const tableBody = document.querySelector("#geneanTable tbody");
+
+      status.innerHTML = "Loading...";
+      tableBody.innerHTML = "";
+
+      if (!wallet) {
+        status.innerHTML = "❌ Please enter a wallet address.";
+        return;
+      }
+
+      try {
+        // Get signatures sent TO this wallet
+        const sigs = await rpcCall("getSignaturesForAddress", [
+          wallet,
+          { limit: 200 }
+        ]);
+
+        const entries = [];
+
+        for (const s of sigs) {
+          const tx = await rpcCall("getTransaction", [
+            s.signature,
+            { encoding: "json", maxSupportedTransactionVersion: 0 }
+          ]);
+
+          if (!tx) continue;
+
+          const memos = extractMemos(tx);
+          if (memos.length === 0) continue;
+
+          const sender = tx.transaction.message.accountKeys?.[0] || "Unknown";
+
+          entries.push({
+            memo: memos[0],   // one memo per tx for your use case
+            sender: sender
+          });
+        }
+
+        const count = entries.length;
+        status.innerHTML = `Custom Geneans Reserved: <strong>${count} / 100</strong>`;
+
+        // Build 100 rows
+        for (let i = 1; i <= 100; i++) {
+          const row = document.createElement("tr");
+
+          let memo = "—";
+          let sender = "—";
+          let css = "empty";
+
+          if (entries[i - 1]) {
+            memo = entries[i - 1].memo;
+            sender = entries[i - 1].sender;
+            css = "";
+          }
+
+          row.innerHTML = `
+            <td>${i}</td>
+            <td class="${css}">${memo}</td>
+            <td class="${css}">${sender}</td>
+          `;
+
+          tableBody.appendChild(row);
+        }
+
+      } catch (err) {
+        status.innerHTML = "❌ Error: " + err.message;
+      }
+    };
+  </script>
+</body>
+</html>
