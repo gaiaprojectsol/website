@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Read Memo Transactions by Wallet</title>
+
+<script type="module">
+  import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
+
+  async function readWalletMemos() {
+    const pubkeyInput = document.getElementById("wallet").value.trim();
+    const output = document.getElementById("output");
+    output.innerHTML = "Loading...";
+
+    try {
+      const connection = new solanaWeb3.Connection(
+        "https://api.mainnet-beta.solana.com",
+        "confirmed"
+      );
+
+      const pubkey = new solanaWeb3.PublicKey(pubkeyInput);
+
+      // getSignaturesForAddress returns last 1000 signatures by default
+      const signatures = await connection.getSignaturesForAddress(pubkey, { limit: 50 });
+
+      let results = [];
+
+      for (let siginfo of signatures) {
+        const tx = await connection.getTransaction(siginfo.signature, {
+          maxSupportedTransactionVersion: 0
+        });
+
+        if (!tx) continue;
+
+        const memoProgram = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
+
+        for (let inst of tx.transaction.message.instructions) {
+          if (inst.programId.toBase58() === memoProgram) {
+            const memo = new TextDecoder().decode(inst.data);
+            results.push({
+              signature: siginfo.signature,
+              memo: memo
+            });
+          }
+        }
+      }
+
+      if (results.length === 0) {
+        output.innerHTML = "<p>No memo transactions found.</p>";
+        return;
+      }
+
+      output.innerHTML = "<h3>Memo Transactions Found:</h3>";
+
+      results.forEach(r => {
+        output.innerHTML += `
+          <div style="margin-bottom:20px;padding:10px;border:1px solid #00ffe0;">
+            <p><strong>Signature:</strong><br>
+            <a href="https://explorer.solana.com/tx/${r.signature}" target="_blank">${r.signature}</a></p>
+            <p><strong>Memo:</strong> ${r.memo}</p>
+          </div>
+        `;
+      });
+
+    } catch (err) {
+      output.innerHTML = "Error: " + err.message;
+    }
+  }
+</script>
+
+</head>
+
+<body style="background:#000;color:#fff;font-family:Arial;padding:20px;">
+
+<h2>Read All Memo Transactions From a Wallet</h2>
+
+<input id="wallet" type="text" placeholder="Enter wallet address"
+       style="width:420px;padding:10px;border-radius:6px;border:none;">
+<button onclick="readWalletMemos()" style="padding:10px 20px;border:none;border-radius:6px;background:#00ffe0;">
+  Read Memos
+</button>
+
+<div id="output" style="margin-top:20px;font-size:16px;"></div>
+
+</body>
+</html>
