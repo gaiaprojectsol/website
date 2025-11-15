@@ -3,44 +3,187 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gaia — Custom Genean Tracker</title>
+  <title>Gaia Project — Pre-Order Gaia Spark</title>
+  <link rel="icon" type="image/png" href="gaiaprojectwhite.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
+    * { box-sizing: border-box; }
     body {
-      background: #000;
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
       color: #fff;
-      font-family: Arial, sans-serif;
-      padding: 40px;
+      background: radial-gradient(circle at center, #000, #020b0b, #000);
+      scroll-behavior: smooth;
+    }
+
+    /* Announcement Bar */
+    #announcement-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 32px;
+      background: linear-gradient(90deg, #00ffd5, #0088ff, #8a2be2);
+      color: #000;
+      font-weight: bold;
+      text-align: center;
+      line-height: 32px;
+      z-index: 999;
+      font-size: 13px;
+      letter-spacing: 1px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    #announcement-text {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scrollBanner 16s linear infinite;
+    }
+    @keyframes scrollBanner {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 32px;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(0, 255, 200, 0.2);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 998;
+    }
+
+    header img { height: 40px; }
+
+    nav a {
+      color: #00f0ff;
+      text-decoration: none;
+      margin: 0 12px;
+      font-size: 14px;
+      transition: 0.25s ease;
+    }
+    nav a:hover {
+      color: #8affff;
+      text-shadow: 0 0 8px #00eaff;
+    }
+
+    /* MAIN CONTENT */
+    .content {
+      max-width: 850px;
+      margin: 160px auto 80px auto;
+      padding: 20px;
+      text-align: center;
     }
 
     h1 {
-      color: #00ffe0;
-      text-shadow: 0 0 12px #00ffe0;
-      margin-bottom: 10px;
+      font-size: 2.4rem;
+      color: #5cecff;
+      margin-bottom: 1rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #aaa;
+      margin-bottom: 2rem;
+    }
+
+    .spark-img img {
+      width: 240px;
+      height: 240px;
+      border-radius: 15px;
+      box-shadow: 0 0 25px #00ffe055;
+      transition: 0.4s ease;
+    }
+    .spark-img img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px #00ffe0aa;
+    }
+
+    input {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      padding: 12px;
+      width: 280px;
+      border-radius: 6px;
+      border: none;
+      margin-top: 20px;
+      margin-bottom: 14px;
     }
 
     button {
-      padding: 12px 22px;
-      background: #00ffe0;
-      color: #000;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 10px;
-      margin-bottom: 25px;
-    }
-
-    button:hover {
-      background: #00c8b0;
-    }
-
-    #status {
-      margin: 20px 0;
+      font-family: 'Orbitron', sans-serif;
       font-size: 18px;
-      color: #00ffe0;
+      padding: 14px 34px;
+      border: none;
+      border-radius: 10px;
+      background-color: #14F195;
+      color: #000;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #0bb07b;
+      transform: scale(1.05);
     }
 
+    footer {
+      text-align: center;
+      padding: 30px;
+      background: #050505;
+      border-top: 1px solid #111;
+      color: #999;
+      font-size: 0.9rem;
+    }
+    footer a {
+      color: #00ffe0;
+      text-decoration: none;
+    }
+
+    /* --- GAIA GLOW COLLAPSIBLE PANEL --- */
+    #tracker-panel {
+      max-width: 900px;
+      margin: 40px auto;
+      border: 1px solid #00ffe044;
+      border-radius: 12px;
+      box-shadow: 0 0 25px #00ffe022;
+      overflow: hidden;
+      background: rgba(0, 15, 20, 0.4);
+      backdrop-filter: blur(6px);
+    }
+
+    #tracker-header {
+      padding: 16px;
+      cursor: pointer;
+      background: linear-gradient(90deg, #001f24, #00363d);
+      border-bottom: 1px solid #00ffe033;
+      color: #00ffe0;
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-shadow: 0 0 8px #00ffe0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #tracker-header:hover { background: #00363d; }
+
+    #tracker-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.45s ease;
+      padding: 0 20px;
+    }
+
+    /* Tracker Table */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -48,49 +191,178 @@
     }
 
     table th, table td {
-      border: 1px solid #222;
+      border: 1px solid #003030;
       padding: 10px;
       text-align: left;
     }
-
     table th {
-      background: #111;
+      background: #00191d;
       color: #00ffe0;
+      text-shadow: 0 0 6px #00eaff;
     }
 
     table tr:nth-child(even) {
-      background: #0d0d0d;
+      background: rgba(0, 40, 45, 0.4);
+    }
+
+    .taken {
+      color: #14f195;
+      font-weight: bold;
+      text-shadow: 0 0 10px #14f195;
     }
 
     .empty {
-      color: #555;
+      color: #444;
+    }
+
+    #soldout-banner {
+      display: none;
+      text-align: center;
+      color: #14f195;
+      font-size: 1.4rem;
+      margin-top: 20px;
+      text-shadow: 0 0 15px #14f195;
     }
   </style>
 </head>
 
 <body>
 
-  <h1>🔮 Custom Genean Pre-Order Tracker</h1>
+  <!-- ANNOUNCEMENT BAR -->
+  <div id="announcement-bar">
+    <div id="announcement-text">🌍 Mint opens November 27th — Pre-order your Gaia Spark today! ⚡</div>
+  </div>
 
-  <button onclick="loadTracker()">Refresh</button>
+  <!-- HEADER -->
+  <header>
+    <img src="gaiaprojectwhite.png" alt="Gaia Logo" />
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="lore.html">Lore</a>
+      <a href="preorder.html">Pre-Order</a>
+      <a href="whitepaper.html">Whitepaper</a>
+      <a href="community.html">Community</a>
+      <a href="blog.html">Blog</a>
+    </nav>
+  </header>
 
-  <div id="status"></div>
+  <!-- MAIN CONTENT -->
+  <div class="content">
+    <h1>Pre-Order Your Gaia Spark</h1>
+    <p class="subtitle">
+      The world awaits its first Architects. Reserve your Gaia Spark NFT before the Awakening.
+    </p>
 
-  <table id="geneanTable">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Memo (Genean Name)</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <div class="spark-img">
+      <img src="gaia-spark.png" alt="Gaia Spark NFT">
+      <p class="caption">The Gaia Spark — your first step into the Genesis of Code</p>
+    </div>
 
+    <p>Enter your Genean name below, then send <strong>0.1 SOL</strong> to reserve your Spark.</p>
+
+    <input id="memo" type="text" placeholder="Your Genean name (e.g. Lord Fardrosan)">
+    <br>
+    <button id="send">Claim your Gaia Spark</button>
+
+    <p style="font-size:13px;color:#aaa;max-width:500px;margin: 25px auto 0 auto;">
+      <strong>Disclaimer:</strong> All transactions are final. Always verify the recipient address in Phantom before sending.
+    </p>
+  </div>
+
+  <!-- COLLAPSIBLE TRACKER PANEL -->
+  <div id="tracker-panel">
+    <div id="tracker-header" onclick="toggleTracker()">
+      ▼ View Claimed Custom Geneans (1–100)
+      <button onclick="refreshTracker(); event.stopPropagation();" style="background:#00ffe0;color:#000;font-size:12px;padding:4px 10px;border-radius:6px;">Refresh</button>
+    </div>
+
+    <div id="tracker-content">
+      <div id="soldout-banner">🎉 SOLD OUT — 100/100 Custom Geneans Claimed!</div>
+
+      <div id="tracker-status" style="color:#00ffe0;margin:15px 0;font-size:1.1rem;"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Memo (Genean Name)</th>
+          </tr>
+        </thead>
+        <tbody id="tracker-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    Join the conversation:
+    <a href="https://x.com/gaiaprojectsol" target="_blank">X</a> |
+    <a href="https://t.me/+g9xscMa9_AtiMzU1" target="_blank">Telegram</a>
+    <p>© 2025 Gaia Project — All rights reserved.</p>
+  </footer>
+
+  <!-- Solana Web3.js -->
+  <script type="module">
+    import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
+    window.solanaWeb3 = solanaWeb3;
+  </script>
+
+  <!-- Pre-order Script (UNCHANGED — exactly as you provided) -->
+  <script>
+    const sendButton = document.getElementById("send");
+
+    sendButton.addEventListener("click", async () => {
+      try {
+        const provider = window.solana;
+        if (!provider || !provider.isPhantom) {
+          alert("Please install Phantom Wallet → https://phantom.app");
+          return;
+        }
+
+        await provider.connect();
+        const connection = new solanaWeb3.Connection("https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b");
+
+        const recipient = new solanaWeb3.PublicKey("7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs");
+
+        const tx = new solanaWeb3.Transaction().add(
+          solanaWeb3.SystemProgram.transfer({
+            fromPubkey: provider.publicKey,
+            toPubkey: recipient,
+            lamports: 0.1 * 1e9
+          })
+        );
+
+        const memoText = document.getElementById("memo").value.trim();
+        if (memoText) {
+          const memoIx = new solanaWeb3.TransactionInstruction({
+            keys: [],
+            programId: new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+            data: new TextEncoder().encode(memoText)
+          });
+          tx.add(memoIx);
+        }
+
+        tx.feePayer = provider.publicKey;
+        tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+        const signed = await provider.signTransaction(tx);
+        const sig = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(sig, "confirmed");
+
+        alert("✅ Pre-order complete!\nTransaction Signature:\n" + sig);
+        window.open(`https://explorer.solana.com/tx/${sig}`, "_blank");
+
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error: " + err.message);
+      }
+    });
+  </script>
+
+  <!-- TRACKER SCRIPT -->
   <script type="module">
     import bs58 from "https://esm.sh/bs58@5.0.0";
 
     const RECEIVING_WALLET = "7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs";
-
     const RPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";
     const MEMO_PROGRAM = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
 
@@ -105,6 +377,7 @@
           params
         })
       });
+
       const json = await res.json();
       if (json.error) throw new Error(json.error.message);
       return json.result;
@@ -126,7 +399,7 @@
       const message = tx.transaction.message;
       const keys = message.accountKeys ?? [];
 
-      // top-level instructions
+      // top-level
       if (Array.isArray(message.instructions)) {
         for (const inst of message.instructions) {
           const program = keys[inst.programIdIndex];
@@ -154,12 +427,22 @@
       return memoList;
     }
 
-    window.loadTracker = async function () {
-      const status = document.getElementById("status");
-      const tableBody = document.querySelector("#geneanTable tbody");
+    /* COLLAPSE LOGIC */
+    window.toggleTracker = function () {
+      const content = document.getElementById("tracker-content");
+      content.style.maxHeight = content.style.maxHeight ? null : content.scrollHeight + "px";
+    };
 
+    /* LOADING THE TRACKER */
+    window.refreshTracker = loadTracker;
+
+    async function loadTracker() {
+      const body = document.getElementById("tracker-body");
+      const status = document.getElementById("tracker-status");
+      const soldout = document.getElementById("soldout-banner");
+
+      body.innerHTML = "";
       status.innerHTML = "Loading...";
-      tableBody.innerHTML = "";
 
       try {
         const sigs = await rpcCall("getSignaturesForAddress", [
@@ -176,46 +459,43 @@
           ]);
 
           if (!tx) continue;
+
           const memos = extractMemos(tx);
           if (memos.length === 0) continue;
 
-          entries.push({
-            memo: memos[0]
-          });
+          entries.push({ memo: memos[0] });
         }
 
-        // Oldest first
         entries.reverse();
 
         const count = entries.length;
         status.innerHTML = `Custom Geneans Reserved: <strong>${count} / 100</strong>`;
 
-        // Build 100 slots
-        for (let i = 1; i <= 100; i++) {
-          const row = document.createElement("tr");
+        soldout.style.display = count >= 100 ? "block" : "none";
 
-          let memo = "—";
-          let css = "empty";
+        for (let i = 1; i <= 100; i++) {
+          const tr = document.createElement("tr");
 
           if (entries[i - 1]) {
-            memo = entries[i - 1].memo;
-            css = "";
+            tr.innerHTML = `
+              <td class="taken">${i}</td>
+              <td class="taken">${entries[i - 1].memo}</td>
+            `;
+          } else {
+            tr.innerHTML = `
+              <td class="empty">${i}</td>
+              <td class="empty">—</td>
+            `;
           }
 
-          row.innerHTML = `
-            <td>${i}</td>
-            <td class="${css}">${memo}</td>
-          `;
-
-          tableBody.appendChild(row);
+          body.appendChild(tr);
         }
 
       } catch (err) {
         status.innerHTML = "❌ Error: " + err.message;
       }
-    };
+    }
 
-    // auto-load when page opens
     loadTracker();
   </script>
 
