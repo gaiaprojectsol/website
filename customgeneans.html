@@ -1,140 +1,200 @@
-<script type="module">
-  import bs58 from "https://esm.sh/bs58@5.0.0";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gaia — Memo Reader</title>
 
-  const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";
-  const MEMO_PROGRAM_ID = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
-
-  async function rpcCall(method, params) {
-    const res = await fetch(RPC_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method,
-        params
-      })
-    });
-
-    const json = await res.json();
-    if (json.error) {
-      throw new Error(json.error.message || "RPC error");
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 40px;
     }
-    return json.result;
-  }
 
-  function decodeMemoData(data) {
-    if (typeof data !== "string") return null;
-    try {
-      const bytes = bs58.decode(data);
-      return new TextDecoder().decode(bytes);
-    } catch (e) {
-      console.error("Failed to decode memo data", e);
-      return null;
+    h1 {
+      color: #00ffe0;
+      font-size: 2rem;
+      margin-bottom: 20px;
     }
-  }
 
-  function extractMemosFromTransaction(tx) {
-    const memos = [];
-    if (!tx || !tx.transaction || !tx.transaction.message) return memos;
+    input {
+      width: 420px;
+      max-width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #00ffe033;
+      background: #111;
+      color: #fff;
+      font-size: 15px;
+    }
 
-    const message = tx.transaction.message;
-    const accountKeys = message.accountKeys || [];
+    button {
+      padding: 12px 22px;
+      background: #00ffe0;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
 
-    // Legacy top-level instructions
-    if (Array.isArray(message.instructions)) {
-      for (const inst of message.instructions) {
-        const programId = accountKeys[inst.programIdIndex];
-        if (programId === MEMO_PROGRAM_ID) {
-          const memo = decodeMemoData(inst.data);
-          if (memo !== null) memos.push(memo);
-        }
+    #output {
+      margin-top: 30px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .memo-card {
+      border: 1px solid #00ffe055;
+      padding: 15px;
+      margin-bottom: 22px;
+      border-radius: 10px;
+      background: #0f0f0f;
+      box-shadow: 0 0 12px #00ffe022;
+    }
+
+    .memo-card p {
+      margin: 0 0 6px;
+    }
+
+    a { color: #00ffe0; }
+  </style>
+</head>
+
+<body>
+
+  <h1>🔍 Solana Wallet — Memo Reader</h1>
+
+  <input id="wallet" type="text" placeholder="Enter Solana wallet address">
+  <button onclick="readWalletMemos()">Read Memos</button>
+
+  <div id="output"></div>
+
+  <!-- Working memo reader -->
+  <script type="module">
+    import bs58 from "https://esm.sh/bs58@5.0.0";
+
+    const RPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";
+    const MEMO_PROGRAM = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
+
+    async function rpcCall(method, params) {
+      const res = await fetch(RPC, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method,
+          params
+        })
+      });
+      const json = await res.json();
+      if (json.error) throw new Error(json.error.message);
+      return json.result;
+    }
+
+    function decodeMemo(data) {
+      try {
+        const bytes = bs58.decode(data);
+        return new TextDecoder().decode(bytes);
+      } catch {
+        return null;
       }
     }
 
-    // Inner instructions (Helius)
-    if (tx.meta && Array.isArray(tx.meta.innerInstructions)) {
-      for (const inner of tx.meta.innerInstructions) {
-        if (!inner.instructions) continue;
-        for (const inst of inner.instructions) {
-          const programId = accountKeys[inst.programIdIndex];
-          if (programId === MEMO_PROGRAM_ID) {
-            const memo = decodeMemoData(inst.data);
-            if (memo !== null) memos.push(memo);
+    function extractMemos(tx) {
+      if (!tx?.transaction?.message) return [];
+
+      const message = tx.transaction.message;
+      const keys = message.accountKeys ?? [];
+      const memos = [];
+
+      // Top-level instructions
+      if (Array.isArray(message.instructions)) {
+        for (const inst of message.instructions) {
+          const program = keys[inst.programIdIndex];
+          if (program === MEMO_PROGRAM) {
+            const memo = decodeMemo(inst.data);
+            if (memo) memos.push(memo);
           }
         }
       }
+
+      // Inner instructions (where YOUR memo is)
+      if (tx.meta?.innerInstructions) {
+        for (const inner of tx.meta.innerInstructions) {
+          if (!inner.instructions) continue;
+
+          for (const inst of inner.instructions) {
+            const program = keys[inst.programIdIndex];
+            if (program === MEMO_PROGRAM) {
+              const memo = decodeMemo(inst.data);
+              if (memo) memos.push(memo);
+            }
+          }
+        }
+      }
+
+      return memos;
     }
 
-    return memos;
-  }
+    window.readWalletMemos = async function () {
+      const wallet = document.getElementById("wallet").value.trim();
+      const out = document.getElementById("output");
+      out.innerHTML = "Loading...";
 
-  window.readWalletMemos = async function () {
-    const wallet = document.getElementById("wallet").value.trim();
-    const output = document.getElementById("output");
-    output.innerHTML = "Loading...";
-
-    if (!wallet) {
-      output.innerHTML = "❌ Please enter a wallet address.";
-      return;
-    }
-
-    try {
-      const signatures = await rpcCall("getSignaturesForAddress", [
-        wallet,
-        { limit: 30 }
-      ]);
-
-      if (!signatures || signatures.length === 0) {
-        output.innerHTML = "<p>No transactions found for this address.</p>";
+      if (!wallet) {
+        out.innerHTML = "❌ Please enter a wallet address.";
         return;
       }
 
-      const results = [];
-
-      for (const sig of signatures) {
-        const tx = await rpcCall("getTransaction", [
-          sig.signature,
-          { encoding: "json", maxSupportedTransactionVersion: 0 }
+      try {
+        const sigs = await rpcCall("getSignaturesForAddress", [
+          wallet,
+          { limit: 30 }
         ]);
 
-        if (!tx) continue;
+        const results = [];
 
-        const memos = extractMemosFromTransaction(tx);
-        if (memos.length === 0) continue;
+        for (const s of sigs) {
+          const tx = await rpcCall("getTransaction", [
+            s.signature,
+            { encoding: "json", maxSupportedTransactionVersion: 0 }
+          ]);
 
-        // ⭐ Sender = fee payer (always accountKeys[0])
-        const sender =
-          tx.transaction.message.accountKeys?.[0] || "Unknown";
+          if (!tx) continue;
 
-        results.push({
-          sender,
-          memos
-        });
+          const memos = extractMemos(tx);
+          if (memos.length === 0) continue;
+
+          const sender =
+            tx.transaction.message.accountKeys?.[0] || "Unknown";
+
+          results.push({ sender, memos });
+        }
+
+        if (results.length === 0) {
+          out.innerHTML = "<p>No memo transactions found.</p>";
+          return;
+        }
+
+        out.innerHTML = "";
+        for (const r of results) {
+          out.innerHTML += `
+            <div class="memo-card">
+              <p><strong>Sender:</strong><br>${r.sender}</p>
+              <p><strong>Memo:</strong><br>${r.memos.join("<br>")}</p>
+            </div>
+          `;
+        }
+
+      } catch (err) {
+        out.innerHTML = "❌ Error: " + err.message;
       }
-
-      if (results.length === 0) {
-        output.innerHTML = "<p>No memo transactions found for this address.</p>";
-        return;
-      }
-
-      output.innerHTML = "<h2>📜 Memo Transactions:</h2>";
-      for (const r of results) {
-        const memoHtml = r.memos
-          .map(m => `<div>${m}</div>`)
-          .join("");
-
-        output.innerHTML += `
-          <div class="memo-card">
-            <p><strong>Sender:</strong><br>${r.sender}</p>
-            <p><strong>Memo:</strong><br>${memoHtml}</p>
-          </div>
-        `;
-      }
-
-    } catch (err) {
-      console.error(err);
-      output.innerHTML = "❌ Error: " + err.message;
-    }
-  };
-</script>
+    };
+  </script>
+</body>
+</html>
