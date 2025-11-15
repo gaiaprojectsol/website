@@ -19,12 +19,6 @@
       margin-bottom: 10px;
     }
 
-    h2 {
-      margin-top: 40px;
-      margin-bottom: 10px;
-      color: #00ffe0;
-    }
-
     input {
       width: 420px;
       max-width: 100%;
@@ -81,11 +75,6 @@
     .empty {
       color: #555;
     }
-
-    a {
-      color: #00ffe0;
-      word-break: break-all;
-    }
   </style>
 </head>
 
@@ -93,9 +82,7 @@
 
   <h1>🔮 Custom Genean Pre-Order Tracker</h1>
 
-  <p>Enter the receiving wallet address to check how many custom Geneans have been claimed.</p>
-
-  <input id="wallet" type="text" placeholder="Enter receiving wallet address (e.g. gaiaproject.sol)">
+  <input id="wallet" type="text" placeholder="Enter receiving wallet address">
   <button onclick="loadTracker()">Load Tracker</button>
 
   <div id="status"></div>
@@ -105,13 +92,11 @@
       <tr>
         <th>#</th>
         <th>Memo (Genean Name)</th>
-        <th>Sender</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <!-- SCRIPT -->
   <script type="module">
     import bs58 from "https://esm.sh/bs58@5.0.0";
 
@@ -192,7 +177,6 @@
       }
 
       try {
-        // Get signatures sent TO this wallet
         const sigs = await rpcCall("getSignaturesForAddress", [
           wallet,
           { limit: 200 }
@@ -211,13 +195,13 @@
           const memos = extractMemos(tx);
           if (memos.length === 0) continue;
 
-          const sender = tx.transaction.message.accountKeys?.[0] || "Unknown";
-
           entries.push({
-            memo: memos[0],   // one memo per tx for your use case
-            sender: sender
+            memo: memos[0]   // first memo in tx
           });
         }
+
+        // ⭐ Reverse order so oldest memo = #1
+        entries.reverse();
 
         const count = entries.length;
         status.innerHTML = `Custom Geneans Reserved: <strong>${count} / 100</strong>`;
@@ -227,19 +211,16 @@
           const row = document.createElement("tr");
 
           let memo = "—";
-          let sender = "—";
           let css = "empty";
 
           if (entries[i - 1]) {
             memo = entries[i - 1].memo;
-            sender = entries[i - 1].sender;
             css = "";
           }
 
           row.innerHTML = `
             <td>${i}</td>
             <td class="${css}">${memo}</td>
-            <td class="${css}">${sender}</td>
           `;
 
           tableBody.appendChild(row);
