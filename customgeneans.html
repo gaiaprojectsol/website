@@ -1,125 +1,253 @@
-<script type="module">
-  import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
-  import bs58 from "https://esm.sh/bs58@5.0.0";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gaia Project — Wallet Memo Reader</title>
 
-  window.readWalletMemos = async function () {
-    const wallet = document.getElementById("wallet").value.trim();
-    const output = document.getElementById("output");
-    output.innerHTML = "Loading...";
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
-    try {
-      const connection = new solanaWeb3.Connection(
-        "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b",
-        "confirmed"
-      );
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      padding: 40px;
+    }
 
-      const pubkey = new solanaWeb3.PublicKey(wallet);
+    h1 {
+      color: #00ffe0;
+      text-shadow: 0 0 12px #00ffe0;
+      margin-top: 0;
+    }
 
-      const signatures = await connection.getSignaturesForAddress(pubkey, {
-        limit: 50
+    p {
+      max-width: 640px;
+    }
+
+    input {
+      width: 420px;
+      max-width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #00ffe033;
+      background: #111;
+      color: #fff;
+      font-size: 15px;
+    }
+
+    button {
+      padding: 12px 22px;
+      background: #00ffe0;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    button:hover {
+      background: #00c8b0;
+    }
+
+    #output {
+      margin-top: 30px;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .memo-card {
+      border: 1px solid #00ffe055;
+      padding: 15px;
+      margin-bottom: 22px;
+      border-radius: 10px;
+      background: #0f0f0f;
+      box-shadow: 0 0 12px #00ffe022;
+    }
+
+    .memo-card p {
+      margin: 0 0 6px;
+    }
+
+    a {
+      color: #00ffe0;
+      word-break: break-all;
+    }
+
+    a:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>🔍 Solana Wallet Memo Reader</h1>
+  <p>
+    Enter a Solana wallet address to read recent transactions that include a
+    <strong>Memo Program v2</strong> instruction (e.g. your “Lord Fardrosan” notes).
+    This uses the Helius RPC endpoint directly.
+  </p>
+
+  <input id="wallet" type="text" placeholder="Enter Solana wallet address (e.g. gaiaproject.sol or base58 pubkey)">
+  <button onclick="readWalletMemos()">Read Memos</button>
+
+  <div id="output"></div>
+
+  <!-- ============= SCRIPT ============= -->
+  <script type="module">
+    import bs58 from "https://esm.sh/bs58@5.0.0";
+
+    const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";
+    const MEMO_PROGRAM_ID = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
+
+    // Generic JSON-RPC helper
+    async function rpcCall(method, params) {
+      const res = await fetch(RPC_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method,
+          params
+        })
       });
 
-      let results = [];
+      const json = await res.json();
+      if (json.error) {
+        throw new Error(json.error.message || "RPC error");
+      }
+      return json.result;
+    }
 
-      for (let sig of signatures) {
+    function decodeMemoData(data) {
+      // RPC returns base58 string for memo data
+      if (typeof data !== "string") return null;
+      try {
+        const bytes = bs58.decode(data);
+        return new TextDecoder().decode(bytes);
+      } catch (e) {
+        console.error("Failed to decode memo data", e);
+        return null;
+      }
+    }
 
-        const tx = await connection.getTransaction(sig.signature, {
-          maxSupportedTransactionVersion: 0
-        });
+    function extractMemosFromTransaction(tx) {
+      const memos = [];
+      if (!tx || !tx.transaction || !tx.transaction.message) return memos;
 
-        if (!tx) continue;
+      const message = tx.transaction.message;
+      const accountKeys = message.accountKeys || [];
 
-        const memoProgram = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
-
-        /* -----------------------------------------
-           ⭐ 1. CHECK TOP-LEVEL INSTRUCTIONS
-        ----------------------------------------- */
-
-        let message = tx.transaction.message;
-        let accountKeys =
-          message.accountKeys ?? message.staticAccountKeys ?? [];
-
-        let instructions =
-          message.instructions ?? message.compiledInstructions ?? [];
-
-        for (let inst of instructions) {
+      // 1) Top-level instructions (legacy transfers)
+      if (Array.isArray(message.instructions)) {
+        for (const inst of message.instructions) {
           const programId = accountKeys[inst.programIdIndex];
-          if (!programId) continue;
-
-          if (programId.toBase58() === memoProgram) {
-            const memoBytes = bs58.decode(inst.data);
-            const memo = new TextDecoder().decode(memoBytes);
-
-            results.push({
-              signature: sig.signature,
-              memo,
-              time: tx.blockTime
-            });
+          if (programId === MEMO_PROGRAM_ID) {
+            const memo = decodeMemoData(inst.data);
+            if (memo !== null) memos.push(memo);
           }
         }
+      }
 
-        /* -----------------------------------------
-           ⭐ 2. CHECK meta.innerInstructions (Helius!
-           This is where YOUR memo is located)
-        ----------------------------------------- */
-
-        if (tx.meta && tx.meta.innerInstructions) {
-          for (let inner of tx.meta.innerInstructions) {
-            for (let inst of inner.instructions) {
-              try {
-                const programId = accountKeys[inst.programIdIndex];
-                if (!programId) continue;
-
-                if (programId.toBase58() === memoProgram) {
-                  // Helius sometimes returns base58 + sometimes raw bytes
-                  let memo;
-
-                  if (typeof inst.data === "string") {
-                    const memoBytes = bs58.decode(inst.data);
-                    memo = new TextDecoder().decode(memoBytes);
-                  } else {
-                    memo = new TextDecoder().decode(inst.data);
-                  }
-
-                  results.push({
-                    signature: sig.signature,
-                    memo,
-                    time: tx.blockTime
-                  });
-                }
-              } catch {}
+      // 2) Inner instructions (CPI, some wallets/middleware put memo here)
+      if (tx.meta && Array.isArray(tx.meta.innerInstructions)) {
+        for (const inner of tx.meta.innerInstructions) {
+          if (!inner.instructions) continue;
+          for (const inst of inner.instructions) {
+            const programId = accountKeys[inst.programIdIndex];
+            if (programId === MEMO_PROGRAM_ID) {
+              const memo = decodeMemoData(inst.data);
+              if (memo !== null) memos.push(memo);
             }
           }
         }
       }
 
-      if (results.length === 0) {
-        output.innerHTML = "<p>No memo transactions found.</p>";
+      return memos;
+    }
+
+    window.readWalletMemos = async function () {
+      const wallet = document.getElementById("wallet").value.trim();
+      const output = document.getElementById("output");
+      output.innerHTML = "Loading...";
+
+      if (!wallet) {
+        output.innerHTML = "❌ Please enter a wallet address.";
         return;
       }
 
-      output.innerHTML = "<h2>📜 Memo Transactions:</h2>";
+      try {
+        // 1) Get recent signatures for this address
+        const signatures = await rpcCall("getSignaturesForAddress", [
+          wallet,
+          { limit: 30 }   // you can bump this to 100 if needed
+        ]);
 
-      results.forEach(r => {
-        const date = r.time
-          ? new Date(r.time * 1000).toUTCString()
-          : "Unknown";
+        if (!signatures || signatures.length === 0) {
+          output.innerHTML = "<p>No transactions found for this address.</p>";
+          return;
+        }
 
-        output.innerHTML += `
-          <div class="memo-card">
-            <p><strong>Memo:</strong> ${r.memo}</p>
-            <p><strong>Signature:</strong><br>
-              <a href="https://explorer.solana.com/tx/${r.signature}">
-                ${r.signature}
-              </a>
-            </p>
-            <p><strong>Time:</strong> ${date}</p>
-          </div>
-        `;
-      });
+        const results = [];
 
-    } catch (err) {
-      output.innerHTML = "❌ Error: " + err.message;
-    }
-  };
-</script>
+        // 2) For each signature, fetch full transaction and search for memos
+        for (const sig of signatures) {
+          const tx = await rpcCall("getTransaction", [
+            sig.signature,
+            { encoding: "json", maxSupportedTransactionVersion: 0 }
+          ]);
+
+          if (!tx) continue;
+
+          const memos = extractMemosFromTransaction(tx);
+          if (memos.length === 0) continue;
+
+          results.push({
+            signature: sig.signature,
+            memos,
+            time: tx.blockTime
+          });
+        }
+
+        if (results.length === 0) {
+          output.innerHTML = "<p>No memo transactions found for this address.</p>";
+          return;
+        }
+
+        // 3) Render results
+        output.innerHTML = "<h2>📜 Memo Transactions:</h2>";
+        for (const r of results) {
+          const date = r.time
+            ? new Date(r.time * 1000).toUTCString()
+            : "Unknown";
+
+          // show all memos in this tx (usually 1, but we support multiple)
+          const memoHtml = r.memos
+            .map(m => `<div>${m}</div>`)
+            .join("");
+
+          output.innerHTML += `
+            <div class="memo-card">
+              <p><strong>Memos:</strong><br>${memoHtml}</p>
+              <p><strong>Signature:</strong><br>
+                <a href="https://explorer.solana.com/tx/${r.signature}" target="_blank">
+                  ${r.signature}
+                </a>
+              </p>
+              <p><strong>Time:</strong> ${date}</p>
+            </div>
+          `;
+        }
+
+      } catch (err) {
+        console.error(err);
+        output.innerHTML = "❌ Error: " + err.message;
+      }
+    };
+  </script>
+
+</body>
+</html>
