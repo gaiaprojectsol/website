@@ -19,17 +19,6 @@
       margin-bottom: 10px;
     }
 
-    input {
-      width: 420px;
-      max-width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #00ffe033;
-      background: #111;
-      color: #fff;
-      font-size: 15px;
-    }
-
     button {
       padding: 12px 22px;
       background: #00ffe0;
@@ -38,7 +27,8 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin-left: 10px;
+      margin-top: 10px;
+      margin-bottom: 25px;
     }
 
     button:hover {
@@ -82,8 +72,7 @@
 
   <h1>🔮 Custom Genean Pre-Order Tracker</h1>
 
-  <input id="wallet" type="text" placeholder="Enter receiving wallet address">
-  <button onclick="loadTracker()">Load Tracker</button>
+  <button onclick="loadTracker()">Refresh</button>
 
   <div id="status"></div>
 
@@ -99,6 +88,8 @@
 
   <script type="module">
     import bs58 from "https://esm.sh/bs58@5.0.0";
+
+    const RECEIVING_WALLET = "7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs";
 
     const RPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";
     const MEMO_PROGRAM = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
@@ -135,7 +126,7 @@
       const message = tx.transaction.message;
       const keys = message.accountKeys ?? [];
 
-      // Top-level instructions
+      // top-level instructions
       if (Array.isArray(message.instructions)) {
         for (const inst of message.instructions) {
           const program = keys[inst.programIdIndex];
@@ -146,7 +137,7 @@
         }
       }
 
-      // Inner instructions
+      // inner instructions
       if (tx.meta?.innerInstructions) {
         for (const inner of tx.meta.innerInstructions) {
           if (!inner.instructions) continue;
@@ -164,21 +155,15 @@
     }
 
     window.loadTracker = async function () {
-      const wallet = document.getElementById("wallet").value.trim();
       const status = document.getElementById("status");
       const tableBody = document.querySelector("#geneanTable tbody");
 
       status.innerHTML = "Loading...";
       tableBody.innerHTML = "";
 
-      if (!wallet) {
-        status.innerHTML = "❌ Please enter a wallet address.";
-        return;
-      }
-
       try {
         const sigs = await rpcCall("getSignaturesForAddress", [
-          wallet,
+          RECEIVING_WALLET,
           { limit: 200 }
         ]);
 
@@ -191,22 +176,21 @@
           ]);
 
           if (!tx) continue;
-
           const memos = extractMemos(tx);
           if (memos.length === 0) continue;
 
           entries.push({
-            memo: memos[0]   // first memo in tx
+            memo: memos[0]
           });
         }
 
-        // ⭐ Reverse order so oldest memo = #1
+        // Oldest first
         entries.reverse();
 
         const count = entries.length;
         status.innerHTML = `Custom Geneans Reserved: <strong>${count} / 100</strong>`;
 
-        // Build 100 rows
+        // Build 100 slots
         for (let i = 1; i <= 100; i++) {
           const row = document.createElement("tr");
 
@@ -230,6 +214,10 @@
         status.innerHTML = "❌ Error: " + err.message;
       }
     };
+
+    // auto-load when page opens
+    loadTracker();
   </script>
+
 </body>
 </html>
