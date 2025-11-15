@@ -22,38 +22,73 @@
       let results = [];
 
       for (let sig of signatures) {
+
         const tx = await connection.getTransaction(sig.signature, {
           maxSupportedTransactionVersion: 0
         });
 
         if (!tx) continue;
 
-        const message = tx.transaction.message;
-
-        // ⭐ Handle BOTH legacy + v0 instructions
-        const instructions =
-          message.instructions ?? message.compiledInstructions ?? [];
-
-        // ⭐ Handle BOTH legacy + v0 account key formats
-        const accountKeys =
-          message.accountKeys ?? message.staticAccountKeys;
-
         const memoProgram = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
+
+        /* -----------------------------------------
+           ⭐ 1. CHECK TOP-LEVEL INSTRUCTIONS
+        ----------------------------------------- */
+
+        let message = tx.transaction.message;
+        let accountKeys =
+          message.accountKeys ?? message.staticAccountKeys ?? [];
+
+        let instructions =
+          message.instructions ?? message.compiledInstructions ?? [];
 
         for (let inst of instructions) {
           const programId = accountKeys[inst.programIdIndex];
           if (!programId) continue;
 
           if (programId.toBase58() === memoProgram) {
-            // ⭐ Fix for base58-encoded memo data
             const memoBytes = bs58.decode(inst.data);
             const memo = new TextDecoder().decode(memoBytes);
 
             results.push({
               signature: sig.signature,
-              memo: memo,
+              memo,
               time: tx.blockTime
             });
+          }
+        }
+
+        /* -----------------------------------------
+           ⭐ 2. CHECK meta.innerInstructions (Helius!
+           This is where YOUR memo is located)
+        ----------------------------------------- */
+
+        if (tx.meta && tx.meta.innerInstructions) {
+          for (let inner of tx.meta.innerInstructions) {
+            for (let inst of inner.instructions) {
+              try {
+                const programId = accountKeys[inst.programIdIndex];
+                if (!programId) continue;
+
+                if (programId.toBase58() === memoProgram) {
+                  // Helius sometimes returns base58 + sometimes raw bytes
+                  let memo;
+
+                  if (typeof inst.data === "string") {
+                    const memoBytes = bs58.decode(inst.data);
+                    memo = new TextDecoder().decode(memoBytes);
+                  } else {
+                    memo = new TextDecoder().decode(inst.data);
+                  }
+
+                  results.push({
+                    signature: sig.signature,
+                    memo,
+                    time: tx.blockTime
+                  });
+                }
+              } catch {}
+            }
           }
         }
       }
@@ -69,6 +104,7 @@
         const date = r.time
           ? new Date(r.time * 1000).toUTCString()
           : "Unknown";
+
         output.innerHTML += `
           <div class="memo-card">
             <p><strong>Memo:</strong> ${r.memo}</p>
