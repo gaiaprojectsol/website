@@ -80,20 +80,16 @@
 
 <div id="output"></div>
 
-<!-- ===========================
-      SCRIPT (Fully Updated)
-=============================== -->
 <script type="module">
   import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
+  import bs58 from "https://esm.sh/bs58@5.0.0";
 
-  // ⭐ Attach function globally for onclick handler
   window.readWalletMemos = async function () {
     const pubkeyInput = document.getElementById("wallet").value.trim();
     const output = document.getElementById("output");
     output.innerHTML = "Loading...";
 
     try {
-      // ⭐ Your Helius RPC endpoint
       const connection = new solanaWeb3.Connection(
         "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b",
         "confirmed"
@@ -101,7 +97,6 @@
 
       const pubkey = new solanaWeb3.PublicKey(pubkeyInput);
 
-      // Fetch the latest 50 transactions
       const signatures = await connection.getSignaturesForAddress(pubkey, { limit: 50 });
 
       let results = [];
@@ -115,20 +110,17 @@
 
         const memoProgram = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
 
-        // Loop through instructions
         for (let inst of tx.transaction.message.instructions) {
 
-          // ⭐ FIXED: Correct decoding of programId via programIdIndex
           const programId = tx.transaction.message.accountKeys[inst.programIdIndex];
           if (!programId) continue;
 
-          // ⭐ Check if this instruction is the Memo Program v2
           if (programId.toBase58() === memoProgram) {
 
-            // Decode the memo text
-            const memo = new TextDecoder().decode(inst.data);
+            // ⭐ FIX: decode memo from base58
+            const memoBytes = bs58.decode(inst.data);
+            const memo = new TextDecoder().decode(memoBytes);
 
-            // Save result
             results.push({
               signature: siginfo.signature,
               memo: memo,
@@ -146,7 +138,6 @@
 
       output.innerHTML = "<h2>📜 Memo Transactions Found:</h2>";
 
-      // Display all memo entries
       results.forEach(r => {
         const date = r.time
           ? new Date(r.time * 1000).toUTCString()
