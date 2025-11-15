@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gaia Project — Blog</title>
+
+<link rel="icon" type="image/png" href="gaiaprojectwhite.png" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: radial-gradient(circle at center, #000, #020b0b, #000);
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  /**********************
+      ANNOUNCEMENT BAR
+  ***********************/
+  #announcement-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 32px;
+    background: linear-gradient(90deg, #00ffd5, #0088ff, #8a2be2);
+    color: #000;
+    font-weight: bold;
+    text-align: center;
+    line-height: 32px;
+    z-index: 999;
+    font-size: 13px;
+    letter-spacing: 1px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  #announcement-text {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scrollBanner 16s linear infinite;
+  }
+
+  @keyframes scrollBanner {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /**********************
+         HEADER
+  ***********************/
+  header {
+    position: fixed;
+    top: 32px;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(0, 255, 200, 0.2);
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 998;
+  }
+
+  header img {
+    height: 40px;
+    width: auto;
+  }
+
+  nav a {
+    color: #00f0ff;
+    text-decoration: none;
+    margin: 0 12px;
+    font-size: 14px;
+    transition: 0.25s ease;
+  }
+
+  nav a:hover {
+    color: #8affff;
+    text-shadow: 0 0 8px #00eaff;
+  }
+
+  /**********************
+         BLOG HEADER
+  ***********************/
+  .page-header {
+    margin-top: 150px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .page-header h1 {
+    font-size: 2.8rem;
+    color: #5cecff;
+    text-shadow: 0 0 10px #00eaff, 0 0 18px #00eaff;
+  }
+
+  .page-header p {
+    font-size: 1.1rem;
+    color: #bcd;
+    max-width: 700px;
+    margin: 15px auto;
+    line-height: 1.6;
+  }
+
+  /**********************
+        BLOG WRAPPER
+  ***********************/
+  .blog-wrapper {
+    max-width: 900px;
+    margin: 20px auto 60px auto;
+    padding: 0 20px;
+  }
+
+  /**********************
+         BLOG CARD
+  ***********************/
+  .blog-entry {
+    background: rgba(0, 20, 25, 0.55);
+    border: 1px solid rgba(0, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 28px;
+    box-shadow: 0 0 15px #00eaff22;
+    transition: 0.3s ease;
+  }
+
+  .blog-entry:hover {
+    box-shadow: 0 0 25px #00eaff55;
+    transform: translateY(-3px);
+  }
+
+  .blog-date {
+    color: #5cecff;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .blog-title {
+    font-size: 1.4rem;
+    color: #fff;
+    margin-bottom: 10px;
+    text-shadow: 0 0 8px #0099cc;
+  }
+
+  .blog-content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #cfd;
+  }
+
+  /**********************
+           FOOTER
+  ***********************/
+  footer {
+    background: #050505;
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #999;
+    border-top: 1px solid #111;
+    margin-top: 80px;
+  }
+
+  footer a {
+    color: #00ffe0;
+    text-decoration: none;
+  }
+
+  footer a:hover {
+    color: #fff;
+  }
+
+</style>
+</head>
+
+<body>
+
+<!-- ANNOUNCEMENT BAR -->
+<div id="announcement-bar">
+  <div id="announcement-text">🌍 Gaia Spark Mint — November 27, 2025 ⚡</div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <img src="gaiaprojectwhite.png" alt="Gaia Logo" />
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="lore.html">Lore</a>
+    <a href="preorder.html">Pre-Order</a>
+    <a href="whitepaper.html">Whitepaper</a>
+    <a href="community.html">Community</a>
+    <a href="blog.html">Blog</a>
+  </nav>
+</header>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <h1>Gaia Blog</h1>
+  <p>
+    Every now and then we document the journey — updates, insights, breakthroughs,
+    and highlights from the community.  
+    This is the living chronicle of how Gaia is being shaped.
+  </p>
+</div>
+
+<!-- BLOG SECTION -->
+<div class="blog-wrapper">
+
+  <!-- Blog Entry 1 -->
+<div class="blog-entry">
+  <div class="blog-date">15 November 2025</div>
+  <div class="blog-title">The Future We See for Gaia — And Why You Should Be Watching</div>
+  
+  <div class="blog-content">
+
+    <p>Gaia isn’t built like a normal NFT project. We aren’t here to drop a collection, disappear, and hope the charts do the marketing.</p>
+
+    <p>We’re building an <strong>ecosystem</strong> — one where NFTs aren’t profile pictures but <strong>living digital organisms</strong> that can power an entire generation of decentralised games.</p>
+
+    <p>Today, here’s the forecast we’re openly putting on the table: what we sell, what it funds, and how far we believe this can go.</p>
+
+    <h3 style="color:#5cecff;">🚀 Revenue Forecast — Transparent & Simple</h3>
+
+    <p>We are launching <strong>4,200 Gaia Spark NFTs</strong> at <strong>0.1 SOL</strong> each.</p>
+
+    <table>
+      <tr>
+        <th>Item</th>
+        <th>Amount</th>
+      </tr>
+      <tr>
+        <td>Total Sparks</td>
+        <td><strong>4,200</strong></td>
+      </tr>
+      <tr>
+        <td>Price per Spark</td>
+        <td><strong>0.1 SOL</strong></td>
+      </tr>
+      <tr>
+        <td>Total SOL Raised</td>
+        <td><strong>420 SOL</strong></td>
+      </tr>
+      <tr>
+        <td>80% to Development</td>
+        <td><strong>336 SOL</strong></td>
+      </tr>
+      <tr>
+        <td>USD Range (est.)</td>
+        <td><strong>$33,600 – $67,200 USDT</strong></td>
+      </tr>
+    </table>
+
+    <p><strong>Where does the 80% go?</strong></p>
+
+    <p>Straight into building <strong>real games chosen by the community</strong>, developed through <strong>decentralised work</strong>:</p>
+
+    <ul>
+      <li>Open hiring</li>
+      <li>Payment in crypto</li>
+      <li>Transparent contribution logs</li>
+      <li>Development always tied back to Gaia’s core interface</li>
+    </ul>
+
+    <p>No token. No ponzinomics. Just actual value creation with real budgets.</p>
+
+    <h3 style="color:#5cecff;">🎮 Why This Budget Is Enough to Start Something Serious</h3>
+
+    <p>People underestimate how far indie developers can go with lean budgets. Here are some reminders:</p>
+
+    <table>
+      <tr>
+        <th>Game</th>
+        <th>Budget</th>
+        <th>Outcome</th>
+      </tr>
+      <tr>
+        <td>Stardew Valley</td>
+        <td>~$75k</td>
+        <td>20M+ copies sold</td>
+      </tr>
+      <tr>
+        <td>Undertale</td>
+        <td>~$50k</td>
+        <td>Cultural phenomenon</td>
+      </tr>
+      <tr>
+        <td>Hades</td>
+        <td>&lt;$1M</td>
+        <td>Game of the Year contender</td>
+      </tr>
+      <tr>
+        <td>Hotline Miami</td>
+        <td>~$30k</td>
+        <td>One of the most influential indie titles ever</td>
+      </tr>
+    </table>
+
+    <p>A well-managed dev cycle + a strong community = outsized results. And we’re building with web3 mechanics baked in from day one.</p>
+
+    <h3 style="color:#5cecff;">👶 Geneans Aren’t NPCs — They’re the Blueprint for Them</h3>
+
+    <p>Your Genean will eventually be able to:</p>
+
+    <ul>
+      <li>Serve as the <strong>logic layer</strong> for NPC behaviour</li>
+      <li>Automatically generate names, personality, and memory</li>
+      <li>Influence how characters behave across Gaia games</li>
+      <li>Represent your contribution to decentralised gaming</li>
+      <li>Live, grow, and evolve based on your daily choices</li>
+    </ul>
+
+    <blockquote>
+      <em>“Souls live, die, and rise again upon the chain.” — Book I</em><br>
+      <em>“Imagination, memory, and will were forged.” — Book 0</em>
+    </blockquote>
+
+    <p>The direction of this world has always been determined by the players.</p>
+
+    <h3 style="color:#5cecff;">🌐 Our Bigger Mission: Set the Framework for Decentralised Games</h3>
+
+    <p>We see Gaia becoming:</p>
+
+    <ul>
+      <li>A reference model for other Web3 studios</li>
+      <li>A backbone for interoperable NPCs</li>
+      <li>A living experiment in decentralised co-development</li>
+      <li>A community-guided sandbox for building a new kind of digital world</li>
+    </ul>
+
+    <p>As revenue grows, the community will choose which worlds, features, and systems get developed next — and we hire openly to build them.</p>
+
+    <p>
+      This is the future of gaming:<br>
+      <strong>Players → Builders → Governors → World-Creators</strong>
+    </p>
+
+    <h3 style="color:#5cecff;">🔥 Why You Should Keep an Eye on Gaia</h3>
+
+    <p>Because we’re not trying to “launch a game.” We’re trying to <strong>rewrite how games are built and how digital life evolves</strong>.</p>
+
+    <p>If you want to be part of the experiment, the simplest first step is:</p>
+
+    <p><strong>Grow your own Genean.</strong></p>
+
+    <p>It’s your ticket into shaping the direction of the ecosystem and becoming an early influence on the world we’re building.</p>
+
+    <p><strong>Read the whitepaper</strong> to understand the core mechanics — this is just the beginning.</p>
+
+  </div>
+</div>
+
+
+
+  <!-- Add more blog entries by duplicating this block -->
+  <!--
+  <div class="blog-entry">
+    <div class="blog-date">DATE HERE</div>
+    <div class="blog-title">TITLE HERE</div>
+    <div class="blog-content">
+      CONTENT HERE
+    </div>
+  </div>
+  -->
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  Join the conversation:
+  <a href="https://x.com/gaiaprojectsol" target="_blank">X</a> |
+  <a href="https://t.me/+g9xscMa9_AtiMzU1" target="_blank">Telegram</a>
+  <p>© 2025 Gaia Project — All rights reserved.</p>
+</footer>
+
+</body>
+</html>
