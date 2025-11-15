@@ -1,91 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Gaia Project — Wallet Memo Reader</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-
-<style>
-  body {
-    background: #000;
-    color: #fff;
-    font-family: 'Orbitron', sans-serif;
-    padding: 40px;
-  }
-
-  h1 {
-    color: #00ffe0;
-    text-shadow: 0 0 12px #00ffe0;
-  }
-
-  input {
-    width: 420px;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #00ffe033;
-    background: #111;
-    color: #fff;
-    font-size: 15px;
-  }
-
-  button {
-    padding: 12px 22px;
-    background: #00ffe0;
-    color: #000;
-    font-weight: bold;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-left: 10px;
-  }
-
-  button:hover {
-    background: #00c8b0;
-  }
-
-  #output {
-    margin-top: 30px;
-    font-size: 16px;
-    line-height: 1.7;
-  }
-
-  .memo-card {
-    border: 1px solid #00ffe055;
-    padding: 15px;
-    margin-bottom: 22px;
-    border-radius: 10px;
-    background: #0f0f0f;
-    box-shadow: 0 0 12px #00ffe022;
-  }
-
-  a {
-    color: #00ffe0;
-  }
-
-  a:hover {
-    color: #fff;
-  }
-</style>
-</head>
-
-<body>
-
-<h1>🔍 Solana Wallet Memo Reader</h1>
-<p>Enter any Solana wallet address to retrieve its most recent memo transactions.</p>
-
-<input id="wallet" type="text" placeholder="Enter Solana wallet address">
-<button onclick="readWalletMemos()">Read Memos</button>
-
-<div id="output"></div>
-
 <script type="module">
   import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
   import bs58 from "https://esm.sh/bs58@5.0.0";
 
   window.readWalletMemos = async function () {
-    const pubkeyInput = document.getElementById("wallet").value.trim();
+    const wallet = document.getElementById("wallet").value.trim();
     const output = document.getElementById("output");
     output.innerHTML = "Loading...";
 
@@ -95,36 +13,45 @@
         "confirmed"
       );
 
-      const pubkey = new solanaWeb3.PublicKey(pubkeyInput);
+      const pubkey = new solanaWeb3.PublicKey(wallet);
 
-      const signatures = await connection.getSignaturesForAddress(pubkey, { limit: 50 });
+      const signatures = await connection.getSignaturesForAddress(pubkey, {
+        limit: 50
+      });
 
       let results = [];
 
-      for (let siginfo of signatures) {
-        const tx = await connection.getTransaction(siginfo.signature, {
+      for (let sig of signatures) {
+        const tx = await connection.getTransaction(sig.signature, {
           maxSupportedTransactionVersion: 0
         });
 
         if (!tx) continue;
 
+        const message = tx.transaction.message;
+
+        // ⭐ Handle BOTH legacy + v0 instructions
+        const instructions =
+          message.instructions ?? message.compiledInstructions ?? [];
+
+        // ⭐ Handle BOTH legacy + v0 account key formats
+        const accountKeys =
+          message.accountKeys ?? message.staticAccountKeys;
+
         const memoProgram = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
 
-        for (let inst of tx.transaction.message.instructions) {
-
-          const programId = tx.transaction.message.accountKeys[inst.programIdIndex];
+        for (let inst of instructions) {
+          const programId = accountKeys[inst.programIdIndex];
           if (!programId) continue;
 
           if (programId.toBase58() === memoProgram) {
-
-            // ⭐ FIX: decode memo from base58
+            // ⭐ Fix for base58-encoded memo data
             const memoBytes = bs58.decode(inst.data);
             const memo = new TextDecoder().decode(memoBytes);
 
             results.push({
-              signature: siginfo.signature,
+              signature: sig.signature,
               memo: memo,
-              slot: tx.slot,
               time: tx.blockTime
             });
           }
@@ -136,23 +63,21 @@
         return;
       }
 
-      output.innerHTML = "<h2>📜 Memo Transactions Found:</h2>";
+      output.innerHTML = "<h2>📜 Memo Transactions:</h2>";
 
       results.forEach(r => {
         const date = r.time
           ? new Date(r.time * 1000).toUTCString()
           : "Unknown";
-
         output.innerHTML += `
           <div class="memo-card">
+            <p><strong>Memo:</strong> ${r.memo}</p>
             <p><strong>Signature:</strong><br>
-            <a href="https://explorer.solana.com/tx/${r.signature}" target="_blank">
-              ${r.signature}
-            </a></p>
-
-            <p><strong>Memo:</strong><br>${r.memo}</p>
-
-            <p><strong>Block Time:</strong><br>${date}</p>
+              <a href="https://explorer.solana.com/tx/${r.signature}">
+                ${r.signature}
+              </a>
+            </p>
+            <p><strong>Time:</strong> ${date}</p>
           </div>
         `;
       });
@@ -162,6 +87,3 @@
     }
   };
 </script>
-
-</body>
-</html>
