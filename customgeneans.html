@@ -1,13 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Read Memo Transactions by Wallet</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gaia Project — Wallet Memo Reader</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    background: #000;
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    padding: 40px;
+  }
+
+  h1 {
+    color: #00ffe0;
+    text-shadow: 0 0 12px #00ffe0;
+  }
+
+  input {
+    width: 420px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #00ffe033;
+    background: #111;
+    color: #fff;
+    font-size: 15px;
+  }
+
+  button {
+    padding: 12px 22px;
+    background: #00ffe0;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+
+  button:hover {
+    background: #00c8b0;
+  }
+
+  #output {
+    margin-top: 30px;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .memo-card {
+    border: 1px solid #00ffe055;
+    padding: 15px;
+    margin-bottom: 22px;
+    border-radius: 10px;
+    background: #0f0f0f;
+    box-shadow: 0 0 12px #00ffe022;
+  }
+
+  a {
+    color: #00ffe0;
+  }
+
+  a:hover {
+    color: #fff;
+  }
+
+</style>
+</head>
+
+<body>
+
+<h1>🔍 Solana Wallet Memo Reader</h1>
+<p>Enter any Solana wallet address to retrieve its most recent memo transactions.</p>
+
+<input id="wallet" type="text" placeholder="Enter Solana wallet address">
+<button onclick="readWalletMemos()">Read Memos</button>
+
+<div id="output"></div>
+
+<!-- ===========================
+      SCRIPT (Option A)
+=============================== -->
 <script type="module">
   import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
 
-  async function readWalletMemos() {
+  // ⭐ OPTION A — Attach function to window so HTML onclick can access it
+  window.readWalletMemos = async function () {
     const pubkeyInput = document.getElementById("wallet").value.trim();
     const output = document.getElementById("output");
     output.innerHTML = "Loading...";
@@ -20,7 +101,7 @@
 
       const pubkey = new solanaWeb3.PublicKey(pubkeyInput);
 
-      // getSignaturesForAddress returns last 1000 signatures by default
+      // Get last 50 signatures for this address
       const signatures = await connection.getSignaturesForAddress(pubkey, { limit: 50 });
 
       let results = [];
@@ -50,37 +131,27 @@
         return;
       }
 
-      output.innerHTML = "<h3>Memo Transactions Found:</h3>";
+      output.innerHTML = "<h2>📜 Memo Transactions Found:</h2>";
 
+      // Display results
       results.forEach(r => {
         output.innerHTML += `
-          <div style="margin-bottom:20px;padding:10px;border:1px solid #00ffe0;">
+          <div class="memo-card">
             <p><strong>Signature:</strong><br>
-            <a href="https://explorer.solana.com/tx/${r.signature}" target="_blank">${r.signature}</a></p>
-            <p><strong>Memo:</strong> ${r.memo}</p>
+            <a href="https://explorer.solana.com/tx/${r.signature}" target="_blank">
+              ${r.signature}
+            </a></p>
+
+            <p><strong>Memo:</strong><br>${r.memo}</p>
           </div>
         `;
       });
 
     } catch (err) {
-      output.innerHTML = "Error: " + err.message;
+      output.innerHTML = "❌ Error: " + err.message;
     }
-  }
+  };
 </script>
-
-</head>
-
-<body style="background:#000;color:#fff;font-family:Arial;padding:20px;">
-
-<h2>Read All Memo Transactions From a Wallet</h2>
-
-<input id="wallet" type="text" placeholder="Enter wallet address"
-       style="width:420px;padding:10px;border-radius:6px;border:none;">
-<button onclick="readWalletMemos()" style="padding:10px 20px;border:none;border-radius:6px;background:#00ffe0;">
-  Read Memos
-</button>
-
-<div id="output" style="margin-top:20px;font-size:16px;"></div>
 
 </body>
 </html>
