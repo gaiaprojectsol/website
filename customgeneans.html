@@ -67,7 +67,6 @@
   a:hover {
     color: #fff;
   }
-
 </style>
 </head>
 
@@ -82,18 +81,19 @@
 <div id="output"></div>
 
 <!-- ===========================
-      SCRIPT (Option A)
+      SCRIPT (Fully Updated)
 =============================== -->
 <script type="module">
   import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
 
-  // ⭐ OPTION A — Attach function to window so HTML onclick can access it
+  // ⭐ Attach function globally for onclick handler
   window.readWalletMemos = async function () {
     const pubkeyInput = document.getElementById("wallet").value.trim();
     const output = document.getElementById("output");
     output.innerHTML = "Loading...";
 
     try {
+      // ⭐ Your Helius RPC endpoint
       const connection = new solanaWeb3.Connection(
         "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b",
         "confirmed"
@@ -101,7 +101,7 @@
 
       const pubkey = new solanaWeb3.PublicKey(pubkeyInput);
 
-      // Get last 50 signatures for this address
+      // Fetch the latest 50 transactions
       const signatures = await connection.getSignaturesForAddress(pubkey, { limit: 50 });
 
       let results = [];
@@ -115,12 +115,25 @@
 
         const memoProgram = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
 
+        // Loop through instructions
         for (let inst of tx.transaction.message.instructions) {
-          if (inst.programId.toBase58() === memoProgram) {
+
+          // ⭐ FIXED: Correct decoding of programId via programIdIndex
+          const programId = tx.transaction.message.accountKeys[inst.programIdIndex];
+          if (!programId) continue;
+
+          // ⭐ Check if this instruction is the Memo Program v2
+          if (programId.toBase58() === memoProgram) {
+
+            // Decode the memo text
             const memo = new TextDecoder().decode(inst.data);
+
+            // Save result
             results.push({
               signature: siginfo.signature,
-              memo: memo
+              memo: memo,
+              slot: tx.slot,
+              time: tx.blockTime
             });
           }
         }
@@ -133,8 +146,12 @@
 
       output.innerHTML = "<h2>📜 Memo Transactions Found:</h2>";
 
-      // Display results
+      // Display all memo entries
       results.forEach(r => {
+        const date = r.time
+          ? new Date(r.time * 1000).toUTCString()
+          : "Unknown";
+
         output.innerHTML += `
           <div class="memo-card">
             <p><strong>Signature:</strong><br>
@@ -143,6 +160,8 @@
             </a></p>
 
             <p><strong>Memo:</strong><br>${r.memo}</p>
+
+            <p><strong>Block Time:</strong><br>${date}</p>
           </div>
         `;
       });
