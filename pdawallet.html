@@ -2,155 +2,174 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Solana Wallet Tracker</title>
+<title>Solana Wallet Cashflow Tracker</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   body {
-    font-family: Arial, sans-serif;
     background: #0a0a0a;
-    color: #fff;
+    color: white;
+    font-family: Arial, sans-serif;
     padding: 20px;
   }
-  h1 { text-align: center; }
-  #balanceBox {
-    background: #111;
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid #333;
-    border-radius: 8px;
-  }
+  h1, h2 { text-align: center; }
   table {
     width: 100%;
+    margin-top: 20px;
     border-collapse: collapse;
-    margin-top: 15px;
   }
-  table th, table td {
+  th, td {
     border: 1px solid #444;
     padding: 8px;
-    text-align: left;
   }
-  th { background: #222; }
-  input.note-input {
-    width: 95%;
+  th {
     background: #222;
-    color: #fff;
-    border: 1px solid #555;
+  }
+  input.note {
+    width: 95%;
     padding: 5px;
-    border-radius: 5px;
+    background: #222;
+    border: 1px solid #555;
+    color: #fff;
+    border-radius: 4px;
   }
 </style>
 </head>
 <body>
 
-<h1>Solana Wallet Balance Tracker</h1>
+<h1>Solana Historical Cashflow</h1>
+<p id="status">Loading historical data...</p>
 
-<div id="balanceBox">
-  <h2>Current Balance:</h2>
-  <p id="balance">Loading...</p>
-</div>
-
-<h2>Balance Ledger</h2>
 <table>
   <thead>
     <tr>
       <th>Timestamp</th>
-      <th>Old (SOL)</th>
-      <th>New (SOL)</th>
-      <th>Change</th>
+      <th>Change (SOL)</th>
+      <th>From / To</th>
+      <th>Balance After</th>
       <th>Note</th>
     </tr>
   </thead>
-  <tbody id="ledgerBody"></tbody>
+  <tbody id="ledger"></tbody>
 </table>
 
 <script>
 
-// === SETTINGS ===
+// === YOUR WALLET + HELIUS ENDPOINT ===
 const WALLET = "7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs";
 const RPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";
 
-let lastBalance = null;
+let notes = JSON.parse(localStorage.getItem("cashflowNotes") || "{}");
 
-// === Local storage key ===
-const NOTES_KEY = "solanaLedgerNotes";
-let notes = JSON.parse(localStorage.getItem(NOTES_KEY) || "{}");
-
-// === Save notes back into localStorage ===
 function saveNotes() {
-  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+  localStorage.setItem("cashflowNotes", JSON.stringify(notes));
 }
 
-// === Fetch balance from Solana ===
-async function getBalance() {
+// === Fetch full transaction history from Helius ===
+async function fetchHistory() {
+  const txs = await fetch(RPC, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getSignaturesForAddress",
+      params: [WALLET, { limit: 1000 }]
+    })
+  }).then(r => r.json());
+
+  return txs.result;
+}
+
+// === Fetch parsed transaction details ===
+async function fetchTxDetails(signature) {
   const res = await fetch(RPC, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
       jsonrpc: "2.0",
       id: 1,
-      method: "getBalance",
-      params: [WALLET]
+      method: "getTransaction",
+      params: [signature, { encoding: "jsonParsed" }]
     })
-  });
+  }).then(r => r.json());
 
-  const data = await res.json();
-  return data.result.value / 1_000_000_000;
+  return res.result;
 }
 
-// === Add row to ledger ===
-function addLedgerRow(oldBal, newBal) {
-  const change = (newBal - oldBal).toFixed(4);
-  const timestamp = new Date().toLocaleString();
-  const rowId = timestamp.replace(/\s+/g, "_"); // unique row key
+// === Process full historical transactions ===
+async function buildHistoricalLedger() {
+  document.getElementById("status").innerText = "Fetching transactions...";
 
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td>${timestamp}</td>
-    <td>${oldBal.toFixed(4)}</td>
-    <td>${newBal.toFixed(4)}</td>
-    <td>${change}</td>
-    <td>
-      <input class="note-input" id="note-${rowId}" placeholder="Add note..." value="${notes[rowId] || ""}">
-    </td>
-  `;
+  const sigs = await fetchHistory();
+  let rows = [];
+  let runningBalance = 0;
 
-  // Save note when typed
-  tr.querySelector("input").addEventListener("input", (e) => {
-    notes[rowId] = e.target.value;
-    saveNotes();
-  });
+  for (let sigObj of sigs) {
+    const tx = await fetchTxDetails(sigObj.signature);
+    if (!tx) continue;
 
-  document.getElementById("ledgerBody").prepend(tr);
+    const meta = tx.meta;
+    if (!meta || !meta.postBalances || !meta.preBalances) continue;
+
+    const pre = meta.preBalances[0] / 1e9;
+    const post = meta.postBalances[0] / 1e9;
+    const change = post - pre;
+
+    if (change === 0) continue;
+
+    runningBalance = post;
+
+    const timestamp = new Date(tx.blockTime * 1000).toLocaleString();
+    const rowId = sigObj.signature;
+
+    rows.push({
+      timestamp,
+      change,
+      balance: post,
+      sig: sigObj.signature,
+      from: tx.transaction.message.accountKeys[0],
+      to: tx.transaction.message.accountKeys[1],
+      id: rowId
+    });
+  }
+
+  renderRows(rows.reverse()); // oldest → newest
+  document.getElementById("status").innerText = "Loaded.";
 }
 
-// === Update tracker ===
-async function updateBalance() {
-  try {
-    const newBal = await getBalance();
-    document.getElementById("balance").innerText =
-      newBal.toFixed(4) + " SOL";
+function renderRows(rows) {
+  const ledger = document.getElementById("ledger");
+  ledger.innerHTML = "";
 
-    if (lastBalance === null) {
-      // FIRST ENTRY — you requested this
-      lastBalance = newBal;
-      addLedgerRow(newBal, newBal);
-      return;
-    }
+  for (const r of rows) {
+    const tr = document.createElement("tr");
 
-    if (newBal !== lastBalance) {
-      addLedgerRow(lastBalance, newBal);
-      lastBalance = newBal;
-    }
+    tr.innerHTML = `
+      <td>${r.timestamp}</td>
+      <td style="color: ${r.change > 0 ? "lightgreen" : "red"};">
+        ${r.change.toFixed(4)}
+      </td>
+      <td>
+        From: ${r.from}<br>
+        To: ${r.to}
+      </td>
+      <td>${r.balance.toFixed(4)}</td>
+      <td>
+        <input class="note" id="note-${r.id}" placeholder="Add note..." value="${notes[r.id] || ""}">
+      </td>
+    `;
 
-  } catch (e) {
-    document.getElementById("balance").innerText = "Error fetching balance";
-    console.error(e);
+    tr.querySelector("input").addEventListener("input", (e) => {
+      notes[r.id] = e.target.value;
+      saveNotes();
+    });
+
+    ledger.appendChild(tr);
   }
 }
 
-// === Start ===
-updateBalance();
-setInterval(updateBalance, 10_000);
+// === Run it ===
+buildHistoricalLedger();
 
 </script>
 </body>
