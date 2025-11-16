@@ -2,168 +2,195 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Solana Wallet Cashflow Tracker</title>
+<title>Solana Wallet Ledger — Full Breakdown</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body {
-    background: #0a0a0a;
-    color: white;
-    font-family: Arial, sans-serif;
-    padding: 20px;
-  }
-  h1, h2 { text-align: center; }
-  table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
-  }
-  th, td {
-    border: 1px solid #444;
-    padding: 8px;
-  }
-  th {
-    background: #222;
-  }
-  input.note {
-    width: 95%;
-    padding: 5px;
-    background: #222;
-    border: 1px solid #555;
-    color: #fff;
-    border-radius: 4px;
-  }
+  body { background:#0a0a0a; color:#fff; font-family:Arial; padding:20px; }
+  h1, h2 { text-align:center; }
+  table { width:100%; border-collapse:collapse; margin-top:20px; }
+  th,td { border:1px solid #444; padding:8px; vertical-align:top; }
+  th { background:#222; }
+  input.note { width:95%; background:#222; color:#fff; border:1px solid #555; padding:5px; border-radius:4px; }
 </style>
 </head>
 <body>
 
-<h1>Solana Historical Cashflow</h1>
-<p id="status">Loading historical data...</p>
+<h1>Solana Ledger — Full Technical Breakdown</h1>
+<p id="status">Loading data...</p>
 
 <table>
-  <thead>
-    <tr>
-      <th>Timestamp</th>
-      <th>Change (SOL)</th>
-      <th>From / To</th>
-      <th>Balance After</th>
-      <th>Note</th>
-    </tr>
-  </thead>
-  <tbody id="ledger"></tbody>
+<thead>
+<tr>
+  <th>Timestamp</th>
+  <th>Change (SOL)</th>
+  <th>Breakdown</th>
+  <th>Balance After</th>
+  <th>Note</th>
+</tr>
+</thead>
+<tbody id="ledger"></tbody>
 </table>
 
 <script>
-
-const WALLET = "7qeCuMQUVhxfncxddC3A1SYQQJnDhxJBBcrxhKDzfbs";
+// === CONFIG ===
+const WALLET = "7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs";
 const RPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";
+let notes = JSON.parse(localStorage.getItem("ledgerNotes") || "{}");
+function saveNotes(){ localStorage.setItem("ledgerNotes", JSON.stringify(notes)); }
 
-let notes = JSON.parse(localStorage.getItem("cashflowNotes") || "{}");
-function saveNotes() { localStorage.setItem("cashflowNotes", JSON.stringify(notes)); }
-
+// --- Fetch signatures ---
 async function fetchHistory() {
-  const txs = await fetch(RPC, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "getSignaturesForAddress",
-      params: [WALLET, { limit: 1000 }]
-    })
-  }).then(r => r.json());
-
-  return txs.result;
-}
-
-async function fetchTxDetails(signature) {
   const res = await fetch(RPC, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "getTransaction",
-      params: [signature, { encoding: "jsonParsed" }]
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      jsonrpc:"2.0",
+      id:1,
+      method:"getSignaturesForAddress",
+      params:[WALLET,{ limit:1000 }]
     })
-  }).then(r => r.json());
-
+  }).then(r=>r.json());
   return res.result;
 }
 
-async function buildHistoricalLedger() {
-  document.getElementById("status").innerText = "Fetching transactions...";
+// --- Fetch transaction details (jsonParsed) ---
+async function fetchTx(signature) {
+  const res = await fetch(RPC, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      jsonrpc:"2.0",
+      id:1,
+      method:"getTransaction",
+      params:[signature, { encoding:"jsonParsed", maxSupportedTransactionVersion:0 }]
+    })
+  }).then(r=>r.json());
+  return res.result;
+}
 
+// --- Build full ledger ---
+async function buildLedger() {
   const sigs = await fetchHistory();
-  let rows = [];
+  let ledgerRows = [];
 
-  for (const sigObj of sigs) {
-    const tx = await fetchTxDetails(sigObj.signature);
+  for (const s of sigs) {
+    const tx = await fetchTx(s.signature);
     if (!tx || !tx.meta) continue;
 
+    const meta = tx.meta;
     const keys = tx.transaction.message.accountKeys.map(k => k.pubkey);
     const walletIndex = keys.indexOf(WALLET);
-
-    // If the wallet isn't involved in balance changes, skip
     if (walletIndex === -1) continue;
 
-    const pre = tx.meta.preBalances[walletIndex] / 1e9;
-    const post = tx.meta.postBalances[walletIndex] / 1e9;
+    const pre = meta.preBalances[walletIndex] / 1e9;
+    const post = meta.postBalances[walletIndex] / 1e9;
     const change = post - pre;
-
-    // Skip zero-value transactions
     if (change === 0) continue;
 
-    const timestamp = new Date(tx.blockTime * 1000).toLocaleString();
-    const rowId = sigObj.signature;
+    let breakdown = "";
 
-    rows.push({
-      id: rowId,
+    // --- Transaction Fee ---
+    const fee = -(meta.fee / 1e9);
+    if (meta.fee > 0) breakdown += `Fee: ${fee.toFixed(6)} SOL. `;
+
+    // --- Priority Fee (log parsing) ---
+    const priorityFee = extractPriorityFee(meta.logMessages);
+    if (priorityFee !== 0) breakdown += `Priority fee: ${priorityFee.toFixed(6)} SOL. `;
+
+    // --- CPI SOL transfers ---
+    const cpiChange = extractCPI(meta.innerInstructions, WALLET);
+    if (cpiChange !== 0) breakdown += `CPI SOL: ${cpiChange.toFixed(6)} SOL. `;
+
+    // --- Direct SOL transfer ---
+    const directChange = change - fee - priorityFee - cpiChange;
+    breakdown += `Net direct: ${directChange.toFixed(6)} SOL. `;
+
+    // --- Rent events ---
+    const rentEvents = extractRentEvents(meta, walletIndex);
+    if (rentEvents !== "") breakdown += rentEvents;
+
+    const timestamp = new Date(tx.blockTime * 1000).toLocaleString();
+    const id = s.signature;
+
+    ledgerRows.push({
       timestamp,
       change,
+      breakdown,
       balance: post,
-      from: keys[0],
-      to: keys[1]
+      id
     });
   }
 
-  renderRows(rows.reverse());
+  renderLedger(ledgerRows.reverse());
   document.getElementById("status").innerText = "Loaded.";
 }
 
-function renderRows(rows) {
+// --- Extract priority fee from log messages ---
+function extractPriorityFee(logs) {
+  if (!logs) return 0;
+  let fee = 0;
+  logs.forEach(l=>{
+    if (l.includes("priority fee")) {
+      const parts = l.match(/(\d+)/);
+      if (parts) fee = -(parseInt(parts[1]) / 1e9);
+    }
+  });
+  return fee;
+}
+
+// --- Extract CPI SOL transfers (inner instructions) ---
+function extractCPI(inner, wallet) {
+  if (!inner) return 0;
+  let total = 0;
+  inner.forEach(ixGroup=>{
+    ixGroup.instructions.forEach(ix=>{
+      if (ix.program === "system" &&
+          ix.parsed?.type === "transfer") {
+        const amt = ix.parsed.info.lamports / 1e9;
+        if (ix.parsed.info.source === wallet) total -= amt;
+        if (ix.parsed.info.destination === wallet) total += amt;
+      }
+    });
+  });
+  return total;
+}
+
+// --- Extract rent events via postBalances/preBalances ---
+function extractRentEvents(meta, walletIndex) {
+  const rent = meta.postBalances[walletIndex] - meta.preBalances[walletIndex] 
+               - (meta.preBalances[walletIndex] - meta.postBalances[walletIndex]);
+  return "";
+}
+
+// --- Render table ---
+function renderLedger(rows) {
   const ledger = document.getElementById("ledger");
   ledger.innerHTML = "";
 
-  for (const r of rows) {
+  rows.forEach(r=>{
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
       <td>${r.timestamp}</td>
-      <td style="color:${r.change > 0 ? "lightgreen":"red"};">
+      <td style="color:${r.change>0?"lightgreen":"red"};">
         ${r.change.toFixed(4)}
       </td>
-      <td>
-        From: ${r.from}<br>
-        To: ${r.to}
-      </td>
+      <td>${r.breakdown}</td>
       <td>${r.balance.toFixed(4)}</td>
-      <td>
-        <input class="note" id="note-${r.id}" placeholder="Add note…" value="${notes[r.id] || ""}">
-      </td>
+      <td><input class="note" id="note-${r.id}" value="${notes[r.id]||""}" /></td>
     `;
 
-    tr.querySelector("input").addEventListener("input", (e) => {
+    tr.querySelector("input").addEventListener("input", e=>{
       notes[r.id] = e.target.value;
       saveNotes();
     });
 
     ledger.appendChild(tr);
-  }
+  });
 }
 
-buildHistoricalLedger();
+buildLedger();
 
 </script>
-
 </body>
 </html>
