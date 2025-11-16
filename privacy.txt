@@ -1,0 +1,163 @@
+🔒 GAIA PROJECT — PRIVACY POLICY
+
+Last updated: 17th November 2025
+
+1. Overview
+
+This Privacy Policy explains how the Gaia Project AI Agent (“the Bot”, “we”, “us”) handles information when users interact with it on Telegram.
+
+We are committed to protecting user privacy, minimising data collection, and ensuring transparency in how the Bot operates.
+
+By using the Bot, you agree to the practices described in this Policy.
+
+2. What Information We Collect
+
+The Bot only collects the minimum information required to function.
+
+2.1 Telegram User Information
+
+When you interact with the Bot, Telegram automatically sends us:
+
+Your Telegram user ID
+
+Your username (if available)
+
+Your first name and/or last name (if available)
+
+The messages you send to the Bot
+
+Any replies or mentions involving the Bot
+
+For group chats, messages tagged directly to the Bot
+
+2.2 Solana Wallet Queries
+
+If you ask the Bot to run a Solana command (e.g., /sol balance <wallet>):
+
+The wallet address you provide is processed
+
+Public blockchain data is retrieved
+
+No private keys, signatures, or sensitive wallet data are ever collected
+
+We never ask for, store, or require private keys.
+
+2.3 Local Memory Storage
+
+The Bot stores chat history locally for the purpose of remembering past conversations.
+This includes:
+
+Your Telegram name/username
+
+Your messages
+
+The Bot’s responses
+
+This memory helps personalise interactions.
+
+No data is stored in the cloud or shared with third parties.
+
+3. Why We Collect This Information
+
+We store and process user interactions solely to:
+
+Personalise responses
+
+Improve the accuracy and context of the Bot
+
+Maintain continuity in conversations
+
+Allow the Bot to function as intended
+
+Provide Solana blockchain lookups on request
+
+We do not use your data for marketing, selling, analytics, or external advertising.
+
+4. Who Has Access to the Data
+
+Access to stored data is strictly limited to:
+
+The project owner/developer of the Gaia Project
+
+Automated systems required to run the Bot (e.g., local server, OpenAI API)
+
+No one else has access.
+
+We do not share, sell, trade, or disclose your information to third parties.
+
+The only external system that receives your messages is:
+
+OpenAI, for generating replies
+
+Messages are processed to generate responses
+
+OpenAI does not use your data to train models unless you have opted in
+
+5. How Long Data Is Stored
+
+Chat history is stored locally for as long as needed to maintain conversational memory.
+
+You may request data deletion at any time (see Section 8).
+
+6. Security Measures
+
+We take the following precautions:
+
+All data is stored locally on a controlled server
+
+No data leaves the system except messages sent to OpenAI for generation
+
+Private keys or sensitive wallet data are never requested or stored
+
+Access is restricted to the developer only
+
+However, no system is fully immune to risks, and you use the Bot at your own discretion.
+
+7. Children’s Privacy
+
+The Bot is not intended for children under 13.
+
+We do not knowingly collect personal information from children.
+
+8. Your Rights
+
+You can request:
+
+A copy of your stored data
+
+Correction of your data
+
+Deletion of your memory file
+
+To make a request, contact the project owner through the community’s official channels.
+
+9. Third-Party Services
+
+The Bot interacts with:
+
+Telegram (to receive messages)
+
+OpenAI (to generate responses)
+
+Solana RPC providers (to retrieve blockchain data)
+
+Each has its own privacy policy.
+
+We do not control their data handling.
+
+10. Changes to This Policy
+
+This Privacy Policy may be updated as the project evolves.
+
+Continued use of the Bot after updates constitutes acceptance of the revised Policy.
+
+11. Contact
+
+For questions, concerns, or deletion requests, you can reach the project owner through:
+
+The Gaia Project community
+
+The official website (https://gaiaproject.world
+)
+
+Telegram (via DM or admin messages)
