@@ -58,12 +58,12 @@
 </table>
 
 <script>
-  const API_KEY = "d616d97c-62dc-4962-b859-54861377cd5b"; // your real API key
-  const COLLECTION = "9poK8Z7eRUVpF7qx5DPd7LNvZVSPB6Pgns2SeYgxBno"; // DeGods verified collection
+  const API_KEY = "d616d97c-62dc-4962-b859-54861377cd5b";
+  const COLLECTION = "9poK8Z7eRUVpF7qx5DPd7LNvZVSPB6Pgns2SeYgxBno";
 
   async function loadNFTs() {
-    const url = `https://api.helius.xyz/v1/nfts?api-key=${API_KEY}`;
-
+    const url = `https://api.helius.xyz/v2/nfts/search?api-key=${API_KEY}`;
+    
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -71,18 +71,18 @@
         query: {
           verifiedCollectionAddresses: [COLLECTION]
         },
-        limit: 500,
+        limit: 100,
         page: 1
       })
     });
 
     const data = await res.json();
-    console.log("NFT API Response:", data);
+    console.log("API Response:", data);
 
     const tableBody = document.querySelector("#nft-table tbody");
-    tableBody.innerHTML = ""; // clear previous entries
+    tableBody.innerHTML = "";
 
-    if (!data.result || data.result.length === 0) {
+    if (!data || !data.result || data.result.length === 0) {
       tableBody.innerHTML = `<tr><td colspan="4">No NFTs found.</td></tr>`;
       return;
     }
@@ -103,7 +103,7 @@
         tableBody.innerHTML += row;
 
       } catch (err) {
-        console.error("Metadata fetch failed:", err);
+        console.error("Metadata fetch error:", err);
       }
     }
   }
