@@ -62,14 +62,29 @@
   const COLLECTION = "9poK8Z7eRUVpF7qx5DPd7LNvZVSPB6Pgns2SeYgxBno";
 
   async function loadNFTs() {
-    const url = `https://api.helius.xyz/v0/addresses/${COLLECTION}/nfts?api-key=${API_KEY}`;
-    const res = await fetch(url);
+    const url = `https://api.helius.xyz/v1/nfts?api-key=${API_KEY}`;
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: {
+          verifiedCollectionAddresses: [COLLECTION]
+        },
+        limit: 500, // load 500 at a time
+        page: 1
+      })
+    });
+
     const data = await res.json();
+    console.log(data);
 
     const tableBody = document.querySelector("#nft-table tbody");
-    tableBody.innerHTML = ""; // clear old results
+    tableBody.innerHTML = ""; // clear old rows
 
-    for (let nft of data) {
+    for (let nft of data.result) {
+
+      // fetch metadata
       const metaRes = await fetch(nft.content.json_uri);
       const meta = await metaRes.json();
 
