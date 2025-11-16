@@ -54,17 +54,12 @@
 
 <script>
 
-// === YOUR WALLET + HELIUS ENDPOINT ===
-const WALLET = "7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs";
+const WALLET = "7qeCuMQUVhxfncxddC3A1SYQQJnDhxJBBcrxhKDzfbs";
 const RPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";
 
 let notes = JSON.parse(localStorage.getItem("cashflowNotes") || "{}");
+function saveNotes() { localStorage.setItem("cashflowNotes", JSON.stringify(notes)); }
 
-function saveNotes() {
-  localStorage.setItem("cashflowNotes", JSON.stringify(notes));
-}
-
-// === Fetch full transaction history from Helius ===
 async function fetchHistory() {
   const txs = await fetch(RPC, {
     method: "POST",
@@ -80,7 +75,6 @@ async function fetchHistory() {
   return txs.result;
 }
 
-// === Fetch parsed transaction details ===
 async function fetchTxDetails(signature) {
   const res = await fetch(RPC, {
     method: "POST",
@@ -96,44 +90,43 @@ async function fetchTxDetails(signature) {
   return res.result;
 }
 
-// === Process full historical transactions ===
 async function buildHistoricalLedger() {
   document.getElementById("status").innerText = "Fetching transactions...";
 
   const sigs = await fetchHistory();
   let rows = [];
-  let runningBalance = 0;
 
-  for (let sigObj of sigs) {
+  for (const sigObj of sigs) {
     const tx = await fetchTxDetails(sigObj.signature);
-    if (!tx) continue;
+    if (!tx || !tx.meta) continue;
 
-    const meta = tx.meta;
-    if (!meta || !meta.postBalances || !meta.preBalances) continue;
+    const keys = tx.transaction.message.accountKeys.map(k => k.pubkey);
+    const walletIndex = keys.indexOf(WALLET);
 
-    const pre = meta.preBalances[0] / 1e9;
-    const post = meta.postBalances[0] / 1e9;
+    // If the wallet isn't involved in balance changes, skip
+    if (walletIndex === -1) continue;
+
+    const pre = tx.meta.preBalances[walletIndex] / 1e9;
+    const post = tx.meta.postBalances[walletIndex] / 1e9;
     const change = post - pre;
 
+    // Skip zero-value transactions
     if (change === 0) continue;
-
-    runningBalance = post;
 
     const timestamp = new Date(tx.blockTime * 1000).toLocaleString();
     const rowId = sigObj.signature;
 
     rows.push({
+      id: rowId,
       timestamp,
       change,
       balance: post,
-      sig: sigObj.signature,
-      from: tx.transaction.message.accountKeys[0],
-      to: tx.transaction.message.accountKeys[1],
-      id: rowId
+      from: keys[0],
+      to: keys[1]
     });
   }
 
-  renderRows(rows.reverse()); // oldest → newest
+  renderRows(rows.reverse());
   document.getElementById("status").innerText = "Loaded.";
 }
 
@@ -146,7 +139,7 @@ function renderRows(rows) {
 
     tr.innerHTML = `
       <td>${r.timestamp}</td>
-      <td style="color: ${r.change > 0 ? "lightgreen" : "red"};">
+      <td style="color:${r.change > 0 ? "lightgreen":"red"};">
         ${r.change.toFixed(4)}
       </td>
       <td>
@@ -155,7 +148,7 @@ function renderRows(rows) {
       </td>
       <td>${r.balance.toFixed(4)}</td>
       <td>
-        <input class="note" id="note-${r.id}" placeholder="Add note..." value="${notes[r.id] || ""}">
+        <input class="note" id="note-${r.id}" placeholder="Add note…" value="${notes[r.id] || ""}">
       </td>
     `;
 
@@ -168,9 +161,9 @@ function renderRows(rows) {
   }
 }
 
-// === Run it ===
 buildHistoricalLedger();
 
 </script>
+
 </body>
 </html>
