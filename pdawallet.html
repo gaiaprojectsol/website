@@ -57,8 +57,8 @@
 <script>
 
 // === CONFIG ===
-const WALLET = "YOUR_WALLET_ADDRESS_HERE";
-const RPC = "https://api.mainnet-beta.solana.com";  // Public RPC
+const WALLET = "7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs";
+const RPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";  // Public RPC
 let lastBalance = null;
 
 // === GET BALANCE FROM SOLANA RPC ===
@@ -67,7 +67,7 @@ async function getBalance() {
     jsonrpc: "2.0",
     id: 1,
     method: "getBalance",
-    params: [7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs]
+    params: [WALLET]
   };
 
   const res = await fetch(RPC, {
