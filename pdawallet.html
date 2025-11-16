@@ -30,6 +30,14 @@
     text-align: left;
   }
   th { background: #222; }
+  input.note-input {
+    width: 95%;
+    background: #222;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 5px;
+    border-radius: 5px;
+  }
 </style>
 </head>
 <body>
@@ -41,14 +49,15 @@
   <p id="balance">Loading...</p>
 </div>
 
-<h2>Balance Change Ledger</h2>
+<h2>Balance Ledger</h2>
 <table>
   <thead>
     <tr>
       <th>Timestamp</th>
-      <th>Old Balance (SOL)</th>
-      <th>New Balance (SOL)</th>
-      <th>Change (SOL)</th>
+      <th>Old (SOL)</th>
+      <th>New (SOL)</th>
+      <th>Change</th>
+      <th>Note</th>
     </tr>
   </thead>
   <tbody id="ledgerBody"></tbody>
@@ -56,67 +65,90 @@
 
 <script>
 
-// === CONFIG ===
+// === SETTINGS ===
 const WALLET = "7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs";
-const RPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";  // Public RPC
+const RPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";
+
 let lastBalance = null;
 
-// === GET BALANCE FROM SOLANA RPC ===
-async function getBalance() {
-  const body = {
-    jsonrpc: "2.0",
-    id: 1,
-    method: "getBalance",
-    params: [WALLET]
-  };
+// === Local storage key ===
+const NOTES_KEY = "solanaLedgerNotes";
+let notes = JSON.parse(localStorage.getItem(NOTES_KEY) || "{}");
 
+// === Save notes back into localStorage ===
+function saveNotes() {
+  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+}
+
+// === Fetch balance from Solana ===
+async function getBalance() {
   const res = await fetch(RPC, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(body)
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getBalance",
+      params: [WALLET]
+    })
   });
 
   const data = await res.json();
-  return data.result.value / 1_000_000_000;  // Convert lamports → SOL
+  return data.result.value / 1_000_000_000;
 }
 
-// === UPDATE UI ===
+// === Add row to ledger ===
+function addLedgerRow(oldBal, newBal) {
+  const change = (newBal - oldBal).toFixed(4);
+  const timestamp = new Date().toLocaleString();
+  const rowId = timestamp.replace(/\s+/g, "_"); // unique row key
+
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${timestamp}</td>
+    <td>${oldBal.toFixed(4)}</td>
+    <td>${newBal.toFixed(4)}</td>
+    <td>${change}</td>
+    <td>
+      <input class="note-input" id="note-${rowId}" placeholder="Add note..." value="${notes[rowId] || ""}">
+    </td>
+  `;
+
+  // Save note when typed
+  tr.querySelector("input").addEventListener("input", (e) => {
+    notes[rowId] = e.target.value;
+    saveNotes();
+  });
+
+  document.getElementById("ledgerBody").prepend(tr);
+}
+
+// === Update tracker ===
 async function updateBalance() {
   try {
     const newBal = await getBalance();
-
     document.getElementById("balance").innerText =
       newBal.toFixed(4) + " SOL";
 
-    // === If it's the first check, set initial balance only ===
     if (lastBalance === null) {
+      // FIRST ENTRY — you requested this
       lastBalance = newBal;
+      addLedgerRow(newBal, newBal);
       return;
     }
 
-    // === Detect changes ===
     if (newBal !== lastBalance) {
-      const change = (newBal - lastBalance).toFixed(4);
-
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${new Date().toLocaleString()}</td>
-        <td>${lastBalance.toFixed(4)}</td>
-        <td>${newBal.toFixed(4)}</td>
-        <td>${change}</td>
-      `;
-      document.getElementById("ledgerBody").prepend(row);
-
+      addLedgerRow(lastBalance, newBal);
       lastBalance = newBal;
     }
 
-  } catch (err) {
+  } catch (e) {
     document.getElementById("balance").innerText = "Error fetching balance";
-    console.error(err);
+    console.error(e);
   }
 }
 
-// === RUN EVERY 10 SECONDS ===
+// === Start ===
 updateBalance();
 setInterval(updateBalance, 10_000);
 
