@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DeGods NFT Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #222;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #444;
+      text-align: left;
+    }
+    img {
+      width: 60px;
+      border-radius: 4px;
+    }
+    #load-btn {
+      padding: 10px 20px;
+      background: #4fa3ff;
+      color: black;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    #load-btn:hover {
+      background: #1e90ff;
+    }
+  </style>
+</head>
+<body>
+
+<h1>DeGods NFT Tracker</h1>
+<p>Live tracker for the full DeGods collection.</p>
+
+<button id="load-btn">Load DeGods NFTs</button>
+
+<table id="nft-table">
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Name</th>
+      <th>Mint</th>
+      <th>Owner</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+  const API_KEY = "YOUR_HELIUS_KEY";
+  const COLLECTION = "9poK8Z7eRUVpF7qx5DPd7LNvZVSPB6Pgns2SeYgxBno";
+
+  async function loadNFTs() {
+    const url = `https://api.helius.xyz/v0/addresses/${COLLECTION}/nfts?api-key=${API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const tableBody = document.querySelector("#nft-table tbody");
+    tableBody.innerHTML = ""; // clear old results
+
+    for (let nft of data) {
+      const metaRes = await fetch(nft.content.json_uri);
+      const meta = await metaRes.json();
+
+      const row = `
+        <tr>
+          <td><img src="${meta.image}" /></td>
+          <td>${meta.name}</td>
+          <td>${nft.id}</td>
+          <td>${nft.ownership.owner}</td>
+        </tr>
+      `;
+      tableBody.innerHTML += row;
+    }
+  }
+
+  document.getElementById("load-btn").addEventListener("click", loadNFTs);
+</script>
+
+</body>
+</html>
