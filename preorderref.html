@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gaia Project — Pre-Order + Custom Genean Tracker</title>
+<link rel="icon" type="image/png" href="gaiaprojectwhite.png" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Orbitron', sans-serif;
+    background: radial-gradient(circle at center, #000, #020b0b, #000);
+    color: #fff;
+  }
+
+  /* ANNOUNCEMENT BAR */
+  #announcement-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 32px;
+    width: 100%;
+    background: linear-gradient(90deg, #00ffd5, #0088ff, #8a2be2);
+    color: #000;
+    font-weight: bold;
+    line-height: 32px;
+    text-align: center;
+    overflow: hidden;
+    z-index: 999;
+  }
+  #announcement-text {
+    white-space: nowrap;
+    display: inline-block;
+    padding-left: 100%;
+    animation: scrollText 16s linear infinite;
+  }
+  @keyframes scrollText {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* HEADER */
+  header {
+    position: fixed;
+    top: 32px;
+    left: 0;
+    width: 100%;
+    padding: 14px 24px;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px);
+    border-bottom: 1px solid #00ffe033;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 998;
+  }
+  header img { height: 40px; }
+
+  nav a {
+    color: #00e5ff;
+    text-decoration: none;
+    margin: 0 12px;
+    font-size: 14px;
+    transition: 0.3s;
+  }
+  nav a:hover {
+    color: #8affff;
+    text-shadow: 0 0 8px #00eaff;
+  }
+
+  /* CONNECT WALLET BUTTON */
+  #connectWalletBtn {
+    background: #00ffe0;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.25s ease;
+  }
+  #connectWalletBtn:hover {
+    background: #00cbb3;
+    transform: scale(1.05);
+  }
+
+  /* MAIN CONTENT */
+  .content {
+    max-width: 850px;
+    margin: 160px auto 80px auto;
+    padding: 20px;
+    text-align: center;
+  }
+  h1 { font-size: 2.4rem; color: #5cecff; }
+  .subtitle { color: #aaa; font-size: 1rem; }
+
+  .spark-img img {
+    width: 240px;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 15px;
+    margin-top: 30px;
+    box-shadow: 0 0 25px #00ffe055;
+    transition: 0.4s;
+  }
+  .spark-img img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px #00ffe0aa;
+  }
+  .caption { margin-top: 10px; color: #00ffe0; }
+
+  input, select {
+    margin-top: 20px;
+    font-family: 'Orbitron', sans-serif;
+    width: 280px;
+    padding: 12px;
+    border-radius: 6px;
+    border: none;
+  }
+
+  button {
+    margin-top: 10px;
+    font-family: 'Orbitron', sans-serif;
+    padding: 14px 34px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    background: #14F195;
+    color: #000;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  button:hover { background: #0bb07b; transform: scale(1.05); }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 30px;
+    background: #050505;
+    border-top: 1px solid #111;
+    color: #999;
+  }
+  footer a { color: #00ffe0; }
+  footer a:hover { color: #fff; }
+
+</style>
+</head>
+
+<body>
+
+<!-- ANNOUNCEMENT -->
+<div id="announcement-bar">
+  <div id="announcement-text">
+    🌍 Mint opens November 27th — Pre-order your Gaia Spark today! ⚡
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <img src="gaiaprojectwhite.png" />
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="lore.html">Lore</a>
+    <a href="preorder.html">Pre-Order</a>
+    <a href="whitepaper.html">Whitepaper</a>
+    <a href="community.html">Community</a>
+    <a href="blog.html">Blog</a>
+  </nav>
+
+  <button id="connectWalletBtn">Connect Wallet</button>
+</header>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+  <h1>Pre-Order Your Gaia Spark</h1>
+  <p class="subtitle">Reserve your Genesis Genean before the Awakening begins.</p>
+
+  <div class="spark-img">
+    <img src="gaia-spark.png" />
+    <p class="caption">The Gaia Spark — the beginning of your Chainline</p>
+  </div>
+
+ <p>
+  Only <strong>100 of the 4200 Geneans will be custom named</strong>.  
+  Once the <strong>100 slots are filled</strong> or when the mint opens on  
+  <strong>27 November</strong>, this feature becomes <strong>immutable</strong>.
+</p>
+
+<p>
+  This is a once-in-history moment to permanently write your chosen name  
+  into the DNA of the first generation of Gaia.
+</p>
+
+<p>
+  After mint opens, <strong>no more custom names will ever exist again</strong>.
+</p>
+
+  <p>Enter your Genean name, then press claim to send <strong>0.1 SOL</strong>:</p>
+
+  <!-- ORIGINAL MEMO FIELD -->
+  <input id="memo" type="text" placeholder="e.g. Lord Fardrosan" />
+
+  <!-- ======================== -->
+  <!--   INFLUENCER SYSTEM UI   -->
+  <!-- ======================== -->
+  <div style="margin-top:25px;">
+    <label style="cursor:pointer;">
+      <input type="checkbox" id="refCheck" style="transform:scale(1.2); margin-right:8px;">
+      I was referred by an influencer
+    </label>
+  </div>
+
+  <div id="refBox" style="display:none; margin-top:15px;">
+    <select id="refSelect">
+      <option value="">Select influencer…</option>
+      <option value="@_Lernard_1_">@_Lernard_1_</option>
+      <option value="influencer2">Influencer 2</option>
+      <option value="influencer3">Influencer 3</option>
+    </select>
+  </div>
+
+  <br />
+  <button id="send">Claim Your Gaia Spark</button>
+</div>
+
+<!-- IMPORT SOLANA -->
+<script type="module">
+  import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
+  window.solanaWeb3 = solanaWeb3;
+</script>
+
+<script type="module">
+  import bs58 from "https://esm.sh/bs58@5.0.0";
+
+  /* ===========================
+     INFLUENCER DATA
+     =========================== */
+  const INFLUENCERS = {
+    @_Lernard_1_: "BEMAwTQAgjQ1j4WD7LTBfpAqvdoTn7Nkhy52BtB5HSWs",
+    influencer2: "WALLET_ADDRESS_2",
+    influencer3: "WALLET_ADDRESS_3"
+  };
+
+  const RECEIVING_WALLET = "7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs";
+  const RPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";
+  const MEMO_PROGRAM = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
+
+  /* ===========================
+     AUTO-SELECT VIA URL
+     =========================== */
+  function getParam(key){
+    return new URLSearchParams(window.location.search).get(key);
+  }
+
+  window.addEventListener("load", () => {
+    const p = getParam("influencer");
+    if (p && INFLUENCERS[p]) {
+      document.getElementById("refCheck").checked = true;
+      document.getElementById("refBox").style.display = "block";
+      document.getElementById("refSelect").value = p;
+    }
+  });
+
+  /* Show/hide dropdown */
+  document.getElementById("refCheck").addEventListener("change", e => {
+    document.getElementById("refBox").style.display = e.target.checked ? "block" : "none";
+  });
+
+  /* ===========================
+     PAYMENT + SPLIT LOGIC
+     =========================== */
+  const sendButton = document.getElementById("send");
+
+  sendButton.addEventListener("click", async () => {
+    try {
+      const provider = window.solana;
+      if (!provider || !provider.isPhantom) {
+        alert("Please install Phantom Wallet → https://phantom.app");
+        return;
+      }
+
+      await provider.connect();
+      const connection = new solanaWeb3.Connection(RPC);
+
+      const treasury = new solanaWeb3.PublicKey(RECEIVING_WALLET);
+
+      /* 0.1 SOL = 100,000,000 lamports */
+      const totalAmount = 0.1 * 1e9;
+      const treasuryAmount = totalAmount * 0.9;
+      const influencerAmount = totalAmount * 0.1;
+
+      /* Check influencer */
+      let influencerWallet = null;
+      const isRef = document.getElementById("refCheck").checked;
+      if (isRef) {
+        const selected = document.getElementById("refSelect").value;
+        if (selected && INFLUENCERS[selected]) {
+          influencerWallet = new solanaWeb3.PublicKey(INFLUENCERS[selected]);
+        }
+      }
+
+      /* Build transaction */
+      const tx = new solanaWeb3.Transaction();
+
+      // Send 90% to treasury
+      tx.add(
+        solanaWeb3.SystemProgram.transfer({
+          fromPubkey: provider.publicKey,
+          toPubkey: treasur
