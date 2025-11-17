@@ -135,6 +135,18 @@
   }
   button:hover { background: #0bb07b; transform: scale(1.05); }
 
+  /* FIXED STYLING FOR DROPDOWN */
+  select {
+    background: #001c1c;
+    color: #00ffe0;
+    border: 1px solid #00ffe0;
+    border-radius: 6px;
+    width: 280px;
+    padding: 12px;
+    margin-top: 15px;
+    font-family: 'Orbitron', sans-serif;
+  }
+
   /* FOOTER */
   footer {
     text-align: center;
@@ -201,23 +213,22 @@
 
   <p>Enter your Genean name, then press claim to send <strong>0.1 SOL</strong>:</p>
 
-  <!-- ORIGINAL MEMO FIELD -->
+  <!-- MEMO -->
   <input id="memo" type="text" placeholder="e.g. Lord Fardrosan" />
 
-  <!-- ======================== -->
-  <!--   INFLUENCER SYSTEM UI   -->
-  <!-- ======================== -->
-  <div style="margin-top:25px;">
-    <label style="cursor:pointer;">
-      <input type="checkbox" id="refCheck" style="transform:scale(1.2); margin-right:8px;">
-      I was referred by an influencer
+  <!-- INFLUENCER CHECKBOX -->
+  <div style="margin-top:25px; text-align:center;">
+    <label style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+      <input type="checkbox" id="refCheck" style="transform:scale(1.2);">
+      <span>I was referred by an influencer</span>
     </label>
   </div>
 
-  <div id="refBox" style="display:none; margin-top:15px;">
+  <!-- INFLUENCER DROPDOWN -->
+  <div id="refBox" style="display:none; margin-top:15px; text-align:center;">
     <select id="refSelect">
       <option value="">Select influencer…</option>
-      <option value="@_Lernard_1_">@_Lernard_1_</option>
+      <option value="influencer1">Influencer 1</option>
       <option value="influencer2">Influencer 2</option>
       <option value="influencer3">Influencer 3</option>
     </select>
@@ -236,11 +247,9 @@
 <script type="module">
   import bs58 from "https://esm.sh/bs58@5.0.0";
 
-  /* ===========================
-     INFLUENCER DATA
-     =========================== */
+  /* INFLUENCER DATA */
   const INFLUENCERS = {
-    @_Lernard_1_: "BEMAwTQAgjQ1j4WD7LTBfpAqvdoTn7Nkhy52BtB5HSWs",
+    influencer1: "WALLET_ADDRESS_1",
     influencer2: "WALLET_ADDRESS_2",
     influencer3: "WALLET_ADDRESS_3"
   };
@@ -249,9 +258,7 @@
   const RPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b";
   const MEMO_PROGRAM = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
 
-  /* ===========================
-     AUTO-SELECT VIA URL
-     =========================== */
+  /* AUTO SELECT VIA URL */
   function getParam(key){
     return new URLSearchParams(window.location.search).get(key);
   }
@@ -265,14 +272,12 @@
     }
   });
 
-  /* Show/hide dropdown */
+  /* SHOW/HIDE DROPDOWN */
   document.getElementById("refCheck").addEventListener("change", e => {
     document.getElementById("refBox").style.display = e.target.checked ? "block" : "none";
   });
 
-  /* ===========================
-     PAYMENT + SPLIT LOGIC
-     =========================== */
+  /* PAYMENT LOGIC */
   const sendButton = document.getElementById("send");
 
   sendButton.addEventListener("click", async () => {
@@ -288,26 +293,92 @@
 
       const treasury = new solanaWeb3.PublicKey(RECEIVING_WALLET);
 
-      /* 0.1 SOL = 100,000,000 lamports */
       const totalAmount = 0.1 * 1e9;
       const treasuryAmount = totalAmount * 0.9;
       const influencerAmount = totalAmount * 0.1;
 
-      /* Check influencer */
       let influencerWallet = null;
-      const isRef = document.getElementById("refCheck").checked;
-      if (isRef) {
-        const selected = document.getElementById("refSelect").value;
-        if (selected && INFLUENCERS[selected]) {
-          influencerWallet = new solanaWeb3.PublicKey(INFLUENCERS[selected]);
-        }
+      const selected = document.getElementById("refSelect").value;
+      if (document.getElementById("refCheck").checked && INFLUENCERS[selected]) {
+        influencerWallet = new solanaWeb3.PublicKey(INFLUENCERS[selected]);
       }
 
-      /* Build transaction */
       const tx = new solanaWeb3.Transaction();
 
-      // Send 90% to treasury
       tx.add(
         solanaWeb3.SystemProgram.transfer({
           fromPubkey: provider.publicKey,
-          toPubkey: treasur
+          toPubkey: treasury,
+          lamports: treasuryAmount
+        })
+      );
+
+      if (influencerWallet) {
+        tx.add(
+          solanaWeb3.SystemProgram.transfer({
+            fromPubkey: provider.publicKey,
+            toPubkey: influencerWallet,
+            lamports: influencerAmount
+          })
+        );
+      }
+
+      const memoText = document.getElementById("memo").value.trim();
+      if (memoText) {
+        tx.add(
+          new solanaWeb3.TransactionInstruction({
+            keys: [],
+            programId: new solanaWeb3.PublicKey(MEMO_PROGRAM),
+            data: new TextEncoder().encode(memoText)
+          })
+        );
+      }
+
+      tx.feePayer = provider.publicKey;
+      tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+      const signed = await provider.signTransaction(tx);
+      const sig = await connection.sendRawTransaction(signed.serialize());
+      await connection.confirmTransaction(sig, "confirmed");
+
+      alert("✅ Pre-order complete!\n\nTransaction Signature:\n" + sig);
+      window.open(`https://explorer.solana.com/tx/${sig}`, "_blank");
+
+    } catch (err) {
+      alert("❌ Error: " + err.message);
+    }
+  });
+
+</script>
+
+<!-- CONNECT WALLET SCRIPT -->
+<script>
+  const connectWalletBtn = document.getElementById("connectWalletBtn");
+
+  async function connectWallet() {
+    const provider = window.solana;
+
+    if (!provider || !provider.isPhantom) {
+      alert("Please install Phantom Wallet → https://phantom.app");
+      return;
+    }
+
+    try {
+      const resp = await provider.connect();
+      const wallet = resp.publicKey.toString();
+      const short = wallet.slice(0, 4) + "..." + wallet.slice(-4);
+
+      connectWalletBtn.innerText = short;
+      connectWalletBtn.style.background = "#0bb07b";
+      connectWalletBtn.style.color = "#fff";
+
+    } catch (e) {
+      console.error("Wallet connect error:", e);
+    }
+  }
+
+  connectWalletBtn.addEventListener("click", connectWallet);
+</script>
+
+</body>
+</html>
