@@ -135,7 +135,7 @@
   }
   button:hover { background: #0bb07b; transform: scale(1.05); }
 
-  /* FIXED STYLING FOR DROPDOWN */
+  /* DROPDOWN FIX */
   select {
     background: #001c1c;
     color: #00ffe0;
@@ -216,27 +216,23 @@
   <!-- MEMO -->
   <input id="memo" type="text" placeholder="e.g. Lord Fardrosan" />
 
-  <!-- INFLUENCER CHECKBOX -->
+  <!-- ALWAYS VISIBLE DROPDOWN -->
   <div style="margin-top:25px; text-align:center;">
-    <label style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-      <input type="checkbox" id="refCheck" style="transform:scale(1.2);">
-      <span>I was referred by an influencer</span>
-    </label>
-  </div>
-
-  <!-- INFLUENCER DROPDOWN -->
-  <div id="refBox" style="display:none; margin-top:15px; text-align:center;">
     <select id="refSelect">
-      <option value="">Select influencer…</option>
-      <option value="influencer1">Influencer 1</option>
+      <option value="">No influencer / Came organically</option>
+      <option value="influencer1">Lernard</option>
       <option value="influencer2">Influencer 2</option>
       <option value="influencer3">Influencer 3</option>
     </select>
+    <div style="margin-top:5px; font-size:12px; color:#00ffe0;">
+        (If someone referred you, choose them so they receive 10%)
+    </div>
   </div>
 
   <br />
   <button id="send">Claim Your Gaia Spark</button>
 </div>
+
 
 <!-- IMPORT SOLANA -->
 <script type="module">
@@ -249,7 +245,7 @@
 
   /* INFLUENCER DATA */
   const INFLUENCERS = {
-    influencer1: "WALLET_ADDRESS_1",
+    influencer1: "BEMAwTQAgjQ1j4WD7LTBfpAqvdoTn7Nkhy52BtB5HSWs",
     influencer2: "WALLET_ADDRESS_2",
     influencer3: "WALLET_ADDRESS_3"
   };
@@ -266,15 +262,8 @@
   window.addEventListener("load", () => {
     const p = getParam("influencer");
     if (p && INFLUENCERS[p]) {
-      document.getElementById("refCheck").checked = true;
-      document.getElementById("refBox").style.display = "block";
-      document.getElementById("refSelect").value = p;
+        document.getElementById("refSelect").value = p;
     }
-  });
-
-  /* SHOW/HIDE DROPDOWN */
-  document.getElementById("refCheck").addEventListener("change", e => {
-    document.getElementById("refBox").style.display = e.target.checked ? "block" : "none";
   });
 
   /* PAYMENT LOGIC */
@@ -299,12 +288,14 @@
 
       let influencerWallet = null;
       const selected = document.getElementById("refSelect").value;
-      if (document.getElementById("refCheck").checked && INFLUENCERS[selected]) {
+
+      if (INFLUENCERS[selected]) {
         influencerWallet = new solanaWeb3.PublicKey(INFLUENCERS[selected]);
       }
 
       const tx = new solanaWeb3.Transaction();
 
+      /* 90% → TREASURY */
       tx.add(
         solanaWeb3.SystemProgram.transfer({
           fromPubkey: provider.publicKey,
@@ -313,6 +304,7 @@
         })
       );
 
+      /* 10% → INFLUENCER */
       if (influencerWallet) {
         tx.add(
           solanaWeb3.SystemProgram.transfer({
@@ -323,6 +315,7 @@
         );
       }
 
+      /* MEMO */
       const memoText = document.getElementById("memo").value.trim();
       if (memoText) {
         tx.add(
