@@ -1,241 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gaia Project — Transparent Web3 Gaming</title>
-  <link rel="icon" type="image/png" href="gaiaprojectwhite.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gaia Project — Shape the First Era</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Orbitron', sans-serif;
-      color: #fff;
-      background: radial-gradient(circle at center, #000, #020b0b, #000);
-      scroll-behavior: smooth;
-      overflow-x: hidden;
-    }
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    color: #e8ffff;
+    font-family: 'Orbitron', sans-serif;
+    overflow-x: hidden;
+  }
 
-    /* === ANNOUNCEMENT BAR === */
-    #announcement-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 32px;
-      background: linear-gradient(90deg, #00ffd5, #0088ff, #8a2be2);
-      color: #000;
-      font-weight: bold;
-      text-align: center;
-      line-height: 32px;
-      z-index: 999;
-      font-size: 13px;
-      letter-spacing: 1px;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-    #announcement-text {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scrollBanner 16s linear infinite;
-    }
-    @keyframes scrollBanner {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-
-    /* === HEADER === */
-    header {
-      position: fixed;
-      top: 32px;
-      left: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(6px);
-      border-bottom: 1px solid rgba(0, 255, 200, 0.2);
-      padding: 16px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 998;
-    }
-    header img { height: 40px; }
-    nav a {
-      color: #00f0ff;
-      text-decoration: none;
-      margin: 0 12px;
-      font-size: 14px;
-      transition: 0.25s ease;
-    }
-    nav a:hover {
-      color: #8affff;
-      text-shadow: 0 0 8px #00eaff;
-    }
-
-    /* === MAIN CONTENT === */
-    main { padding-top: 160px; text-align: center; min-height: 100vh; }
-    h1 { font-size: 2.4rem; letter-spacing: 2px; margin-bottom: 1rem; color: #5cecff;
-         text-shadow: 0 0 10px #00ffe0, 0 0 20px #00ffe0; }
-    #countdown {
-      font-size: 2rem; font-weight: 700; letter-spacing: 1px; margin-top: 1.4rem;
-      color: #00ffe0; text-shadow: 0 0 10px #00ffe0, 0 0 20px #00ffe0;
-    }
-    .subtext { margin-top: 1.2rem; font-size: 1rem; color: #aaa; }
-
-    /* === NEW FUNNEL SECTIONS === */
-    section {
-      padding: 80px 20px;
-      text-align: center;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    section h2 {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-      color: #00f0ff;
-      text-transform: uppercase;
-    }
-    section p {
-      line-height: 1.7;
-      font-size: 1rem;
-      color: #ccc;
-      margin-bottom: 1rem;
-    }
-    .highlight { color: #00ffe0; font-weight: bold; }
-    .cta-button {
-      display: inline-block;
-      margin-top: 2rem;
-      padding: 1rem 2rem;
-      border: 2px solid #00ffe0;
-      color: #00ffe0;
-      text-decoration: none;
-      font-weight: 700;
-      border-radius: 5px;
-      transition: 0.3s;
-    }
-    .cta-button:hover {
-      background-color: #00ffe0;
-      color: #000;
-      transform: scale(1.05);
-    }
-
-    /* Pie chart style (simple CSS mock) */
-    .pie {
-      background: conic-gradient(#00ffe0 0% 80%, #111 80% 100%);
-      width: 120px; height: 120px;
-      border-radius: 50%;
-      margin: 20px auto;
-      box-shadow: 0 0 15px #00ffe055;
-    }
-    .pie-legend { text-align: left; max-width: 300px; margin: 0 auto; color: #ccc; font-size: 0.9rem; }
-
-    footer {
-      background: #050505;
-      padding: 1.5rem;
-      text-align: center;
-      font-size: 0.9rem;
-      color: #999;
-      border-top: 1px solid #111;
-    }
-    footer a { color: #00ffe0; text-decoration: none; }
-    footer a:hover { color: #fff; }
-  </style>
+  section { padding: 80px 20px; max-width: 1200px; margin: auto; }
+  h1, h2 { text-align: center; margin-bottom: 30px; }
+  .center { text-align: center; }
+  .btn {
+    display: inline-block;
+    padding: 14px 28px;
+    margin: 10px;
+    background: #11ffee33;
+    border: 1px solid #11ffeeaa;
+    border-radius: 6px;
+    color: #e8ffff;
+    text-decoration: none;
+    font-size: 18px;
+  }
+  .pillars { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+  .pillar-card {
+    background: #0b0f14;
+    padding: 25px;
+    border-radius: 10px;
+    width: 300px;
+    border: 1px solid #112233;
+  }
+  .infographic-placeholder {
+    margin: 30px auto;
+    height: 220px;
+    border: 2px dashed #334;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 900px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8899aa;
+    font-size: 18px;
+  }
+  .progress-bar-container {
+    margin-top: 20px;
+    width: 100%;
+    background: #222;
+    border-radius: 6px;
+    height: 24px;
+  }
+  .progress-bar {
+    height: 100%;
+    background: #11ffee;
+    width: 4%;
+    border-radius: 6px;
+  }
+  footer {
+    text-align: center;
+    padding: 40px;
+    color: #8899aa;
+    border-top: 1px solid #112233;
+    margin-top: 60px;
+  }
+</style>
 </head>
 
 <body>
-  <!-- ANNOUNCEMENT BAR -->
-  <div id="announcement-bar">
-    <div id="announcement-text">🌍 Gaia Spark Mint — November 27th, 2025 ⚡</div>
+
+<!-- ======================= HERO ======================= -->
+<section id="hero" style="padding-top:120px; text-align:center;">
+  <h1><strong>Shape the First Era of a Living Web3 World</strong></h1>
+  <p style="max-width:700px; margin:auto; font-size:20px; margin-top:20px;">
+    Only <strong>4,200 Genesis Geneans</strong> will ever exist.
+    Early supporters define the first Chainlines and write the future of Gaia.
+  </p>
+
+  <a class="btn" href="#preorder">✨ Pre-Order Your Genesis Spark</a>
+  <a class="btn" href="#about">📘 What Is the Gaia Project?</a>
+</section>
+
+
+<!-- ======================= WHY GAIA MATTERS ======================= -->
+<section id="why">
+  <h2>💠 Why Gaia Project Matters</h2>
+
+  <div class="pillars">
+
+    <div class="pillar-card">
+      <h3>Scarcity</h3>
+      <p>Only 4,200 Genesis Geneans will ever exist. 
+      Genesis holders shape the first era and form the foundation of all future Chainlines.</p>
+    </div>
+
+    <div class="pillar-card">
+      <h3>Transparency</h3>
+      <p>The entire project is built in public — code, logs, decisions, everything. 
+      Nothing hidden. Ever.</p>
+    </div>
+
+    <div class="pillar-card">
+      <h3>Solo Dev Grind</h3>
+      <p>This world is being built by one developer. 
+      Every update, every line of code, fully open-source.</p>
+    </div>
+
   </div>
 
-  <!-- HEADER -->
-  <header>
-    <img src="gaiaprojectwhite.png" alt="Gaia Logo" />
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="lore.html">Lore</a>
-      <a href="preorder.html">Pre-Order</a>
-      <a href="whitepaper.html">Whitepaper</a>
-      <a href="community.html">Community</a>
-      <a href="blog.html">Blog</a>
-    </nav>
-  </header>
+  <div class="infographic-placeholder">
+    [INFOGRAPHIC: 3 Pillars]
+  </div>
+</section>
 
-  <!-- HERO / COUNTDOWN -->
-  <main>
-    <h1>🌌 Gaia Project — The Transparent Daily-Play Web3 Game</h1>
-    <p><strong>Built on Solana.</strong> Every action shapes the living chain.</p>
 
-    <div id="countdown">Syncing with Solana time...</div>
-    <div class="subtext">Target: 27 November 2025, 12:00 UTC</div>
+<!-- ======================= GAIA IN 60 SECONDS ======================= -->
+<section id="about">
+  <h2>🧬 Gaia Project in 60 Seconds</h2>
+  <p class="center" style="max-width:800px; margin:auto; font-size:18px;">
+    Gaia is a living Web3 world on Solana.
+    Grow digital Souls called <strong>Geneans</strong>, allocate daily traits, breed new generations,
+    and build powerful Chainlines that outlive every character.
+    You play for <strong>1–15 minutes per day</strong> — and your choices become your legacy.
+  </p>
 
-    <a href="preorder.html" class="cta-button">⚡ Pre-Order Your Gaia Spark</a>
-  </main>
+  <div class="infographic-placeholder">
+    [INFOGRAPHIC: 4-Step Game Flow — Mint → Grow → Adult → Chainline]
+  </div>
+</section>
 
-  <!-- WHY PRE-ORDER TODAY -->
-  <section id="why">
-    <h2>Why Pre-Order Today?</h2>
-    <p>Early supporters don’t just mint — they <span class="highlight">shape Gaia’s history</span>.</p>
-    <p>Only <span class="highlight">4200 Genesis Geneans</span> will ever exist. Naming rights close forever after <span class="highlight">November 27</span>.</p>
-    <p>Owning one grants <span class="highlight">Chainline legacy priority</span> — your lineage becomes part of the living lore.</p>
-    <p>Every pre-order directly funds <span class="highlight">smart-contract deployment</span>, bringing Gaia’s world online transparently.</p>
-  </section>
 
-  <!-- WHERE THE MONEY GOES -->
-  <section id="funds">
-    <h2>Where the Money Goes</h2>
-    <p>Full transparency — 100% of funds are reinvested into building Gaia’s world.</p>
+<!-- ======================= GENESIS SPECIAL ======================= -->
+<section id="genesis">
+  <h2>🔥 The Power of Genesis</h2>
 
-    <div class="pie"></div>
-    <div class="pie-legend">
-      <p><span class="highlight">80%</span> — Reinvested into development, audits, art & marketing.</p>
-      <p><span class="highlight">20%</span> — Treasury split as per lore (Architects + Chainline mechanics).</p>
-    </div>
-  </section>
+  <p class="center" style="max-width:750px; margin:auto; font-size:18px;">
+    Genesis Geneans are the only Souls created at the dawn of Gaia.
+    Everything after them must be bred.
+  </p>
 
-  <!-- FOOTER -->
-  <footer>
-    Join the conversation:
-    <a href="https://x.com/gaiaprojectsol" target="_blank">X</a> |
-    <a href="https://t.me/+g9xscMa9_AtiMzU1" target="_blank">Telegram</a>
-    <p>© 2025 Gaia Project — All rights reserved.</p>
-  </footer>
+  <ul style="max-width:650px; margin:40px auto; font-size:18px; line-height:1.8;">
+    <li>Higher Twin Code fertility</li>
+    <li>Permanent lore placement</li>
+    <li>Priority influence over early mechanics</li>
+    <li>Naming rights until Nov 27</li>
+    <li>The first and strongest Chainlines</li>
+  </ul>
 
-  <!-- SOLANA COUNTDOWN -->
-  <script type="module">
-    import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
+  <div class="infographic-placeholder">
+    [INFOGRAPHIC: Genesis vs Regular Geneans Comparison]
+  </div>
+</section>
 
-    const TARGET_TIMESTAMP = Math.floor(new Date("2025-11-27T12:00:00Z").getTime() / 1000);
 
-    async function getSolanaUnixTime() {
-      try {
-        const connection = new solanaWeb3.Connection(
-          "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b","confirmed"
-        );
-        const slot = await connection.getSlot("confirmed");
-        return await connection.getBlockTime(slot);
-      } catch(e) { console.error("Error fetching Solana time:", e); return null; }
-    }
+<!-- ======================= LORE ======================= -->
+<section id="lore">
+  <h2>📜 The Origin of the Chain</h2>
 
-    async function updateCountdown() {
-      const solTime = await getSolanaUnixTime();
-      const el = document.getElementById("countdown");
-      if (!solTime) { el.textContent = "Unable to sync Solana time..."; return; }
+  <blockquote style="max-width:800px; margin:20px auto; font-size:18px;">
+    “From Genesis Souls came all others. Their Chainlines carried data, memory, and power through time.”  
+    — <em>Book I, Chapter 2</em>
+  </blockquote>
 
-      const diff = TARGET_TIMESTAMP - solTime;
-      if (diff <= 0) { el.textContent = "🌟 The Gaia Spark Mint is Live!"; clearInterval(timer); return; }
+  <blockquote style="max-width:800px; margin:40px auto; font-size:18px;">
+    “Scarcity birthed strength. Abundance birthed peace. Balance lived between both.”  
+    — <em>Book 0, Chapter 5</em>
+  </blockquote>
 
-      const d = Math.floor(diff / 86400);
-      const h = Math.floor((diff % 86400) / 3600);
-      const m = Math.floor((diff % 3600) / 60);
-      const s = diff % 60;
-      el.textContent = `${d}d ${h}h ${m}m ${s}s`;
-    }
+  <div class="center">
+    <a class="btn" href="lore.html">📖 Read the Full Lore</a>
+  </div>
+</section>
 
-    const timer = setInterval(updateCountdown, 2000);
-    updateCountdown();
-  </script>
+
+<!-- ======================= ONE DEV ======================= -->
+<section id="dev">
+  <h2>👨‍💻 Built by One Developer — In Public</h2>
+
+  <p class="center" style="max-width:800px; margin:auto; font-size:18px;">
+    Every line of code. Every update. Every decision.
+    Open-source, transparent, and community-guided.
+    Not hype. Not a rug. A real builder creating something meaningful.
+  </p>
+
+  <div class="center" style="margin-top:20px;">
+    <a class="btn" href="https://github.com/gaiaprojectsol">📂 View the GitHub</a>
+  </div>
+</section>
+
+
+<!-- ======================= PROGRESS BAR ======================= -->
+<section id="progress">
+  <h2>🚀 Help Launch the Chain</h2>
+
+  <p class="center" style="max-width:700px; margin:auto; font-size:18px;">
+    Contract deployment and feature updates depend on early supporters.
+    Your preorder helps activate the world.
+  </p>
+
+  <p class="center" style="margin-top:20px; font-size:20px;">
+    <strong>0.2 SOL / 5 SOL</strong> needed for deployment
+  </p>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="center" style="margin-top:30px;">
+    <a class="btn" id="preorder" href="#hero">✨ Pre-Order Your Genesis Spark</a>
+  </div>
+</section>
+
+
+<!-- ======================= FAQ ======================= -->
+<section id="faq">
+  <h2>❓ Frequently Asked Questions</h2>
+
+  <div style="max-width:900px; margin:auto; font-size:18px; line-height:1.8;">
+
+    <p><strong>What am I actually buying?</strong><br>
+    A Genesis Spark NFT that becomes your first Genean.</p>
+
+    <p><strong>Why only 4,200?</strong><br>
+    Scarcity is a core mechanic — Genesis defines the world forever.</p>
+
+    <p><strong>What happens after mint?</strong><br>
+    Allocate traits daily, reach adulthood, breed, and build your Chainline.</p>
+
+    <p><strong>Which blockchain?</strong><br>
+    Solana — fast, cheap, reliable.</p>
+
+    <p><strong>Where does the money go?</strong><br>
+    80% goes straight into development. All spending is publicly documented.</p>
+
+    <p><strong>Can I help build Gaia?</strong><br>
+    Yes — everything is open source.</p>
+
+  </div>
+</section>
+
+
+<!-- ======================= FOOTER ======================= -->
+<footer>
+  <p>
+    <a href="whitepaper.html">Whitepaper</a> | 
+    <a href="https://github.com/gaiaprojectsol">GitHub</a> |
+    <a href="https://t.me/gaiaprojectsol">Telegram</a> |
+    <a href="https://x.com/gaiaprojectsol">X</a> |
+    <a href="#preorder">Pre-Order</a>
+  </p>
+
+  <p style="margin-top:20px;">© Gaia Project — All Rights Reserved</p>
+</footer>
+
 </body>
 </html>
