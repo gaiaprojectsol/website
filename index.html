@@ -1,222 +1,314 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gaia Project — The Awakening Countdown</title>
-  <link rel="icon" type="image/png" href="gaiaprojectwhite.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gaia Project — Transparent Web3 Gaming</title>
+<link rel="icon" type="image/png" href="gaiaprojectwhite.png" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Orbitron', sans-serif;
-      color: #fff;
-      background: radial-gradient(circle at center, #000, #020b0b, #000);
-      scroll-behavior: smooth;
-      overflow-x: hidden;
-    }
+<style>
+/* ============================================================
+   BASE STYLES
+============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* === ANNOUNCEMENT BAR (MATCHES WHITEPAPER) === */
-    #announcement-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 32px;
-      background: linear-gradient(90deg, #00ffd5, #0088ff, #8a2be2);
-      color: #000;
-      font-weight: bold;
-      text-align: center;
-      line-height: 32px;
-      z-index: 999;
-      font-size: 13px;
-      letter-spacing: 1px;
-      overflow: hidden;
-      white-space: nowrap;
-    }
+body {
+  font-family: 'Orbitron', sans-serif;
+  background: #000;
+  color: #e8ffff;
+  overflow-x: hidden;
+}
 
-    #announcement-text {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scrollBanner 16s linear infinite;
-    }
+/* ============================================================
+   ANNOUNCEMENT BAR
+============================================================ */
+#announcement-bar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 32px;
+  background: linear-gradient(90deg, #00ffd5, #009cff, #8a2be2);
+  color: #000;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  z-index: 9999;
+  display: flex; align-items: center;
+}
 
-    @keyframes scrollBanner {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
+#announcement-text {
+  display: inline-block;
+  padding-left: 100%;
+  animation: scrollBanner 18s linear infinite;
+}
 
-    /* === HEADER (MATCHES WHITEPAPER) === */
-    header {
-      position: fixed;
-      top: 32px;
-      left: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(6px);
-      border-bottom: 1px solid rgba(0, 255, 200, 0.2);
-      padding: 16px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 998;
-    }
+@keyframes scrollBanner {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
 
-    header img {
-      height: 40px;
-    }
+/* ============================================================
+   HEADER NAVIGATION
+============================================================ */
+header {
+  position: fixed;
+  top: 32px; left: 0;
+  width: 100%;
+  padding: 18px 24px;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(6px);
+  display: flex; justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0,255,200,0.25);
+  z-index: 999;
+}
 
-    nav a {
-      color: #00f0ff;
-      text-decoration: none;
-      margin: 0 12px;
-      font-size: 14px;
-      transition: 0.25s ease;
-    }
+header img {
+  height: 38px;
+}
 
-    nav a:hover {
-      color: #8affff;
-      text-shadow: 0 0 8px #00eaff;
-    }
+nav a {
+  color: #00f0ff;
+  text-decoration: none;
+  margin: 0 12px;
+  font-size: 14px;
+  transition: 0.3s;
+}
 
-    /* === MAIN CONTENT === */
-    main {
-      padding-top: 160px; /* space for banner + header */
-      text-align: center;
-      min-height: 100vh;
-    }
+nav a:hover {
+  color: #8affff;
+  text-shadow: 0 0 12px #00eaff;
+}
 
-    h1 {
-      font-size: 2.4rem;
-      letter-spacing: 2px;
-      margin-bottom: 1rem;
-      color: #5cecff;
-      text-shadow: 0 0 10px #00ffe0, 0 0 20px #00ffe0;
-    }
+/* ============================================================
+   HERO SECTION
+============================================================ */
+.hero {
+  padding-top: 180px;
+  padding-bottom: 120px;
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
 
-    #countdown {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      margin-top: 1.4rem;
-      color: #00ffe0;
-      text-shadow: 0 0 10px #00ffe0, 0 0 20px #00ffe0;
-    }
+.hero h1 {
+  font-size: 2.7rem;
+  color: #64faff;
+  text-shadow: 0 0 12px #00eaff, 0 0 25px #00eaff;
+  margin-bottom: 1rem;
+}
 
-    .subtext {
-      margin-top: 1.2rem;
-      font-size: 1rem;
-      color: #aaa;
-    }
+.hero p {
+  font-size: 1.1rem;
+  color: #c8ffff;
+  margin-bottom: 1.5rem;
+}
 
-    footer {
-      background: #050505;
-      padding: 1.5rem;
-      text-align: center;
-      font-size: 0.9rem;
-      color: #999;
-      border-top: 1px solid #111;
-    }
+#countdown {
+  color: #00fff2;
+  font-size: 2rem;
+  margin: 1.2rem 0;
+  text-shadow: 0 0 12px #00eaff;
+}
 
-    footer a {
-      color: #00ffe0;
-      text-decoration: none;
-    }
+.cta-button {
+  display: inline-block;
+  padding: 1rem 2rem;
+  margin-top: 1.5rem;
+  border: 2px solid #00ffe0;
+  color: #00ffe0;
+  border-radius: 5px;
+  font-weight: 700;
+  transition: 0.3s;
+}
 
-    footer a:hover { color: #fff; }
+.cta-button:hover {
+  background: #00ffe0;
+  color: #000;
+  transform: scale(1.05);
+}
 
-  </style>
+/* ============================================================
+   NEW FUNNEL SECTIONS
+============================================================ */
+section {
+  padding: 80px 20px;
+  text-align: center;
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+section h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #00eaff;
+  text-shadow: 0 0 10px #00eaff;
+}
+
+section p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: #c8eaff;
+  line-height: 1.6;
+}
+
+.highlight {
+  color: #00ffe0;
+  font-weight: 700;
+}
+
+/* ============================================================
+   PIE CHART
+============================================================ */
+.pie {
+  width: 150px; height: 150px;
+  background: conic-gradient(#00ffe0 0% 80%, #111 80% 100%);
+  border-radius: 50%;
+  margin: 30px auto;
+  box-shadow: 0 0 25px #00ffe055;
+}
+
+.pie-legend {
+  text-align: left;
+  max-width: 300px;
+  margin: 0 auto;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #cfcfcf;
+}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+footer {
+  padding: 2rem;
+  background: #050505;
+  text-align: center;
+  border-top: 1px solid #111;
+}
+
+footer a {
+  color: #00ffe0;
+  margin: 0 6px;
+  text-decoration: none;
+}
+
+footer a:hover { color: #fff; }
+</style>
 </head>
 
 <body>
 
-  <!-- ANNOUNCEMENT BAR -->
-  <div id="announcement-bar">
-    <div id="announcement-text">🌍 Gaia Spark Mint — November 27th, 2025 ⚡</div>
+<!-- ANNOUNCEMENT BAR -->
+<div id="announcement-bar">
+  <div id="announcement-text">
+    🌍 Gaia Spark Mint Opens Nov 27 — Naming Rights Close Forever! ⚡
   </div>
+</div>
 
-  <!-- HEADER -->
-  <header>
-    <img src="gaiaprojectwhite.png" alt="Gaia Logo" />
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="lore.html">Lore</a>
-      <a href="preorder.html">Pre-Order</a>
-      <a href="whitepaper.html">Whitepaper</a>
-      <a href="community.html">Community</a>
-      <a href="blog.html">Blog</a>
-    </nav>
-  </header>
+<!-- HEADER -->
+<header>
+  <img src="gaiaprojectwhite.png" alt="Gaia Logo" />
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="lore.html">Lore</a>
+    <a href="preorder.html">Pre-Order</a>
+    <a href="whitepaper.html">Whitepaper</a>
+    <a href="community.html">Community</a>
+    <a href="blog.html">Blog</a>
+  </nav>
+</header>
 
-  <!-- MAIN CONTENT -->
-  <main>
-    <h1>⏳ Countdown to The Gaia Spark Mint</h1>
+<!-- HERO -->
+<div class="hero">
+  <h1>Gaia Project — The Transparent Daily-Play Web3 Game</h1>
+  <p><strong>Built on Solana.</strong> Every action shapes the living chain.</p>
+  
+  <div id="countdown">Syncing with Solana time...</div>
+  <p>Target: 27 November 2025, 12:00 UTC</p>
 
-    <div id="countdown">Syncing with Solana time...</div>
+  <a class="cta-button" href="preorder.html">⚡ Pre-Order Your Gaia Spark</a>
+</div>
 
-    <div class="subtext">Target: 27 November 2025, 12:00 UTC</div>
-  </main>
+<!-- WHY PRE-ORDER -->
+<section>
+  <h2>Why Pre-Order Today?</h2>
+  
+  <p>Early supporters don’t just mint — they <span class="highlight">shape Gaia’s history</span>.</p>
+  <p>Only <span class="highlight">4200 Genesis Geneans</span> will ever exist.</p>
+  <p>Naming rights close permanently on <span class="highlight">27 November</span>.</p>
+  <p>Genesis holders receive <span class="highlight">Chainline legacy priority</span> — your lineage becomes canon.</p>
+  <p>Your pre-order directly funds <span class="highlight">smart contract deployment</span>, audits, and game logic.</p>
+</section>
 
-  <!-- FOOTER -->
-  <footer>
-    Join the conversation:
-    <a href="https://x.com/gaiaprojectsol" target="_blank">X</a> |
-    <a href="https://t.me/+g9xscMa9_AtiMzU1" target="_blank">Telegram</a>
-    <p>© 2025 Gaia Project — All rights reserved.</p>
-  </footer>
+<!-- WHERE FUNDS GO -->
+<section>
+  <h2>Where the Money Goes</h2>
+  <p>Gaia is fully transparent — 100% of revenue is reinvested.</p>
 
-  <!-- SOLANA WEB3 COUNTDOWN -->
-  <script type="module">
-    import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
+  <div class="pie"></div>
+  <div class="pie-legend">
+    <p><span class="highlight">80%</span> — Development, chain logic, audits, art, marketing.</p>
+    <p><span class="highlight">20%</span> — Treasury split based on lore (Architect Rewards + Chainline Influence).</p>
+  </div>
+</section>
 
-    const TARGET_TIMESTAMP = Math.floor(
-      new Date("2025-11-27T12:00:00Z").getTime() / 1000
+<footer>
+  Join the conversation:
+  <a href="https://x.com/gaiaprojectsol" target="_blank">X</a> |
+  <a href="https://t.me/+g9xscMa9_AtiMzU1" target="_blank">Telegram</a>
+  <p>© 2025 Gaia Project — All rights reserved.</p>
+</footer>
+
+<!-- COUNTDOWN SYNCED TO SOLANA -->
+<script type="module">
+import * as solanaWeb3 from "https://esm.sh/@solana/web3.js@1.95.3";
+
+const TARGET_TIMESTAMP = Math.floor(new Date("2025-11-27T12:00:00Z").getTime() / 1000);
+
+async function getSolanaUnixTime() {
+  try {
+    const connection = new solanaWeb3.Connection(
+      "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b",
+      "confirmed"
     );
+    const slot = await connection.getSlot("confirmed");
+    return await connection.getBlockTime(slot);
+  } catch (e) {
+    console.error("Error:", e);
+    return null;
+  }
+}
 
-    async function getSolanaUnixTime() {
-      try {
-        const connection = new solanaWeb3.Connection(
-          "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b",
-          "confirmed"
-        );
-        const slot = await connection.getSlot("confirmed");
-        return await connection.getBlockTime(slot);
-      } catch (e) {
-        console.error("Error fetching Solana time:", e);
-        return null;
-      }
-    }
+async function updateCountdown() {
+  const el = document.getElementById("countdown");
+  const solTime = await getSolanaUnixTime();
 
-    async function updateCountdown() {
-      const solTime = await getSolanaUnixTime();
-      const countdownEl = document.getElementById("countdown");
+  if (!solTime) {
+    el.textContent = "Unable to sync time...";
+    return;
+  }
 
-      if (!solTime) {
-        countdownEl.textContent = "Unable to sync Solana time...";
-        return;
-      }
+  const diff = TARGET_TIMESTAMP - solTime;
+  if (diff <= 0) {
+    el.textContent = "🌟 Gaia Spark Mint Is Live!";
+    return;
+  }
 
-      const diff = TARGET_TIMESTAMP - solTime;
+  const d = Math.floor(diff / 86400);
+  const h = Math.floor((diff % 86400) / 3600);
+  const m = Math.floor((diff % 3600) / 60);
+  const s = diff % 60;
 
-      if (diff <= 0) {
-        countdownEl.textContent = "🌟 The Gaia Spark Mint is Live!";
-        clearInterval(countdownInterval);
-        return;
-      }
+  el.textContent = `${d}d ${h}h ${m}m ${s}s`;
+}
 
-      const days = Math.floor(diff / 86400);
-      const hours = Math.floor((diff % 86400) / 3600);
-      const minutes = Math.floor((diff % 3600) / 60);
-      const seconds = diff % 60;
-
-      countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    }
-
-    const countdownInterval = setInterval(updateCountdown, 2000);
-    updateCountdown();
-  </script>
+setInterval(updateCountdown, 2000);
+updateCountdown();
+</script>
 
 </body>
 </html>
