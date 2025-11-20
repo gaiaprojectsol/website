@@ -180,6 +180,53 @@ section p {
   color: #cfcfcf;
 }
 
+
+/* ============================================================
+   LIVE SOL PROGRESS BAR
+============================================================ */
+#sol-progress-container {
+  margin-top: 40px;
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  padding: 10px 20px;
+}
+
+.progress-title {
+  font-size: 14px;
+  color: #8affff;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+  text-shadow: 0 0 6px #00eaff;
+}
+
+#sol-progress-bar {
+  width: 100%;
+  height: 20px;
+  background: #111;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #00ffe055;
+  margin-bottom: 8px;
+}
+
+#sol-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00ffe0, #00bcd4);
+  box-shadow: 0 0 12px #00ffe0;
+  transition: width 0.6s ease-in-out;
+}
+
+#sol-progress-text {
+  font-size: 14px;
+  color: #c8ffff;
+  text-shadow: 0 0 6px #00eaff;
+}
+
 /* ============================================================
    FOOTER
 ============================================================ */
@@ -247,6 +294,15 @@ footer a:hover { color: #fff; }
   <h2>Where the Money Goes</h2>
   <p>Gaia is fully transparent — 100% of funds are tracked.</p>
 
+   <!-- === LIVE SOL PROGRESS BAR === -->
+   <div id="sol-progress-container">
+     <div class="progress-title">Smart Contract Deployment Goal</div>
+     <div id="sol-progress-bar">
+       <div id="sol-progress-fill"></div>
+     </div>
+     <div id="sol-progress-text">Loading...</div>
+   </div>
+
   <div class="pie"></div>
   <div class="pie-legend">
     <p><span class="highlight">80%</span> — Development, chain logic, audits, art, marketing.</p>
@@ -307,6 +363,43 @@ async function updateCountdown() {
 
 setInterval(updateCountdown, 2000);
 updateCountdown();
+
+/* ============================================================
+   LIVE SOL PROGRESS BAR — auto-updates every 10 seconds
+============================================================ */
+
+const GOAL_SOL = 5;
+const PROGRESS_WALLET = new solanaWeb3.PublicKey(
+  "7qeCuMQUVhxfncxddC3A1SYQ4JnDhxJBBcrxhKDzfbs"
+);
+
+async function updateSolProgress() {
+  try {
+    const connection = new solanaWeb3.Connection(
+      "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b",
+      "confirmed"
+    );
+
+    const balanceLamports = await connection.getBalance(PROGRESS_WALLET);
+    const balanceSOL = balanceLamports / 1e9;
+
+    const percent = Math.min((balanceSOL / GOAL_SOL) * 100, 100);
+
+    document.getElementById("sol-progress-fill").style.width = percent + "%";
+
+    document.getElementById("sol-progress-text").textContent =
+      `${balanceSOL.toFixed(2)} SOL raised — ${percent.toFixed(0)}% of ${GOAL_SOL} SOL`;
+  } 
+  catch (err) {
+    console.error("SOL Progress Error:", err);
+    document.getElementById("sol-progress-text").textContent =
+      "Error loading progress";
+  }
+}
+
+setInterval(updateSolProgress, 10000);
+updateSolProgress();
+
 </script>
 
 </body>
