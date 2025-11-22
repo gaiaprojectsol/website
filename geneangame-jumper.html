@@ -17,6 +17,7 @@
 
     #container {
         text-align: center;
+        width: 600px;
     }
 
     #game {
@@ -86,12 +87,47 @@
         color: #000;
         border: none;
     }
+
+    /* Submit panel */
+    #submit-panel {
+        display: none;
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #0ff;
+        background: #111;
+    }
+
+    #submit-btn, #retry-btn {
+        padding: 10px 20px;
+        font-size: 15px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    #submit-btn {
+        background: #0ff;
+        color: #000;
+        border: none;
+    }
+
+    #retry-btn {
+        background: #222;
+        color: #0ff;
+        border: 1px solid #0ff;
+        display: none;
+    }
+
+    #submit-status {
+        margin-top: 10px;
+        font-size: 14px;
+    }
 </style>
 </head>
 <body>
 
 <div id="container">
 
+    <!-- START SCREEN -->
     <div id="overlay">
         <p>Enter your name to begin:</p>
         <input id="name-input" placeholder="Your name..." />
@@ -101,10 +137,23 @@
         </p>
     </div>
 
+    <!-- GAME AREA -->
     <div id="game">
         <div id="player"></div>
         <div id="score">Score: 0</div>
         <div id="game-over">Game Over<br><small>Press Space to Restart</small></div>
+    </div>
+
+    <!-- SUBMIT PANEL -->
+    <div id="submit-panel">
+        <p>Submit your score to the Solana blockchain?</p>
+        <p>Name: <span id="submit-name"></span></p>
+        <p>Score: <span id="submit-score"></span></p>
+        
+        <button id="submit-btn">Send Memo</button>
+        <button id="retry-btn">Retry</button>
+
+        <p id="submit-status"></p>
     </div>
 
 </div>
@@ -117,6 +166,7 @@
 <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
 
 <script>
+    // Elements
     const game = document.getElementById("game");
     const player = document.getElementById("player");
     const scoreEl = document.getElementById("score");
@@ -125,6 +175,14 @@
     const jumpSound = document.getElementById("jump-sound");
     const deathSound = document.getElementById("death-sound");
 
+    const submitPanel = document.getElementById("submit-panel");
+    const submitName = document.getElementById("submit-name");
+    const submitScore = document.getElementById("submit-score");
+    const submitBtn = document.getElementById("submit-btn");
+    const retryBtn = document.getElementById("retry-btn");
+    const submitStatus = document.getElementById("submit-status");
+
+    // Game State
     let nameValue = "";
     let running = false;
     let alive = true;
@@ -134,7 +192,7 @@
     const gravity = 0.5;
     let score = 0;
 
-    // --- START SCREEN LOGIC ---
+    // --- START SCREEN ---
     document.getElementById("start-btn").onclick = () => {
         const val = document.getElementById("name-input").value.trim();
         if (!val) {
@@ -146,7 +204,7 @@
         startGame();
     };
 
-    // --- GAME CONTROLS ---
+    // --- CONTROLS ---
     document.addEventListener("keydown", e => {
         if (e.code === "Space") {
             if (!running) return;
@@ -162,7 +220,7 @@
         jumpSound.play();
     }
 
-    // --- MAIN GAME ---
+    // --- GAME START ---
     function startGame() {
         running = true;
         update();
@@ -193,10 +251,7 @@
                 deathSound.play();
                 gameOverEl.style.display = "block";
 
-                setTimeout(() => {
-                    askToSendMemo(score);
-                }, 600);
-
+                setTimeout(() => showSubmitPanel(nameValue, score), 600);
                 return;
             }
 
@@ -204,7 +259,6 @@
         }
 
         move();
-
         setTimeout(spawnObstacle, 1000 + Math.random() * 700);
     }
 
@@ -242,6 +296,7 @@
         if (running) requestAnimationFrame(update);
     }
 
+    // --- RESET GAME ---
     function resetGame() {
         document.querySelectorAll(".obstacle").forEach(o => o.remove());
 
@@ -253,29 +308,41 @@
         gameOverEl.style.display = "none";
         scoreEl.textContent = "Score: 0";
 
+        submitPanel.style.display = "none";
+
         update();
         spawnObstacle();
     }
 
-    // --- SEND SCORE TO SOLANA USING HELIUS ---
-    async function askToSendMemo(score) {
-        const choice = confirm("Do you want to record this score on the Solana blockchain?");
-        if (!choice) return;
+    // --- SUBMIT PANEL ---
+    function showSubmitPanel(name, score) {
+        submitName.textContent = name;
+        submitScore.textContent = score;
+        submitStatus.textContent = "";
+        retryBtn.style.display = "none";
+        submitPanel.style.display = "block";
 
-        await sendMemoToSolana(nameValue, score);
+        submitBtn.onclick = () => handleMemoSubmit(name, score);
+        retryBtn.onclick = () => handleMemoSubmit(name, score);
     }
 
-    async function sendMemoToSolana(name, score) {
+    // --- SEND MEMO ---
+    async function handleMemoSubmit(name, score) {
+        submitStatus.style.color = "#0ff";
+        submitStatus.textContent = "Sending to Solana...";
+
         try {
             if (!window.solana) {
-                alert("Phantom Wallet is required.");
+                submitStatus.style.color = "#f00";
+                submitStatus.textContent = "Phantom Wallet required.";
                 return;
             }
 
             await window.solana.connect();
 
-            const heliusRPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5";
-            const connection = new solanaWeb3.Connection(heliusRPC);
+            const connection = new solanaWeb3.Connection(
+                "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b"
+            );
 
             const memoProgram = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
             const recorderWallet = new solanaWeb3.PublicKey("BvM4csixHBdcxpxy4w2bQ21WUfymdk9EjSuWrEz4uev3");
@@ -296,12 +363,23 @@
             );
 
             const signed = await window.solana.signTransaction(tx);
-            const signature = await connection.sendRawTransaction(signed.serialize());
+            const sig = await connection.sendRawTransaction(signed.serialize());
 
-            alert("Score recorded!\nTx: " + signature);
+            submitStatus.style.color = "#0f0";
+            submitStatus.innerHTML = `
+                Score recorded!<br>
+                <a href="https://solscan.io/tx/${sig}" target="_blank" style="color:#0ff;">
+                    View Transaction
+                </a>
+            `;
+
+            retryBtn.style.display = "none";
+
         } catch (err) {
             console.error(err);
-            alert("Failed to send memo.");
+            submitStatus.style.color = "#f00";
+            submitStatus.textContent = "Failed to send memo. Please try again.";
+            retryBtn.style.display = "inline-block";
         }
     }
 </script>
