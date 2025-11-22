@@ -30,9 +30,10 @@
     }
 
     #player {
-        width: 30px;
-        height: 30px;
-        background: #0ff;
+        width: 40px;
+        height: 40px;
+        background: url("genean-run.png");
+        background-size: cover;
         position: absolute;
         bottom: 0;
         left: 50px;
@@ -192,7 +193,6 @@
                 deathSound.play();
                 gameOverEl.style.display = "block";
 
-                // scoring prompt
                 setTimeout(() => {
                     askToSendMemo(score);
                 }, 600);
@@ -274,7 +274,7 @@
 
             await window.solana.connect();
 
-            const heliusRPC = "https://YOUR-HELIUS-RPC-ENDPOINT"; // Replace this
+            const heliusRPC = "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5";
             const connection = new solanaWeb3.Connection(heliusRPC);
 
             const memoProgram = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
