@@ -327,61 +327,65 @@
     }
 
     // --- SEND MEMO ---
-    async function handleMemoSubmit(name, score) {
-        submitStatus.style.color = "#0ff";
-        submitStatus.textContent = "Sending to Solana...";
+async function handleMemoSubmit(name, score) {
+    submitStatus.style.color = "#0ff";
+    submitStatus.textContent = "Sending to Solana...";
 
-        try {
-            if (!window.solana) {
-                submitStatus.style.color = "#f00";
-                submitStatus.textContent = "Phantom Wallet required.";
-                return;
-            }
-
-            await window.solana.connect();
-
-            const connection = new solanaWeb3.Connection(
-                "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b"
-            );
-
-            const memoProgram = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
-            const recorderWallet = new solanaWeb3.PublicKey("BvM4csixHBdcxpxy4w2bQ21WUfymdk9EjSuWrEz4uev3");
-
-            const memoData = JSON.stringify({
-                type: "gaia-score",
-                name,
-                score,
-                ts: Date.now()
-            });
-
-            const tx = new solanaWeb3.Transaction().add(
-                new solanaWeb3.TransactionInstruction({
-                    keys: [{ pubkey: recorderWallet, isSigner: false, isWritable: false }],
-                    programId: memoProgram,
-                    data: Buffer.from(memoData)
-                })
-            );
-
-            const signed = await window.solana.signTransaction(tx);
-            const sig = await connection.sendRawTransaction(signed.serialize());
-
-            submitStatus.style.color = "#0f0";
-            submitStatus.innerHTML = `
-                Score recorded!<br>
-                <a href="https://solscan.io/tx/${sig}" target="_blank" style="color:#0ff;">
-                    View Transaction
-                </a>
-            `;
-
-            retryBtn.style.display = "none";
-
-        } catch (err) {
-            console.error(err);
+    try {
+        if (!window.solana) {
             submitStatus.style.color = "#f00";
-            submitStatus.textContent = "Failed to send memo. Please try again.";
-            retryBtn.style.display = "inline-block";
+            submitStatus.textContent = "Phantom Wallet required.";
+            return;
         }
+
+        await window.solana.connect();
+
+        const connection = new solanaWeb3.Connection(
+            "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b"
+        );
+
+        const memoProgram = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
+        const recorderWallet = new solanaWeb3.PublicKey("BvM4csixHBdcxpxy4w2bQ21WUfymdk9EjSuWrEz4uev3");
+
+        const memoData = JSON.stringify({
+            type: "gaia-score",
+            name,
+            score,
+            ts: Date.now()
+        });
+
+        // *** FIXED: Browser-safe data encoding ***
+        const encodedMemo = new TextEncoder().encode(memoData);
+
+        const tx = new solanaWeb3.Transaction().add(
+            new solanaWeb3.TransactionInstruction({
+                keys: [{ pubkey: recorderWallet, isSigner: false, isWritable: false }],
+                programId: memoProgram,
+                data: encodedMemo
+            })
+        );
+
+        const signed = await window.solana.signTransaction(tx);
+        const sig = await connection.sendRawTransaction(signed.serialize());
+
+        submitStatus.style.color = "#0f0";
+        submitStatus.innerHTML = `
+            Score recorded!<br>
+            <a href="https://solscan.io/tx/${sig}" target="_blank" style="color:#0ff;">
+                View Transaction
+            </a>
+        `;
+
+        retryBtn.style.display = "none";
+
+    } catch (err) {
+        console.error(err);
+        submitStatus.style.color = "#f00";
+        submitStatus.textContent = "Failed to send memo. Please try again.";
+        retryBtn.style.display = "inline-block";
     }
+}
+
 </script>
 
 </body>
