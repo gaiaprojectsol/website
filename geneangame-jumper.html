@@ -332,20 +332,30 @@ async function handleMemoSubmit(name, score) {
     submitStatus.textContent = "Sending to Solana...";
 
     try {
-        if (!window.solana) {
+        if (!window.solana?.isPhantom) {
             submitStatus.style.color = "#f00";
             submitStatus.textContent = "Phantom Wallet required.";
             return;
         }
 
-        await window.solana.connect();
+        // Ensure Phantom is connected
+        const provider = window.solana;
+        const resp = await provider.connect(); 
+        const publicKey = resp.publicKey;
 
+        // Connect to Helius RPC
         const connection = new solanaWeb3.Connection(
             "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b"
         );
 
-        const memoProgram = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
-        const recorderWallet = new solanaWeb3.PublicKey("BvM4csixHBdcxpxy4w2bQ21WUfymdk9EjSuWrEz4uev3");
+        // Build memo program instruction
+        const memoProgram = new solanaWeb3.PublicKey(
+            "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
+        );
+
+        const recorderWallet = new solanaWeb3.PublicKey(
+            "BvM4csixHBdcxpxy4w2bQ21WUfymdk9EjSuWrEz4uev3"
+        );
 
         const memoData = JSON.stringify({
             type: "gaia-score",
@@ -354,28 +364,35 @@ async function handleMemoSubmit(name, score) {
             ts: Date.now()
         });
 
-        // *** FIXED: Browser-safe data encoding ***
         const encodedMemo = new TextEncoder().encode(memoData);
 
-        const tx = new solanaWeb3.Transaction().add(
-            new solanaWeb3.TransactionInstruction({
-                keys: [{ pubkey: recorderWallet, isSigner: false, isWritable: false }],
-                programId: memoProgram,
-                data: encodedMemo
-            })
+        const instruction = new solanaWeb3.TransactionInstruction({
+            keys: [{ pubkey: recorderWallet, isSigner: false, isWritable: false }],
+            programId: memoProgram,
+            data: encodedMemo
+        });
+
+        // Build transaction
+        const tx = new solanaWeb3.Transaction().add(instruction);
+
+        // REQUIRED: Fee payer + blockhash
+        const blockhash = await connection.getLatestBlockhash();
+
+        tx.feePayer = publicKey;
+        tx.recentBlockhash = blockhash.blockhash;
+
+        // Phantom signs it
+        const signedTx = await provider.signTransaction(tx);
+
+        // Submit raw transaction
+        const sig = await connection.sendRawTransaction(
+            signedTx.serialize(),
+            { skipPreflight: false }
         );
 
-        const signed = await window.solana.signTransaction(tx);
-        const sig = await connection.sendRawTransaction(signed.serialize());
-
         submitStatus.style.color = "#0f0";
-        submitStatus.innerHTML = `
-            Score recorded!<br>
-            <a href="https://solscan.io/tx/${sig}" target="_blank" style="color:#0ff;">
-                View Transaction
-            </a>
-        `;
-
+        submitStatus.innerHTML =
+            `Score recorded!<br><a href="https://solscan.io/tx/${sig}" target="_blank" style="color:#0ff;">View Transaction</a>`;
         retryBtn.style.display = "none";
 
     } catch (err) {
