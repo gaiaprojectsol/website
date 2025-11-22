@@ -2,180 +2,309 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Simple Jump Game</title>
+<title>Jump Game</title>
 <style>
     body {
         background: #000;
+        margin: 0;
+        height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        margin: 0;
         color: #0ff;
         font-family: Arial, sans-serif;
     }
 
+    #container {
+        text-align: center;
+    }
+
     #game {
-        width: 800px;
-        height: 300px;
+        width: 600px;
+        height: 200px;
         background: #111;
         border: 2px solid #0ff;
         position: relative;
         overflow: hidden;
+        margin-top: 20px;
     }
 
     #player {
-        width: 40px;
-        height: 40px;
+        width: 30px;
+        height: 30px;
         background: #0ff;
         position: absolute;
         bottom: 0;
-        left: 60px;
-        border-radius: 6px;
+        left: 50px;
     }
 
     .obstacle {
-        width: 30px;
-        height: 50px;
+        width: 20px;
+        height: 40px;
         background: #f00;
         position: absolute;
         bottom: 0;
-        right: -50px;
+        right: -30px;
     }
 
     #score {
         position: absolute;
         top: 10px;
         left: 10px;
-        font-size: 20px;
     }
 
     #game-over {
         position: absolute;
-        top: 40%;
+        top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 28px;
         display: none;
+        font-size: 22px;
+        color: #f00;
         text-align: center;
+    }
+
+    #overlay {
+        margin-bottom: 20px;
+    }
+
+    #name-input {
+        padding: 10px;
+        font-size: 16px;
+        border: 2px solid #0ff;
+        background: #222;
+        color: #0ff;
+    }
+
+    #start-btn {
+        padding: 10px 20px;
+        margin-left: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        background: #0ff;
+        color: #000;
+        border: none;
     }
 </style>
 </head>
-
 <body>
-<div id="game">
-    <div id="player"></div>
-    <div id="score">Score: 0</div>
-    <div id="game-over">Game Over<br><small>Press Space to Restart</small></div>
+
+<div id="container">
+
+    <div id="overlay">
+        <p>Enter your name to begin:</p>
+        <input id="name-input" placeholder="Your name..." />
+        <button id="start-btn">Start</button>
+        <p style="margin-top:10px; font-size:14px; color:#0ff;">
+            Press <b>SPACEBAR</b> to jump.
+        </p>
+    </div>
+
+    <div id="game">
+        <div id="player"></div>
+        <div id="score">Score: 0</div>
+        <div id="game-over">Game Over<br><small>Press Space to Restart</small></div>
+    </div>
+
 </div>
 
+<!-- SOUND EFFECTS -->
+<audio id="jump-sound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+<audio id="death-sound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<!-- Solana Web3 -->
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+
 <script>
-    const player = document.getElementById("player");
     const game = document.getElementById("game");
-    const scoreText = document.getElementById("score");
-    const gameOverText = document.getElementById("game-over");
+    const player = document.getElementById("player");
+    const scoreEl = document.getElementById("score");
+    const gameOverEl = document.getElementById("game-over");
 
-    let isJumping = false;
-    let jumpVelocity = 0;
-    let gravity = 0.6;
-    let score = 0;
+    const jumpSound = document.getElementById("jump-sound");
+    const deathSound = document.getElementById("death-sound");
+
+    let nameValue = "";
+    let running = false;
     let alive = true;
+    let jumping = false;
 
-    function jump() {
-        if (!isJumping && alive) {
-            isJumping = true;
-            jumpVelocity = 12; // initial jump power
+    let jumpVelocity = 0;
+    const gravity = 0.5;
+    let score = 0;
+
+    // --- START SCREEN LOGIC ---
+    document.getElementById("start-btn").onclick = () => {
+        const val = document.getElementById("name-input").value.trim();
+        if (!val) {
+            alert("Please enter your name.");
+            return;
         }
-    }
+        nameValue = val;
+        document.getElementById("overlay").style.display = "none";
+        startGame();
+    };
 
-    document.body.onkeyup = (e) => {
+    // --- GAME CONTROLS ---
+    document.addEventListener("keydown", e => {
         if (e.code === "Space") {
+            if (!running) return;
             if (!alive) resetGame();
             else jump();
         }
-    };
+    });
+
+    function jump() {
+        if (!alive || jumping) return;
+        jumping = true;
+        jumpVelocity = 10;
+        jumpSound.play();
+    }
+
+    // --- MAIN GAME ---
+    function startGame() {
+        running = true;
+        update();
+        spawnObstacle();
+    }
 
     function spawnObstacle() {
         if (!alive) return;
 
-        let obs = document.createElement("div");
+        const obs = document.createElement("div");
         obs.classList.add("obstacle");
         game.appendChild(obs);
 
-        let speed = 6;
+        let speed = 5;
 
-        function moveObstacle() {
+        function move() {
             if (!alive) return;
 
-            let obsX = obs.offsetLeft;
-            obs.style.left = obsX - speed + "px";
+            obs.style.left = obs.offsetLeft - speed + "px";
 
-            // Remove if off screen
-            if (obsX < -50) {
+            if (obs.offsetLeft < -40) {
                 obs.remove();
                 return;
             }
 
-            // Collision detection
-            let p = player.getBoundingClientRect();
-            let o = obs.getBoundingClientRect();
-
-            if (p.left < o.right &&
-                p.right > o.left &&
-                p.bottom > o.top &&
-                p.top < o.bottom) {
-
+            if (checkCollision(player, obs)) {
                 alive = false;
-                gameOverText.style.display = "block";
+                deathSound.play();
+                gameOverEl.style.display = "block";
+
+                // scoring prompt
+                setTimeout(() => {
+                    askToSendMemo(score);
+                }, 600);
+
                 return;
             }
 
-            requestAnimationFrame(moveObstacle);
+            requestAnimationFrame(move);
         }
 
-        moveObstacle();
+        move();
 
-        // spawn next obstacle randomly
-        setTimeout(spawnObstacle, Math.random() * 1200 + 800);
+        setTimeout(spawnObstacle, 1000 + Math.random() * 700);
     }
 
-    spawnObstacle();
+    function checkCollision(a, b) {
+        const r1 = a.getBoundingClientRect();
+        const r2 = b.getBoundingClientRect();
+
+        return !(
+            r1.top > r2.bottom ||
+            r1.bottom < r2.top ||
+            r1.right < r2.left ||
+            r1.left > r2.right
+        );
+    }
 
     function update() {
-        if (isJumping) {
-            player.style.bottom = parseInt(player.style.bottom || 0) + jumpVelocity + "px";
+        if (jumping) {
+            let bottom = parseInt(player.style.bottom || 0);
+            bottom += jumpVelocity;
             jumpVelocity -= gravity;
 
-            if (parseInt(player.style.bottom) <= 0) {
-                player.style.bottom = "0px";
-                isJumping = false;
+            if (bottom <= 0) {
+                bottom = 0;
+                jumping = false;
             }
+
+            player.style.bottom = bottom + "px";
         }
 
         if (alive) {
             score++;
-            scoreText.innerText = "Score: " + score;
-            requestAnimationFrame(update);
+            scoreEl.textContent = "Score: " + score;
         }
+
+        if (running) requestAnimationFrame(update);
     }
 
-    update();
-
     function resetGame() {
-        // Remove all obstacles
         document.querySelectorAll(".obstacle").forEach(o => o.remove());
 
-        // Reset everything
-        player.style.bottom = "0px";
         alive = true;
-        isJumping = false;
+        jumping = false;
         score = 0;
-        scoreText.innerText = "Score: 0";
-        gameOverText.style.display = "none";
+
+        player.style.bottom = "0px";
+        gameOverEl.style.display = "none";
+        scoreEl.textContent = "Score: 0";
 
         update();
         spawnObstacle();
     }
+
+    // --- SEND SCORE TO SOLANA USING HELIUS ---
+    async function askToSendMemo(score) {
+        const choice = confirm("Do you want to record this score on the Solana blockchain?");
+        if (!choice) return;
+
+        await sendMemoToSolana(nameValue, score);
+    }
+
+    async function sendMemoToSolana(name, score) {
+        try {
+            if (!window.solana) {
+                alert("Phantom Wallet is required.");
+                return;
+            }
+
+            await window.solana.connect();
+
+            const heliusRPC = "https://YOUR-HELIUS-RPC-ENDPOINT"; // Replace this
+            const connection = new solanaWeb3.Connection(heliusRPC);
+
+            const memoProgram = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
+            const recorderWallet = new solanaWeb3.PublicKey("BvM4csixHBdcxpxy4w2bQ21WUfymdk9EjSuWrEz4uev3");
+
+            const memoData = JSON.stringify({
+                type: "gaia-score",
+                name,
+                score,
+                ts: Date.now()
+            });
+
+            const tx = new solanaWeb3.Transaction().add(
+                new solanaWeb3.TransactionInstruction({
+                    keys: [{ pubkey: recorderWallet, isSigner: false, isWritable: false }],
+                    programId: memoProgram,
+                    data: Buffer.from(memoData)
+                })
+            );
+
+            const signed = await window.solana.signTransaction(tx);
+            const signature = await connection.sendRawTransaction(signed.serialize());
+
+            alert("Score recorded!\nTx: " + signature);
+        } catch (err) {
+            console.error(err);
+            alert("Failed to send memo.");
+        }
+    }
 </script>
+
 </body>
 </html>
