@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Jump Game</title>
+<title>Gaia Jump Game</title>
 <style>
     body {
         background: #000;
@@ -141,7 +141,7 @@
     <div id="game">
         <div id="player"></div>
         <div id="score">Score: 0</div>
-        <div id="game-over">Game Over<br><small>Press Space to Restart</small></div>
+        <div id="game-over">Game Over<br><small>Refresh page to play again</small></div>
     </div>
 
     <!-- SUBMIT PANEL -->
@@ -166,7 +166,7 @@
 <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
 
 <script>
-    // Elements
+    // DOM elements
     const game = document.getElementById("game");
     const player = document.getElementById("player");
     const scoreEl = document.getElementById("score");
@@ -182,7 +182,7 @@
     const retryBtn = document.getElementById("retry-btn");
     const submitStatus = document.getElementById("submit-status");
 
-    // Game State
+    // Game state
     let nameValue = "";
     let running = false;
     let alive = true;
@@ -192,7 +192,7 @@
     const gravity = 0.5;
     let score = 0;
 
-    // --- START SCREEN ---
+    // START game
     document.getElementById("start-btn").onclick = () => {
         const val = document.getElementById("name-input").value.trim();
         if (!val) {
@@ -204,12 +204,11 @@
         startGame();
     };
 
-    // --- CONTROLS ---
+    // INPUT
     document.addEventListener("keydown", e => {
         if (e.code === "Space") {
-            if (!running) return;
-            if (!alive) resetGame();
-            else jump();
+            if (!alive) return; // no restart
+            jump();
         }
     });
 
@@ -220,7 +219,7 @@
         jumpSound.play();
     }
 
-    // --- GAME START ---
+    // MAIN GAME LOOP
     function startGame() {
         running = true;
         update();
@@ -275,6 +274,8 @@
     }
 
     function update() {
+        if (!alive) return;
+
         if (jumping) {
             let bottom = parseInt(player.style.bottom || 0);
             bottom += jumpVelocity;
@@ -288,33 +289,13 @@
             player.style.bottom = bottom + "px";
         }
 
-        if (alive) {
-            score++;
-            scoreEl.textContent = "Score: " + score;
-        }
+        score++;
+        scoreEl.textContent = "Score: " + score;
 
-        if (running) requestAnimationFrame(update);
+        requestAnimationFrame(update);
     }
 
-    // --- RESET GAME ---
-    function resetGame() {
-        document.querySelectorAll(".obstacle").forEach(o => o.remove());
-
-        alive = true;
-        jumping = false;
-        score = 0;
-
-        player.style.bottom = "0px";
-        gameOverEl.style.display = "none";
-        scoreEl.textContent = "Score: 0";
-
-        submitPanel.style.display = "none";
-
-        update();
-        spawnObstacle();
-    }
-
-    // --- SUBMIT PANEL ---
+    // SUBMIT SCORE PANEL
     function showSubmitPanel(name, score) {
         submitName.textContent = name;
         submitScore.textContent = score;
@@ -326,83 +307,75 @@
         retryBtn.onclick = () => handleMemoSubmit(name, score);
     }
 
-    // --- SEND MEMO ---
-async function handleMemoSubmit(name, score) {
-    submitStatus.style.color = "#0ff";
-    submitStatus.textContent = "Sending to Solana...";
+    // SEND MEMO TO SOLANA
+    async function handleMemoSubmit(name, score) {
+        submitStatus.style.color = "#0ff";
+        submitStatus.textContent = "Sending to Solana...";
 
-    try {
-        if (!window.solana?.isPhantom) {
+        try {
+            if (!window.solana?.isPhantom) {
+                submitStatus.style.color = "#f00";
+                submitStatus.textContent = "Phantom Wallet required.";
+                return;
+            }
+
+            const provider = window.solana;
+            const resp = await provider.connect();
+            const publicKey = resp.publicKey;
+
+            const connection = new solanaWeb3.Connection(
+                "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b"
+            );
+
+            const memoProgram = new solanaWeb3.PublicKey(
+                "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
+            );
+
+            const recorderWallet = new solanaWeb3.PublicKey(
+                "BvM4csixHBdcxpxy4w2bQ21WUfymdk9EjSuWrEz4uev3"
+            );
+
+            const memoData = JSON.stringify({
+                type: "gaia-score",
+                name,
+                score,
+                ts: Date.now()
+            });
+
+            const encodedMemo = new TextEncoder().encode(memoData);
+
+            const instruction = new solanaWeb3.TransactionInstruction({
+                keys: [{ pubkey: recorderWallet, isSigner: false, isWritable: false }],
+                programId: memoProgram,
+                data: encodedMemo
+            });
+
+            const tx = new solanaWeb3.Transaction().add(instruction);
+
+            const { blockhash } = await connection.getLatestBlockhash();
+            tx.recentBlockhash = blockhash;
+            tx.feePayer = publicKey;
+
+            const signedTx = await provider.signTransaction(tx);
+
+            const sig = await connection.sendRawTransaction(
+                signedTx.serialize(),
+                { skipPreflight: false }
+            );
+
+            submitStatus.style.color = "#0f0";
+            submitStatus.innerHTML =
+                `Score recorded!<br><a href="https://solscan.io/tx/${sig}" target="_blank" style="color:#0ff;">View Transaction</a>`;
+
+            retryBtn.style.display = "none";
+
+        } catch (err) {
+            console.error(err);
             submitStatus.style.color = "#f00";
-            submitStatus.textContent = "Phantom Wallet required.";
-            return;
+            submitStatus.textContent = "Failed to send memo. Please try again.";
+            retryBtn.style.display = "inline-block";
         }
-
-        // Ensure Phantom is connected
-        const provider = window.solana;
-        const resp = await provider.connect(); 
-        const publicKey = resp.publicKey;
-
-        // Connect to Helius RPC
-        const connection = new solanaWeb3.Connection(
-            "https://mainnet.helius-rpc.com/?api-key=d616d97c-62dc-4962-b859-54861377cd5b"
-        );
-
-        // Build memo program instruction
-        const memoProgram = new solanaWeb3.PublicKey(
-            "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
-        );
-
-        const recorderWallet = new solanaWeb3.PublicKey(
-            "BvM4csixHBdcxpxy4w2bQ21WUfymdk9EjSuWrEz4uev3"
-        );
-
-        const memoData = JSON.stringify({
-            type: "gaia-score",
-            name,
-            score,
-            ts: Date.now()
-        });
-
-        const encodedMemo = new TextEncoder().encode(memoData);
-
-        const instruction = new solanaWeb3.TransactionInstruction({
-            keys: [{ pubkey: recorderWallet, isSigner: false, isWritable: false }],
-            programId: memoProgram,
-            data: encodedMemo
-        });
-
-        // Build transaction
-        const tx = new solanaWeb3.Transaction().add(instruction);
-
-        // REQUIRED: Fee payer + blockhash
-        const blockhash = await connection.getLatestBlockhash();
-
-        tx.feePayer = publicKey;
-        tx.recentBlockhash = blockhash.blockhash;
-
-        // Phantom signs it
-        const signedTx = await provider.signTransaction(tx);
-
-        // Submit raw transaction
-        const sig = await connection.sendRawTransaction(
-            signedTx.serialize(),
-            { skipPreflight: false }
-        );
-
-        submitStatus.style.color = "#0f0";
-        submitStatus.innerHTML =
-            `Score recorded!<br><a href="https://solscan.io/tx/${sig}" target="_blank" style="color:#0ff;">View Transaction</a>`;
-        retryBtn.style.display = "none";
-
-    } catch (err) {
-        console.error(err);
-        submitStatus.style.color = "#f00";
-        submitStatus.textContent = "Failed to send memo. Please try again.";
-        retryBtn.style.display = "inline-block";
     }
-}
-
 </script>
 
 </body>
