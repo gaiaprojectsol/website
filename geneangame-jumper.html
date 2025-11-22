@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Simple Jump Game</title>
+<style>
+    body {
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        color: #0ff;
+        font-family: Arial, sans-serif;
+    }
+
+    #game {
+        width: 800px;
+        height: 300px;
+        background: #111;
+        border: 2px solid #0ff;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #player {
+        width: 40px;
+        height: 40px;
+        background: #0ff;
+        position: absolute;
+        bottom: 0;
+        left: 60px;
+        border-radius: 6px;
+    }
+
+    .obstacle {
+        width: 30px;
+        height: 50px;
+        background: #f00;
+        position: absolute;
+        bottom: 0;
+        right: -50px;
+    }
+
+    #score {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 20px;
+    }
+
+    #game-over {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 28px;
+        display: none;
+        text-align: center;
+    }
+</style>
+</head>
+
+<body>
+<div id="game">
+    <div id="player"></div>
+    <div id="score">Score: 0</div>
+    <div id="game-over">Game Over<br><small>Press Space to Restart</small></div>
+</div>
+
+<script>
+    const player = document.getElementById("player");
+    const game = document.getElementById("game");
+    const scoreText = document.getElementById("score");
+    const gameOverText = document.getElementById("game-over");
+
+    let isJumping = false;
+    let jumpVelocity = 0;
+    let gravity = 0.6;
+    let score = 0;
+    let alive = true;
+
+    function jump() {
+        if (!isJumping && alive) {
+            isJumping = true;
+            jumpVelocity = 12; // initial jump power
+        }
+    }
+
+    document.body.onkeyup = (e) => {
+        if (e.code === "Space") {
+            if (!alive) resetGame();
+            else jump();
+        }
+    };
+
+    function spawnObstacle() {
+        if (!alive) return;
+
+        let obs = document.createElement("div");
+        obs.classList.add("obstacle");
+        game.appendChild(obs);
+
+        let speed = 6;
+
+        function moveObstacle() {
+            if (!alive) return;
+
+            let obsX = obs.offsetLeft;
+            obs.style.left = obsX - speed + "px";
+
+            // Remove if off screen
+            if (obsX < -50) {
+                obs.remove();
+                return;
+            }
+
+            // Collision detection
+            let p = player.getBoundingClientRect();
+            let o = obs.getBoundingClientRect();
+
+            if (p.left < o.right &&
+                p.right > o.left &&
+                p.bottom > o.top &&
+                p.top < o.bottom) {
+
+                alive = false;
+                gameOverText.style.display = "block";
+                return;
+            }
+
+            requestAnimationFrame(moveObstacle);
+        }
+
+        moveObstacle();
+
+        // spawn next obstacle randomly
+        setTimeout(spawnObstacle, Math.random() * 1200 + 800);
+    }
+
+    spawnObstacle();
+
+    function update() {
+        if (isJumping) {
+            player.style.bottom = parseInt(player.style.bottom || 0) + jumpVelocity + "px";
+            jumpVelocity -= gravity;
+
+            if (parseInt(player.style.bottom) <= 0) {
+                player.style.bottom = "0px";
+                isJumping = false;
+            }
+        }
+
+        if (alive) {
+            score++;
+            scoreText.innerText = "Score: " + score;
+            requestAnimationFrame(update);
+        }
+    }
+
+    update();
+
+    function resetGame() {
+        // Remove all obstacles
+        document.querySelectorAll(".obstacle").forEach(o => o.remove());
+
+        // Reset everything
+        player.style.bottom = "0px";
+        alive = true;
+        isJumping = false;
+        score = 0;
+        scoreText.innerText = "Score: 0";
+        gameOverText.style.display = "none";
+
+        update();
+        spawnObstacle();
+    }
+</script>
+</body>
+</html>
