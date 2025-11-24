@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Genean Jump - Phase 1 Demo</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+<!-- CHARACTER SELECT -->
+<div id="characterSelectScreen">
+  <h2>Select Your Genean</h2>
+
+  <div id="characterList"></div>
+
+  <!-- Stat Preview -->
+  <div id="statPreview">
+    <p><strong>STR:</strong> <span id="statSTR">-</span></p>
+    <p><strong>AGI:</strong> <span id="statAGI">-</span></p>
+    <p><strong>LCK:</strong> <span id="statLCK">-</span></p>
+  </div>
+
+  <input id="playerNameInput" type="text" placeholder="Enter your Genean Name" />
+  <button id="startGame" disabled>Start Game</button>
+</div>
+
+<!-- IN-GAME HUD -->
+<div id="hudStats">
+  <p>STR: <span id="hudSTR"></span></p>
+  <p>AGI: <span id="hudAGI"></span></p>
+  <p>LCK: <span id="hudLCK"></span></p>
+</div>
+
+<!-- LEADERBOARD BUTTON -->
+<button id="leaderboardBtn">Leaderboard</button>
+
+<p id="scoreDisplay">Score: 0</p>
+
+<!-- LEADERBOARD OVERLAY -->
+<div id="leaderboardOverlay">
+  <div id="leaderboardBox">
+    <button id="closeLeaderboard">X</button>
+    <h2>Top 10 Scores</h2>
+
+    <table id="leaderboardTable">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Name</th>
+          <th>Genean</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- GAME OVER SCREEN -->
+<div id="gameOverOverlay">
+  <div id="gameOverBox">
+    <h1>GAME OVER</h1>
+    <p id="goScore">Score: 0</p>
+    <p id="goGenean">Genean: ???</p>
+    <p id="goUpload">Upload Status: ...</p>
+    <button onclick="location.reload()">Play Again</button>
+  </div>
+</div>
+
+<!-- GAME CANVAS -->
+<canvas id="gameCanvas"></canvas>
+
+<script type="module" src="js/main.js"></script>
+
+</body>
+</html>
