@@ -1,0 +1,153 @@
+body {
+  margin: 0;
+  background: #000;
+  color: white;
+  font-family: Arial;
+}
+
+/* CHARACTER SELECT */
+#characterSelectScreen {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #111;
+  padding: 20px;
+  border: 2px solid white;
+  z-index: 20;
+  text-align: center;
+}
+
+.characterWrapper {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+  cursor: pointer;
+  transition: transform .2s;
+}
+
+.characterWrapper.selected {
+  transform: scale(1.4);
+}
+
+.characterName {
+  font-size: 18px;
+  margin-bottom: 5px;
+  color: white;
+  text-shadow: 2px 2px 4px black;
+}
+
+.characterOption {
+  cursor: pointer;
+  margin: 10px;
+  transition: transform .2s;
+}
+
+/* STAT PREVIEW BOX */
+#statPreview {
+  margin-top: 15px;
+  background: #222;
+  padding: 10px;
+  border: 2px solid #555;
+  width: 180px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+#statPreview p {
+  margin: 5px 0;
+  font-size: 18px;
+}
+
+/* HUD */
+#hudStats {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.5);
+  padding: 10px 15px;
+  border: 2px solid white;
+  font-size: 18px;
+  z-index: 100;
+}
+#hudStats p { margin: 2px 0; }
+
+/* LEADERBOARD */
+#leaderboardOverlay {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100vw; height:100vh;
+  background:rgba(0,0,0,0.8);
+  z-index:30;
+}
+
+#leaderboardBox {
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  background:#111;
+  padding:20px;
+  border:3px solid white;
+}
+
+#leaderboardTable {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+#leaderboardTable th,
+#leaderboardTable td {
+  padding:8px;
+  border-bottom:1px solid grey;
+  text-align:center;
+}
+
+#closeLeaderboard {
+  position:absolute;
+  top:5px; right:5px;
+  background:red;
+  color:white;
+  border:none;
+  padding:5px 8px;
+  cursor:pointer;
+}
+
+/* GAME OVER */
+#gameOverOverlay {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100vw; height:100vh;
+  background:rgba(0,0,0,0.85);
+  z-index:9999;
+}
+
+#gameOverBox {
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  background:#111;
+  padding:40px;
+  border:3px solid white;
+  text-align:center;
+}
+
+#gameOverBox h1 { font-size:48px; margin-bottom:20px; }
+#gameOverBox p { font-size:22px; margin:10px 0; }
+
+#gameOverBox button {
+  padding:10px 20px;
+  margin-top:20px;
+  font-size:20px;
+  cursor:pointer;
+}
+
+/* CANVAS */
+canvas {
+  width:100vw;
+  height:100vh;
+  image-rendering:pixelated;
+}
