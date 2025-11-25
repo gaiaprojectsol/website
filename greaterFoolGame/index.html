@@ -4,31 +4,34 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Greater Fool Trading Game</title>
+
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <title>Greater Fool Trading Game — Gaia Project</title>
     <link rel="stylesheet" href="style.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 
 <body>
 
-    <!-- INTRO SCREEN -->
+    <!-- INTRO -->
     <div id="intro-screen" class="intro-box">
         <h2>Welcome to the Greater Fool Trading Game</h2>
 
         <p class="intro-text">
-            Your goal is simple: end the round with the most money.<br><br>
-            Prices move every second as a bot randomly pumps and dumps.<br>
-            When the timer hits zero, the DEV RUGS the market and the price
-            drops to zero instantly.<br><br>
-            Any shares you still hold will become worthless.
+            Try to end the round with the most money.<br><br>
+            Prices move as a bot pumps and dumps.<br>
+            When the timer hits zero → the DEV RUGS the market (price = 0).
         </p>
 
         <h3>Basic Rules</h3>
         <ul class="intro-list">
-            <li>💰 Start with $100.</li>
-            <li>📈 Buy or sell shares to grow your wealth.</li>
-            <li>💀 Any shares you still hold at the end are worthless.</li>
-            <li>⚡ Your Genean stats change your gameplay.</li>
-            <li>🎨 Creativity unlocks leverage trading — high risk/high reward.</li>
+            <li>💰 Start with $100</li>
+            <li>📈 Buy & sell shares</li>
+            <li>💀 Shares become worthless at end</li>
+            <li>⚙ Genean stats affect gameplay</li>
+            <li>🎨 Creativity unlocks leverage</li>
         </ul>
 
         <button id="start-game-btn" class="start-btn">Start</button>
@@ -38,50 +41,121 @@
     <div id="character-select" class="char-box" style="display:none;">
         <h2>Select Your Genean</h2>
 
-        <button class="char-btn" data-char="sage">Sage of Hollowpeak (WIS Focus)</button>
-        <button class="char-btn" data-char="lark">Fortune-Blessed Lark (LUCK Focus)</button>
-        <button class="char-btn" data-char="maker">The Maker of Echoes (CREATIVITY Focus)</button>
+        <div class="character-option">
+            <img src="sage.png" class="char-img">
+            <button class="char-btn" data-char="sage">Sage of Hollowpeak (WIS)</button>
+        </div>
+
+        <div class="character-option">
+            <img src="lark.png" class="char-img">
+            <button class="char-btn" data-char="lark">Fortune-Blessed Lark (LUCK)</button>
+        </div>
+
+        <div class="character-option">
+            <img src="maker.png" class="char-img">
+            <button class="char-btn" data-char="maker">The Maker of Echoes (CREATIVITY)</button>
+        </div>
     </div>
 
     <!-- MAIN GAME -->
     <div class="container" style="display:none;">
 
-        <h1>📉 Greater Fool Trading Game</h1>
+        <h2 class="gaia-title">Gaia Project Presents</h2>
+        <h1 class="game-title">📉 Greater Fool Trading Game</h1>
 
-        <canvas id="priceChart" width="400" height="120"
-            style="width:100%; border:1px solid #555; border-radius:8px; margin-bottom:15px;"></canvas>
-
-        <div id="game-info">
-            <p><strong>Price:</strong> $<span id="price">1.00</span></p>
-            <p><strong>Cash:</strong> $<span id="cash">100.00</span></p>
-            <p><strong>Shares:</strong> <span id="shares">0</span></p>
-            <p><strong>Total Wealth:</strong> $<span id="wealth">100.00</span></p>
-            <p><strong>Time Left:</strong> <span id="timer">180</span>s</p>
-
-            <p><strong>Character:</strong> <span id="charName"></span></p>
-            <p><strong>Stats →</strong> WIS: <span id="statWIS"></span> | LUCK:
-                <span id="statLUCK"></span> | CRT: <span id="statCRT"></span></p>
+        <!-- CHART -->
+        <div class="chart-container">
+            <canvas id="priceChart" width="400" height="120"></canvas>
+            <div id="chart-y-axis"></div>
+            <div id="chart-x-axis"></div>
         </div>
 
-        <!-- NORMAL TRADING -->
+        <!-- COMPACT GRID -->
+        <div id="game-info" class="info-grid">
+
+            <div class="info-item">
+                <label>Price</label>
+                <span class="big-price" id="price">$1.00</span>
+            </div>
+
+            <div class="info-item">
+                <label>Buy</label>
+                <span id="buyAmount">0</span> shares
+            </div>
+
+            <div class="info-item">
+                <label>Sell</label>
+                <span id="sellAmount">0</span> shares
+            </div>
+
+            <div class="info-item">
+                <label>Cash</label>
+                <span id="cash">$100.00</span>
+            </div>
+
+            <div class="info-item">
+                <label>Shares</label>
+                <span id="shares">0</span>
+            </div>
+
+            <div class="info-item">
+                <label>Wealth</label>
+                <span id="wealth">$100.00</span>
+            </div>
+
+            <div class="info-item">
+                <label>Time</label>
+                <span id="timer">180</span>s
+            </div>
+
+            <div class="info-item">
+                <label>Character</label>
+                <span id="charName"></span>
+            </div>
+
+            <div class="info-item">
+                <label>Stats</label>
+                <span>
+                    WIS <span id="statWIS"></span> •
+                    LUCK <span id="statLUCK"></span> •
+                    CRT <span id="statCRT"></span>
+                </span>
+            </div>
+
+        </div>
+
+        <!-- BUTTONS -->
         <div id="buttons">
-            <button id="buy-btn">Buy Shares</button>
-            <button id="sell-btn">Sell Shares</button>
+            <button id="buy-btn">Buy</button>
+            <button id="sell-btn">Sell</button>
         </div>
 
-        <!-- LEVERAGE TRADING -->
+        <!-- LEVERAGE -->
         <div id="leverage-panel" style="display:none;">
-            <h3>Leverage Trading</h3>
-            <button id="long-btn">Open Long (x<span id="levVal1"></span>)</button>
-            <button id="short-btn">Open Short (x<span id="levVal2"></span>)</button>
-            <button id="close-pos-btn" disabled style="opacity:0.5; background:#999;">Close Position</button>
+            <button id="long-btn">Long (x<span id="levVal1"></span>)</button>
+            <button id="short-btn">Short (x<span id="levVal2"></span>)</button>
+            <button id="close-pos-btn" disabled style="opacity:0.4;">Close</button>
         </div>
 
+        <!-- LOG -->
         <div id="log"></div>
+
+        <!-- SHARE BUTTON -->
+        <button id="share-btn" class="share-button">Share Score to X</button>
+
+    </div>
+
+    <!-- SHARE POPUP -->
+    <div id="share-popup" class="popup" style="display:none;">
+        <div class="popup-content">
+            <h3>🎉 Share your score?</h3>
+            <p>Your final wealth was <span id="popup-wealth">$0.00</span></p>
+            <button id="popup-share" class="popup-btn">Share to X</button>
+            <button id="popup-close" class="popup-btn cancel">Close</button>
+        </div>
     </div>
 
     <script src="main.js"></script>
 </body>
 
 </html>
-
