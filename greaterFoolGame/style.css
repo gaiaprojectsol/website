@@ -6,7 +6,7 @@ body {
     padding: 20px;
 }
 
-/* INTRO SCREEN */
+/* INTRO */
 .intro-box {
     max-width: 500px;
     margin: auto;
@@ -22,7 +22,6 @@ body {
     font-size: 18px;
     background: #2980b9;
     color: white;
-    border: none;
     border-radius: 8px;
 }
 
@@ -46,9 +45,10 @@ body {
     width: 70px;
     height: 70px;
     border-radius: 8px;
+    border: 1px solid #444;
 }
 
-/* GAME CONTAINER */
+/* GAME UI */
 .container {
     max-width: 500px;
     margin: auto;
@@ -63,24 +63,23 @@ body {
 }
 
 .big-price {
-    font-size: 32px !important;
+    font-size: 32px;
     font-weight: bold;
-    text-align: left;
 }
 
-/* COMPACT 2-COLUMN GRID */
+/* GRID */
 .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px 15px;
-    font-size: 14px;
     margin-bottom: 10px;
+    font-size: 14px;
 }
 
 .info-item label {
-    display: block;
     color: #bbb;
-    font-size: 13px;
+    display: block;
+    margin-bottom: 2px;
 }
 
 /* CHART */
@@ -89,8 +88,8 @@ body {
     margin-bottom: 20px;
     border: 2px solid #555;
     padding: 5px;
-    background: black;
     border-radius: 8px;
+    background: black;
 }
 
 #priceChart {
@@ -98,7 +97,6 @@ body {
     background: black;
 }
 
-/* AXES */
 #chart-y-axis {
     position: absolute;
     top: 5px;
@@ -117,7 +115,8 @@ body {
 }
 
 /* BUTTONS */
-#buttons, #leverage-panel {
+#buttons,
+#leverage-panel {
     display: flex;
     gap: 10px;
 }
@@ -179,6 +178,7 @@ button {
     width: 100%;
     padding: 12px;
     border-radius: 8px;
+    margin-top: 10px;
 }
 
 .cancel {
