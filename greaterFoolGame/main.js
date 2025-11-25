@@ -25,13 +25,16 @@ const characters = {
 let selectedChar = null;
 let WIS = 0, LUCK = 0, CRT = 0;
 
+
 //----------------------------------------------------------
 // GAME VALUES
 //----------------------------------------------------------
 let price = 1.00;
 let cash = 100.00;
 let shares = 0;
+
 let timeLeft = 180;
+
 let maxBuy = 1;
 let luckMultiplier = 1;
 let maxLeverage = 1;
@@ -46,21 +49,27 @@ let timerInterval;
 
 let priceHistory = [];
 
-// DOM refs
+
+//----------------------------------------------------------
+// DOM REFERENCES
+//----------------------------------------------------------
 const priceUI = document.getElementById("price");
 const cashUI = document.getElementById("cash");
 const sharesUI = document.getElementById("shares");
 const wealthUI = document.getElementById("wealth");
 const timerUI = document.getElementById("timer");
+
+const buyAmountUI = document.getElementById("buyAmount");
+const sellAmountUI = document.getElementById("sellAmount");
+
 const logBox = document.getElementById("log");
 
-// Chart
 const chart = document.getElementById("priceChart");
 const ctx = chart.getContext("2d");
 
 
 //----------------------------------------------------------
-// INTRO SCREEN BEHAVIOUR
+// INTRO → CHARACTER SELECT
 //----------------------------------------------------------
 document.getElementById("start-game-btn").addEventListener("click", () => {
     document.getElementById("intro-screen").style.display = "none";
@@ -69,7 +78,7 @@ document.getElementById("start-game-btn").addEventListener("click", () => {
 
 
 //----------------------------------------------------------
-// BUTTON LISTENERS (attached after character select)
+// ATTACH BUTTON LISTENERS
 //----------------------------------------------------------
 function attachTradingButtons() {
     document.getElementById("buy-btn").addEventListener("click", buyShare);
@@ -77,6 +86,19 @@ function attachTradingButtons() {
     document.getElementById("long-btn").addEventListener("click", () => openLeverage("long"));
     document.getElementById("short-btn").addEventListener("click", () => openLeverage("short"));
     document.getElementById("close-pos-btn").addEventListener("click", closePosition);
+
+    // Popup actions
+    document.getElementById("popup-share").addEventListener("click", () => {
+        document.getElementById("share-popup").style.display = "none";
+        triggerScreenshotShare();
+    });
+
+    document.getElementById("popup-close").addEventListener("click", () => {
+        document.getElementById("share-popup").style.display = "none";
+    });
+
+    // Manual share button
+    document.getElementById("share-btn").addEventListener("click", triggerScreenshotShare);
 }
 
 
@@ -101,6 +123,9 @@ document.querySelectorAll(".char-btn").forEach(btn => {
         luckMultiplier = 1 + (LUCK / 100);
         maxLeverage = 1 + Math.floor((CRT / 100) * 24);
 
+        buyAmountUI.textContent = maxBuy;
+        sellAmountUI.textContent = maxBuy;
+
         document.getElementById("levVal1").textContent = maxLeverage;
         document.getElementById("levVal2").textContent = maxLeverage;
 
@@ -118,7 +143,7 @@ document.querySelectorAll(".char-btn").forEach(btn => {
 
 
 //----------------------------------------------------------
-// BOT PRICE MOVEMENT
+// BOT ACTION
 //----------------------------------------------------------
 function botAction() {
     const roll = Math.random();
@@ -129,7 +154,7 @@ function botAction() {
 
 
 //----------------------------------------------------------
-// UPDATE PRICE (flash green/red)
+// UPDATE PRICE
 //----------------------------------------------------------
 function updatePrice() {
     let change = botAction() * luckMultiplier;
@@ -140,7 +165,6 @@ function updatePrice() {
 
     if (change > 0) priceUI.style.color = "#00ff88";
     if (change < 0) priceUI.style.color = "#ff4444";
-
     setTimeout(() => priceUI.style.color = "white", 200);
 
     priceUI.textContent = price.toFixed(2);
@@ -156,46 +180,48 @@ function updatePrice() {
 
 
 //----------------------------------------------------------
-// NORMAL BUY/SELL
+// BUY / SELL
 //----------------------------------------------------------
 function buyShare() {
-    if (inLeverage) return addLog("Cannot buy while leveraged!");
+    if (inLeverage) return addLog("⚠ Cannot buy while in leverage.");
 
     if (cash >= price * maxBuy) {
         shares += maxBuy;
         cash -= price * maxBuy;
-        addLog(`Bought ${maxBuy} shares at $${price}`);
+
+        buyAmountUI.textContent = maxBuy;
+
+        addLog(`Bought ${maxBuy} shares @ $${price}`);
         updateUI();
     }
 }
 
 function sellShare() {
-    if (inLeverage) return addLog("Cannot sell while leveraged!");
+    if (inLeverage) return addLog("⚠ Cannot sell while in leverage.");
 
     if (shares > 0) {
         let sellAmount = Math.min(maxBuy, shares);
+
         shares -= sellAmount;
         cash += price * sellAmount;
-        addLog(`Sold ${sellAmount} shares at $${price}`);
+
+        sellAmountUI.textContent = sellAmount;
+
+        addLog(`Sold ${sellAmount} shares @ $${price}`);
         updateUI();
     }
 }
 
 
 //----------------------------------------------------------
-// LEVERAGE BUTTON GREYING
+// LOCK / UNLOCK BUTTONS DURING LEVERAGE
 //----------------------------------------------------------
 function lockButtonsForLeverage() {
-    const disable = id => {
+    ["buy-btn", "sell-btn", "long-btn", "short-btn"].forEach(id => {
         const el = document.getElementById(id);
         el.disabled = true;
-        el.style.opacity = "0.4";
-    };
-
-    disable("buy-btn");
-    disable("sell-btn");
-    disable("long-btn");
-    disable("short-btn");
+        el.style.opacity = "0.3";
+    });
 
     const closeBtn = document.getElementById("close-pos-btn");
     closeBtn.disabled = false;
@@ -203,20 +229,15 @@ function lockButtonsForLeverage() {
 }
 
 function unlockButtonsAfterLeverage() {
-    const enable = id => {
+    ["buy-btn", "sell-btn", "long-btn", "short-btn"].forEach(id => {
         const el = document.getElementById(id);
         el.disabled = false;
         el.style.opacity = "1";
-    };
-
-    enable("buy-btn");
-    enable("sell-btn");
-    enable("long-btn");
-    enable("short-btn");
+    });
 
     const closeBtn = document.getElementById("close-pos-btn");
     closeBtn.disabled = true;
-    closeBtn.style.opacity = "0.5";
+    closeBtn.style.opacity = "0.3";
 }
 
 
@@ -224,14 +245,14 @@ function unlockButtonsAfterLeverage() {
 // LEVERAGE TRADING
 //----------------------------------------------------------
 function openLeverage(side) {
-    if (inLeverage) return addLog("Already in leverage!");
+    if (inLeverage) return addLog("⚠ Already leveraged.");
 
     levSide = side;
     inLeverage = true;
     levEntry = price;
     levFactor = maxLeverage;
 
-    addLog(`Opened ${side.toUpperCase()} x${levFactor} at $${levEntry}`);
+    addLog(`Opened ${side.toUpperCase()} x${levFactor} @ $${levEntry}`);
 
     lockButtonsForLeverage();
 }
@@ -245,27 +266,32 @@ function closePosition() {
     if (levSide === "short") pnl = (levEntry - price) * levFactor * 5;
 
     cash += pnl;
-    addLog(`Closed ${levSide.toUpperCase()} → PnL: $${pnl.toFixed(2)}`);
+
+    addLog(`Closed ${levSide.toUpperCase()} → PnL $${pnl.toFixed(2)}`);
 
     inLeverage = false;
     levSide = null;
+
     unlockButtonsAfterLeverage();
     updateWealth();
 }
+
 
 function checkLiquidation() {
     if (!inLeverage) return;
 
     if (levSide === "long" && price <= levEntry / levFactor) {
-        addLog("💀 Liquidated LONG!");
-        cash = 0; shares = 0;
+        addLog("💀 Liquidated LONG");
+        cash = 0;
+        shares = 0;
         inLeverage = false;
         unlockButtonsAfterLeverage();
     }
 
     if (levSide === "short" && price >= levEntry * levFactor) {
-        addLog("💀 Liquidated SHORT!");
-        cash = 0; shares = 0;
+        addLog("💀 Liquidated SHORT");
+        cash = 0;
+        shares = 0;
         inLeverage = false;
         unlockButtonsAfterLeverage();
     }
@@ -275,15 +301,15 @@ function checkLiquidation() {
 
 
 //----------------------------------------------------------
-// WEALTH CALC
+// WEALTH
 //----------------------------------------------------------
 function updateWealth() {
-    wealthUI.textContent = (cash + shares * price).toFixed(2);
+    wealthUI.textContent = `$${(cash + shares * price).toFixed(2)}`;
 }
 
 
 //----------------------------------------------------------
-// TIMER + RUG COLLAPSE
+// TIMER + RUG
 //----------------------------------------------------------
 function startTimer() {
     timerInterval = setInterval(() => {
@@ -298,21 +324,19 @@ function rugEvent() {
     clearInterval(timerInterval);
     clearInterval(botInterval);
 
-    addLog("🚨 DEV RUGGED → collapsing to zero!");
+    addLog("🚨 DEV RUGGED — price → 0!");
 
     price = 0;
     priceHistory.push(0);
+
     drawChart();
 
-    priceUI.textContent = "0.00";
+    priceUI.textContent = "$0.00";
     updateWealth();
 
-    setTimeout(endGame, 500);
-}
-
-function endGame() {
-    addLog(`🏁 Final Cash: $${cash.toFixed(2)}`);
-    alert(`Game over! Final: $${cash.toFixed(2)}`);
+    // Show share popup
+    document.getElementById("popup-wealth").textContent = wealthUI.textContent;
+    document.getElementById("share-popup").style.display = "flex";
 }
 
 
@@ -320,8 +344,8 @@ function endGame() {
 // UI HELPERS
 //----------------------------------------------------------
 function updateUI() {
-    priceUI.textContent = price.toFixed(2);
-    cashUI.textContent = cash.toFixed(2);
+    priceUI.textContent = `$${price.toFixed(2)}`;
+    cashUI.textContent = `$${cash.toFixed(2)}`;
     sharesUI.textContent = shares;
     updateWealth();
 }
@@ -335,7 +359,7 @@ function addLog(msg) {
 
 
 //----------------------------------------------------------
-// PRICE CHART
+// CHART RENDERING
 //----------------------------------------------------------
 function drawChart() {
     ctx.clearRect(0, 0, chart.width, chart.height);
@@ -351,7 +375,7 @@ function drawChart() {
     ctx.lineWidth = 2;
 
     for (let i = 0; i < priceHistory.length; i++) {
-        let x = (i / priceHistory.length) * chart.width;
+        let x = (i / (priceHistory.length - 1)) * chart.width;
         let y = chart.height - ((priceHistory[i] - min) / (max - min) * chart.height);
 
         if (i === 0) ctx.moveTo(x, y);
@@ -359,6 +383,86 @@ function drawChart() {
     }
 
     ctx.stroke();
+
+    document.getElementById("chart-y-axis").innerHTML = `
+        $${max.toFixed(2)}<br>
+        $${((max + min) / 2).toFixed(2)}<br>
+        $${min.toFixed(2)}
+    `;
+
+    document.getElementById("chart-x-axis").innerHTML = "Time →";
+}
+
+
+//----------------------------------------------------------
+// SCREENSHOT + SHARE SYSTEM
+//----------------------------------------------------------
+function triggerScreenshotShare() {
+    const gameContainer = document.querySelector(".container");
+    const finalWealth = wealthUI.textContent;
+
+    html2canvas(gameContainer).then(canvas => {
+
+        //--------------------------------------------------
+        // FRAME CANVAS
+        //--------------------------------------------------
+        const framedCanvas = document.createElement("canvas");
+        framedCanvas.width = canvas.width + 40;
+        framedCanvas.height = canvas.height + 100;
+
+        const fctx = framedCanvas.getContext("2d");
+
+        fctx.fillStyle = "#111";
+        fctx.fillRect(0, 0, framedCanvas.width, framedCanvas.height);
+
+        fctx.strokeStyle = "#00ffcc";
+        fctx.lineWidth = 4;
+        fctx.strokeRect(18, 18, canvas.width + 4, canvas.height + 4);
+
+        fctx.drawImage(canvas, 20, 20);
+
+        // Final wealth overlay
+        fctx.font = "28px Arial";
+        fctx.fillStyle = "#00ffcc";
+        fctx.textAlign = "center";
+        fctx.fillText(`Final Wealth: ${finalWealth}`, framedCanvas.width / 2, framedCanvas.height - 55);
+
+        // Watermark
+        fctx.font = "18px Arial";
+        fctx.fillStyle = "rgba(255,255,255,0.7)";
+        fctx.fillText("Gaia Project · Solo Dev Build", framedCanvas.width - 25, framedCanvas.height - 20);
+
+        //--------------------------------------------------
+        // SHARE
+        //--------------------------------------------------
+        framedCanvas.toBlob(blob => {
+            const file = new File([blob], "gaia-score.png", { type: "image/png" });
+
+            const tweetText = encodeURIComponent(
+                "Check out this trading game made by a solo dev building the Gaia Project.\n\n" +
+                "Play → https://gaiaproject.world/greaterFoolGame/\n\n" +
+                "If it's fun, share your score.\nIf it's terrible, close it 😂"
+            );
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                    text: decodeURIComponent(tweetText),
+                    files: [file]
+                }).catch(err => console.log("Share canceled:", err));
+
+            } else {
+                const twitterURL = `https://twitter.com/intent/tweet?text=${tweetText}`;
+                window.open(twitterURL, "_blank");
+
+                const link = document.createElement("a");
+                link.href = framedCanvas.toDataURL("image/png");
+                link.download = "gaia-score.png";
+                link.click();
+            }
+
+        }, "image/png");
+
+    });
 }
 
 
