@@ -10,18 +10,19 @@
     <title>Greater Fool Trading Game — Gaia Project</title>
     <link rel="stylesheet" href="style.css" />
 
+    <!-- Screenshot library -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 
 <body>
 
-    <!-- INTRO -->
+    <!-- INTRO SCREEN -->
     <div id="intro-screen" class="intro-box">
         <h2>Welcome to the Greater Fool Trading Game</h2>
 
         <p class="intro-text">
             Try to end the round with the most money.<br><br>
-            Prices move as a bot pumps and dumps.<br>
+            Prices pump and dump every second.<br>
             When the timer hits zero → the DEV RUGS the market (price = 0).
         </p>
 
@@ -29,7 +30,7 @@
         <ul class="intro-list">
             <li>💰 Start with $100</li>
             <li>📈 Buy & sell shares</li>
-            <li>💀 Shares become worthless at end</li>
+            <li>💀 Shares become worthless at the end</li>
             <li>⚙ Genean stats affect gameplay</li>
             <li>🎨 Creativity unlocks leverage</li>
         </ul>
@@ -42,22 +43,22 @@
         <h2>Select Your Genean</h2>
 
         <div class="character-option">
-            <img src="sage.png" class="char-img">
+            <img src="sage.png" class="char-img" />
             <button class="char-btn" data-char="sage">Sage of Hollowpeak (WIS)</button>
         </div>
 
         <div class="character-option">
-            <img src="lark.png" class="char-img">
+            <img src="lark.png" class="char-img" />
             <button class="char-btn" data-char="lark">Fortune-Blessed Lark (LUCK)</button>
         </div>
 
         <div class="character-option">
-            <img src="maker.png" class="char-img">
+            <img src="maker.png" class="char-img" />
             <button class="char-btn" data-char="maker">The Maker of Echoes (CREATIVITY)</button>
         </div>
     </div>
 
-    <!-- MAIN GAME -->
+    <!-- GAME -->
     <div class="container" style="display:none;">
 
         <h2 class="gaia-title">Gaia Project Presents</h2>
@@ -130,18 +131,17 @@
             <button id="sell-btn">Sell</button>
         </div>
 
-        <!-- LEVERAGE -->
-        <div id="leverage-panel" style="display:none;">
+        <div id="leverage-panel" style="display:none; margin-top:12px;">
             <button id="long-btn">Long (x<span id="levVal1"></span>)</button>
             <button id="short-btn">Short (x<span id="levVal2"></span>)</button>
-            <button id="close-pos-btn" disabled style="opacity:0.4;">Close</button>
+            <button id="close-pos-btn" disabled style="opacity:0.3;">Close</button>
         </div>
 
         <!-- LOG -->
         <div id="log"></div>
 
         <!-- SHARE BUTTON -->
-        <button id="share-btn" class="share-button">Share Score to X</button>
+        <button id="share-btn" class="share-button">Post Score to X</button>
 
     </div>
 
@@ -150,12 +150,11 @@
         <div class="popup-content">
             <h3>🎉 Share your score?</h3>
             <p>Your final wealth was <span id="popup-wealth">$0.00</span></p>
-            <button id="popup-share" class="popup-btn">Share to X</button>
+            <button id="popup-share" class="popup-btn">Post to X</button>
             <button id="popup-close" class="popup-btn cancel">Close</button>
         </div>
     </div>
 
     <script src="main.js"></script>
 </body>
-
 </html>
