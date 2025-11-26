@@ -1,4 +1,13 @@
 //----------------------------------------------------------
+// AUDIO FILES (ALL .mp3)
+//----------------------------------------------------------
+const SND_CLICK = new Audio("click.mp3");
+const SND_WHALE = new Audio("splash.mp3");
+const SND_WHALE_EXIT = new Audio("splashLow.mp3");
+const SND_SIREN = new Audio("siren.mp3");
+
+
+//----------------------------------------------------------
 // CHARACTER STATS
 //----------------------------------------------------------
 const characters = {
@@ -33,7 +42,7 @@ let price = 1.00;
 let cash = 100.00;
 let shares = 0;
 
-let timeLeft = 120;
+let timeLeft = 180;
 
 let maxBuy = 1;
 let luckMultiplier = 1;
@@ -48,6 +57,7 @@ let botInterval;
 let timerInterval;
 
 let priceHistory = [];
+let whaleCount = 0;
 
 
 //----------------------------------------------------------
@@ -78,27 +88,37 @@ document.getElementById("start-game-btn").addEventListener("click", () => {
 
 
 //----------------------------------------------------------
-// BUTTON ATTACH
+// BUTTON WRAPPER WITH CLICK SOUND
 //----------------------------------------------------------
 function attachTradingButtons() {
-    document.getElementById("buy-btn").addEventListener("click", buyShare);
-    document.getElementById("sell-btn").addEventListener("click", sellShare);
-    document.getElementById("long-btn").addEventListener("click", () => openLeverage("long"));
-    document.getElementById("short-btn").addEventListener("click", () => openLeverage("short"));
-    document.getElementById("close-pos-btn").addEventListener("click", closePosition);
 
-    // Share popup
+    function addClick(id, handler) {
+        document.getElementById(id).addEventListener("click", () => {
+            SND_CLICK.currentTime = 0;
+            SND_CLICK.play();
+            handler();
+        });
+    }
+
+    addClick("buy-btn", buyShare);
+    addClick("sell-btn", sellShare);
+    addClick("long-btn", () => openLeverage("long"));
+    addClick("short-btn", () => openLeverage("short"));
+    addClick("close-pos-btn", closePosition);
+    addClick("share-btn", triggerScreenshotShare);
+
     document.getElementById("popup-share").addEventListener("click", () => {
+        SND_CLICK.currentTime = 0;
+        SND_CLICK.play();
         document.getElementById("share-popup").style.display = "none";
         triggerScreenshotShare();
     });
 
     document.getElementById("popup-close").addEventListener("click", () => {
+        SND_CLICK.currentTime = 0;
+        SND_CLICK.play();
         document.getElementById("share-popup").style.display = "none";
     });
-
-    // Manual share button
-    document.getElementById("share-btn").addEventListener("click", triggerScreenshotShare);
 }
 
 
@@ -134,7 +154,6 @@ document.querySelectorAll(".char-btn").forEach(btn => {
             document.getElementById("leverage-panel").style.display = "flex";
         }
 
-        // Start game
         document.getElementById("character-select").style.display = "none";
         document.querySelector(".container").style.display = "block";
 
@@ -145,37 +164,89 @@ document.querySelectorAll(".char-btn").forEach(btn => {
 
 
 //----------------------------------------------------------
-// BOT PRICE MOVEMENT
+// BOT VOLATILITY
 //----------------------------------------------------------
 function botAction() {
-    const roll = Math.random();
-    if (roll < 0.33) return +(Math.random() * 0.5);
-    if (roll < 0.66) return -(Math.random() * 0.5);
+    const r = Math.random();
+    if (r < 0.33) return +(Math.random() * 0.5);
+    if (r < 0.66) return -(Math.random() * 0.5);
     return 0;
 }
 
 
 //----------------------------------------------------------
-// PRICE UPDATE + FLASHING COLORS
+// WHALE EVENTS + MEGA WHALE (LUCK-SCALED)
+//----------------------------------------------------------
+function whaleEvents() {
+
+    const whaleBoost = 1 + (LUCK / 100);  // 1.0 → 2.0 scaling
+
+    // 🐋 Whale entry
+    if (Math.random() < 0.01 * whaleBoost) {
+        const boost = Math.floor(Math.random() * 91) + 10;
+        price += boost;
+        whaleCount++;
+
+        SND_WHALE.currentTime = 0;
+        SND_WHALE.play();
+
+        addLog(`🐋 Whale ENTERED! +$${boost} | Total whales: ${whaleCount}`);
+    }
+
+    // 🐋 Whale exit
+    if (whaleCount > 0 && Math.random() < 0.01 * whaleBoost) {
+        const drop = Math.floor(Math.random() * 91) + 10;
+        price -= drop;
+        if (price < 0.01) price = 0.01;
+
+        whaleCount--;
+
+        SND_WHALE_EXIT.currentTime = 0;
+        SND_WHALE_EXIT.play();
+
+        addLog(`🐋 Whale EXITED! -$${drop} | Total whales: ${whaleCount}`);
+    }
+
+    // 💥 MEGA WHALE (0.1% × luck scaling)
+    if (Math.random() < 0.001 * whaleBoost) {
+        const mega = Math.floor(Math.random() * 1501) + 500;
+        price += mega;
+
+        whaleCount += 3;
+
+        SND_WHALE.currentTime = 0;
+        SND_WHALE.play();
+
+        addLog(`🐋💥 MEGA WHALE ARRIVES! +$${mega} | Whale Power: ${whaleCount}`);
+    }
+}
+
+
+//----------------------------------------------------------
+// PRICE UPDATE
 //----------------------------------------------------------
 function updatePrice() {
+
     let change = botAction() * luckMultiplier;
+
+    // Whale mechanics (after bot change, before clamping)
+    whaleEvents();
+
     price += change;
 
     if (price < 0.01) price = 0.01;
-    price = parseFloat(price.toFixed(2));
+    price = +price.toFixed(2);
 
-    // Flash color
     if (change > 0) priceUI.style.color = "#00ff88";
     if (change < 0) priceUI.style.color = "#ff4444";
     setTimeout(() => priceUI.style.color = "white", 200);
 
-    priceUI.textContent = `$${price.toFixed(2)}`;
-    addLog(`Price move: ${change.toFixed(2)} → $${price.toFixed(2)}`);
+    priceUI.textContent = `$${price}`;
 
-    // Chart data update
     priceHistory.push(price);
     if (priceHistory.length > 200) priceHistory.shift();
+
+    addLog(`Price move ${change.toFixed(2)} → $${price}`);
 
     updateWealth();
     drawChart();
@@ -213,7 +284,7 @@ function sellShare() {
 
 
 //----------------------------------------------------------
-// LOCK BUTTONS DURING LEVERAGE
+// LEVERAGE BUTTON LOCKING
 //----------------------------------------------------------
 function lockButtonsForLeverage() {
     ["buy-btn", "sell-btn", "long-btn", "short-btn"].forEach(id => {
@@ -298,7 +369,7 @@ function checkLiquidation() {
 
 
 //----------------------------------------------------------
-// WEALTH COMPUTATION
+// WEALTH
 //----------------------------------------------------------
 function updateWealth() {
     wealthUI.textContent = `$${(cash + shares * price).toFixed(2)}`;
@@ -306,7 +377,7 @@ function updateWealth() {
 
 
 //----------------------------------------------------------
-// TIMER + RUG EVENT
+// TIMER + RUG SIREN
 //----------------------------------------------------------
 function startTimer() {
     timerInterval = setInterval(() => {
@@ -320,6 +391,9 @@ function rugEvent() {
     clearInterval(timerInterval);
     clearInterval(botInterval);
 
+    SND_SIREN.currentTime = 0;
+    SND_SIREN.play();
+
     addLog("🚨 DEV RUGGED — price → 0!");
 
     price = 0;
@@ -330,7 +404,6 @@ function rugEvent() {
     priceUI.textContent = "$0.00";
     updateWealth();
 
-    // Show popup
     document.getElementById("popup-wealth").textContent = wealthUI.textContent;
     document.getElementById("share-popup").style.display = "flex";
 }
@@ -355,16 +428,16 @@ function addLog(msg) {
 
 
 //----------------------------------------------------------
-// CHART DRAW
+// CHART
 //----------------------------------------------------------
 function drawChart() {
     ctx.clearRect(0, 0, chart.width, chart.height);
 
     if (priceHistory.length < 2) return;
 
-    let min = Math.min(...priceHistory);
-    let max = Math.max(...priceHistory);
-    if (min === max) max += 1;
+    const min = Math.min(...priceHistory);
+    const max = Math.max(...priceHistory);
+    const range = max - min || 1;
 
     ctx.beginPath();
     ctx.strokeStyle = "#00ffcc";
@@ -372,7 +445,7 @@ function drawChart() {
 
     for (let i = 0; i < priceHistory.length; i++) {
         let x = (i / (priceHistory.length - 1)) * chart.width;
-        let y = chart.height - ((priceHistory[i] - min) / (max - min) * chart.height);
+        let y = chart.height - (((priceHistory[i] - min) / range) * chart.height);
 
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
@@ -394,22 +467,18 @@ function drawChart() {
 // SCREENSHOT + SHARE TO X
 //----------------------------------------------------------
 function triggerScreenshotShare() {
-    const gameContainer = document.querySelector(".container");
+    const container = document.querySelector(".container");
     const finalWealth = wealthUI.textContent;
 
-    html2canvas(gameContainer).then(canvas => {
+    html2canvas(container).then(canvas => {
 
-        //--------------------------------------------------
-        // FRAME + WATERMARK
-        //--------------------------------------------------
-        const framedCanvas = document.createElement("canvas");
-        framedCanvas.width = canvas.width + 40;
-        framedCanvas.height = canvas.height + 100;
+        const framed = document.createElement("canvas");
+        framed.width = canvas.width + 40;
+        framed.height = canvas.height + 100;
 
-        const fctx = framedCanvas.getContext("2d");
-
+        const fctx = framed.getContext("2d");
         fctx.fillStyle = "#111";
-        fctx.fillRect(0, 0, framedCanvas.width, framedCanvas.height);
+        fctx.fillRect(0, 0, framed.width, framed.height);
 
         fctx.strokeStyle = "#00ffcc";
         fctx.lineWidth = 4;
@@ -417,34 +486,25 @@ function triggerScreenshotShare() {
 
         fctx.drawImage(canvas, 20, 20);
 
-        // Final wealth overlay
         fctx.font = "28px Arial";
         fctx.fillStyle = "#00ffcc";
         fctx.textAlign = "center";
-        fctx.fillText(`Final Wealth: ${finalWealth}`, framedCanvas.width / 2, framedCanvas.height - 55);
+        fctx.fillText(`Final Wealth: ${finalWealth}`, framed.width / 2, framed.height - 55);
 
-        // Watermark
         fctx.font = "18px Arial";
         fctx.fillStyle = "rgba(255,255,255,0.7)";
         fctx.textAlign = "right";
-        fctx.fillText("Gaia Project · Solo Dev Build", framedCanvas.width - 25, framedCanvas.height - 20);
+        fctx.fillText("Gaia Project · Solo Dev Build", framed.width - 25, framed.height - 20);
 
-        //--------------------------------------------------
-        // TWEET MESSAGE (<280 chars)
-        //--------------------------------------------------
         const tweetText = encodeURIComponent(
             "Just played this chaotic little market game made by a solo dev building the Gaia Project.\n\n" +
             "Try it here: https://gaiaproject.world/greaterFoolGame/\n\n" +
             "If it’s fun, post your score. If it isn’t, just close it 😂"
         );
 
-        //--------------------------------------------------
-        // SHARE HANDLING
-        //--------------------------------------------------
-        framedCanvas.toBlob(blob => {
+        framed.toBlob(blob => {
             const file = new File([blob], "gaia-score.png", { type: "image/png" });
 
-            // MOBILE SHARE (native)
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 navigator.share({
                     text: decodeURIComponent(tweetText),
@@ -453,14 +513,13 @@ function triggerScreenshotShare() {
                 return;
             }
 
-            // DESKTOP — download image + open tweet
             const link = document.createElement("a");
-            link.href = framedCanvas.toDataURL("image/png");
+            link.href = framed.toDataURL("image/png");
             link.download = "gaia-score.png";
             link.click();
 
-            const twitterURL = `https://twitter.com/intent/tweet?text=${tweetText}`;
-            window.open(twitterURL, "_blank");
+            const url = `https://twitter.com/intent/tweet?text=${tweetText}`;
+            window.open(url, "_blank");
         });
     });
 }
