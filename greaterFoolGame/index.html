@@ -4,13 +4,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Greater Fool Trading Game — Gaia Project</title>
 
     <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
 
-    <title>Greater Fool Trading Game — Gaia Project</title>
-    <link rel="stylesheet" href="style.css" />
-
-    <!-- Screenshot library -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 
@@ -22,17 +20,17 @@
 
         <p class="intro-text">
             Try to end the round with the most money.<br><br>
-            Prices pump and dump every second.<br>
-            When the timer hits zero → the DEV RUGS the market (price = 0).
+            Prices move based on chaos, whales, mega whales, and a random bot.<br>
+            When the timer hits zero → the DEV RUGS THE MARKET (price = 0).
         </p>
 
         <h3>Basic Rules</h3>
         <ul class="intro-list">
             <li>💰 Start with $100</li>
             <li>📈 Buy & sell shares</li>
-            <li>💀 Shares become worthless at the end</li>
+            <li>💥 Mega whales can pump price 500–2000</li>
             <li>⚙ Genean stats affect gameplay</li>
-            <li>🎨 Creativity unlocks leverage</li>
+            <li>🎨 Creativity unlocks leverage trading</li>
         </ul>
 
         <button id="start-game-btn" class="start-btn">Start</button>
@@ -80,16 +78,6 @@
             </div>
 
             <div class="info-item">
-                <label>Buy</label>
-                <span id="buyAmount">0</span> shares
-            </div>
-
-            <div class="info-item">
-                <label>Sell</label>
-                <span id="sellAmount">0</span> shares
-            </div>
-
-            <div class="info-item">
                 <label>Cash</label>
                 <span id="cash">$100.00</span>
             </div>
@@ -127,10 +115,11 @@
 
         <!-- BUTTONS -->
         <div id="buttons">
-            <button id="buy-btn">Buy</button>
-            <button id="sell-btn">Sell</button>
+            <button id="buy-btn">Buy (<span id="buyAmountBtn">0</span>)</button>
+            <button id="sell-btn">Sell (<span id="sellAmountBtn">0</span>)</button>
         </div>
 
+        <!-- LEVERAGE -->
         <div id="leverage-panel" style="display:none; margin-top:12px;">
             <button id="long-btn">Long (x<span id="levVal1"></span>)</button>
             <button id="short-btn">Short (x<span id="levVal2"></span>)</button>
@@ -140,21 +129,36 @@
         <!-- LOG -->
         <div id="log"></div>
 
-        <!-- SHARE BUTTON -->
-        <button id="share-btn" class="share-button">Post Score to X</button>
+        <!-- FOLLOW BUTTON -->
+        <button id="share-btn" class="share-button">Follow Us on X</button>
+        <p class="follow-note">Watch us build this game live on X.</p>
 
     </div>
 
-    <!-- SHARE POPUP -->
+    <!-- END GAME POPUP -->
     <div id="share-popup" class="popup" style="display:none;">
         <div class="popup-content">
-            <h3>🎉 Share your score?</h3>
-            <p>Your final wealth was <span id="popup-wealth">$0.00</span></p>
-            <button id="popup-share" class="popup-btn">Post to X</button>
+            <h3>End of Game Stats</h3>
+
+            <p>Final Wealth: <span id="popup-wealth">$0.00</span></p>
+            <p>Return: <span id="popup-return">0%</span></p>
+
+            <p>Highest Price: <span id="popup-high">$0</span></p>
+            <p>Lowest Price: <span id="popup-low">$0</span></p>
+
+            <p>Whale Entries: <span id="popup-whales-in">0</span></p>
+            <p>Whale Exits: <span id="popup-whales-out">0</span></p>
+            <p>Mega Whales: <span id="popup-megawhales">0</span></p>
+
+            <p>Biggest Up Move: <span id="popup-bigup">0</span></p>
+            <p>Biggest Down Move: <span id="popup-bigdown">0</span></p>
+
+            <button id="popup-share" class="popup-btn">Follow us on X</button>
             <button id="popup-close" class="popup-btn cancel">Close</button>
         </div>
     </div>
 
     <script src="main.js"></script>
+
 </body>
 </html>
