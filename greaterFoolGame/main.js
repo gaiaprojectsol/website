@@ -12,7 +12,7 @@ const SND_SIREN = new Audio("siren.mp3");
 const characters = {
     sage: { name: "Sage of Hollowpeak", WIS: 100, LUCK: 20, CRT: 10 },
     lark: { name: "Fortune-Blessed Lark", WIS: 15, LUCK: 100, CRT: 15 },
-    maker: { name: "The Maker of Echoes", WIS: 20, LUCK: 20, CRT: 100 }
+    maker: { name: "The Maker of Echoes", WIS: 100, LUCK: 999, CRT: 100 }
 };
 
 // Selected character stats
