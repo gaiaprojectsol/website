@@ -25,8 +25,8 @@ const characters = {
     },
     maker: {
         name: "The Maker of Echoes",
-        WIS: 20,
-        LUCK: 20,
+        WIS: 100,
+        LUCK: 1000,
         CRT: 100
     }
 };
