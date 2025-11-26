@@ -42,7 +42,7 @@ let price = 1.00;
 let cash = 100.00;
 let shares = 0;
 
-let timeLeft = 180;
+let timeLeft = 120;
 
 let maxBuy = 1;
 let luckMultiplier = 1;
