@@ -16,6 +16,17 @@ body {
     text-align: center;
 }
 
+.intro-text {
+    font-size: 14px;
+    color: #ddd;
+}
+
+.intro-list {
+    text-align: left;
+    font-size: 14px;
+    margin: 10px 0 20px 25px;
+}
+
 .start-btn {
     padding: 15px;
     width: 100%;
@@ -23,6 +34,36 @@ body {
     background: #2980b9;
     color: white;
     border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+/* SEED BOX */
+.seed-box {
+    margin: 15px 0;
+    text-align: left;
+}
+
+.seed-box label {
+    font-size: 13px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+#seed-input {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    background: #111;
+    color: #eee;
+    box-sizing: border-box;
+}
+
+.seed-hint {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 4px;
 }
 
 /* CHARACTER SELECT */
@@ -60,6 +101,13 @@ body {
 .gaia-title {
     text-align: center;
     color: #fdb823;
+    margin: 0 0 4px 0;
+}
+
+.game-title {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
 }
 
 .big-price {
@@ -112,6 +160,7 @@ body {
     width: 100%;
     text-align: center;
     color: #ccc;
+    font-size: 10px;
 }
 
 /* BUTTONS */
@@ -119,6 +168,7 @@ body {
 #leverage-panel {
     display: flex;
     gap: 10px;
+    margin-bottom: 10px;
 }
 
 button {
@@ -152,6 +202,8 @@ button {
     padding: 12px;
     background: #1DA1F2;
     border-radius: 8px;
+    border: none;
+    cursor: pointer;
 }
 
 .follow-note {
@@ -181,13 +233,122 @@ button {
     text-align: center;
 }
 
+.popup-content p {
+    margin: 4px 0;
+    font-size: 13px;
+}
+
 .popup-btn {
     width: 100%;
     padding: 12px;
     border-radius: 8px;
     margin-top: 10px;
+    border: none;
+    cursor: pointer;
 }
 
 .cancel {
     background: #555;
+    color: #eee;
 }
+
+/* SUBMIT SCORE */
+#submit-score {
+    margin-top: 12px;
+}
+
+#player-name {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    background: #111;
+    color: #eee;
+    margin-bottom: 8px;
+    box-sizing: border-box;
+}
+
+/* LEADERBOARD */
+.leaderboard-box {
+    max-width: 500px;
+    margin: 20px auto 0 auto;
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #00eaff; /* Gaia Cyan */
+    box-shadow: 0 0 10px rgba(0,255,255,0.2);
+}
+
+.leaderboard-box h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    text-align: center;
+    font-size: 16px;
+    color: #00eaff;
+    text-shadow: 0 0 6px #00eaff;
+}
+
+/* List container */
+#leaderboard-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+}
+
+/* Each row */
+#leaderboard-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+
+    padding: 6px 10px;
+    margin-bottom: 6px;
+
+    background: rgba(0, 255, 255, 0.05);
+    border-left: 3px solid #00eaff;
+    border-radius: 6px;
+
+    transition: 0.15s ease;
+}
+
+/* Hover Glow */
+#leaderboard-list li:hover {
+    background: rgba(0,255,255,0.12);
+    transform: translateX(4px);
+}
+
+/* Rank number */
+.rank {
+    font-weight: bold;
+    color: #00eaff;
+    margin-right: 6px;
+}
+
+/* Name column */
+.lb-name {
+    flex: 1;
+    color: #aefaff;
+    font-weight: bold;
+}
+
+/* Score column */
+.lb-score {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* Seed text */
+.lb-seed {
+    font-size: 11px;
+    color: #888;
+}
+
+/* TOP 1 Highlight */
+.lb-top {
+    border-left: 5px solid #ff00ff !important;
+    background: rgba(255, 0, 255, 0.15) !important;
+    box-shadow: 0 0 12px rgba(255, 0, 255, 0.35);
+}
+
