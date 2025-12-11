@@ -1,18 +1,41 @@
 //----------------------------------------------------------
-// AUDIO FILES (all .mp3)
+// SUPABASE CONFIG
 //----------------------------------------------------------
-const SND_CLICK = new Audio("click.mp3");
-const SND_WHALE = new Audio("splash.mp3");
+const SUPABASE_URL = "https://kghuwlfjvhhsaichumpm.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtnaHV3bGZqdmhoc2FpY2h1bXBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNjg0NTEsImV4cCI6MjA4MDk0NDQ1MX0.VjX2VSrfYXxtKe5AquvmTh2q8FoDE-YkuF0IvUaNtyI";
+
+//----------------------------------------------------------
+// SEEDABLE RNG (Mulberry32)
+//----------------------------------------------------------
+function mulberry32(seed) {
+    return function () {
+        seed |= 0;
+        seed = seed + 0x6D2B79F5 | 0;
+        let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+        t ^= t + Math.imul(t ^ t >>> 7, 61 | t);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+}
+
+let rng = Math.random;     // will be replaced once seed is chosen
+let currentSeed = null;
+let lastFinalWealth = null;
+
+//----------------------------------------------------------
+// AUDIO FILES (all .mp3 in same folder)
+//----------------------------------------------------------
+const SND_CLICK     = new Audio("click.mp3");
+const SND_WHALE     = new Audio("splash.mp3");
 const SND_WHALE_EXIT = new Audio("splashLow.mp3");
-const SND_SIREN = new Audio("siren.mp3");
+const SND_SIREN     = new Audio("siren.mp3");
 
 //----------------------------------------------------------
 // CHARACTER DEFINITIONS
 //----------------------------------------------------------
 const characters = {
-    sage:  { name: "Sage of Hollowpeak",       WIS: 100, LUCK: 20,  CRT: 10  },
-    lark:  { name: "Fortune-Blessed Lark",     WIS: 15,  LUCK: 100, CRT: 15  },
-    maker: { name: "The Maker of Echoes",      WIS: 1000,  LUCK: 1000,  CRT: 1000 }
+    sage:  { name: "Lord Elderon",   WIS: 100, LUCK: 20,  CRT: 10  },
+    lark:  { name: "Lucky Bastard", WIS: 15,  LUCK: 100, CRT: 15  },
+    maker: { name: "Creativity Queen",  WIS: 15,  LUCK: 15,  CRT: 100 }
 };
 
 //----------------------------------------------------------
@@ -21,20 +44,20 @@ const characters = {
 let WIS = 0, LUCK = 0, CRT = 0;
 
 let price = 1.00;
-let cash = 100.00;   // REAL cash (doesn't include unrealised PnL)
+let cash = 100.00;   // real cash (not including unrealised PnL)
 let shares = 0;
-let timeLeft = 180;
+let timeLeft = 120;
 
 let maxBuy = 1;
 let luckMultiplier = 1;
 let maxLeverage = 1;
 
 let inLeverage = false;
-let levSide = null;        // "long" or "short"
-let levEntry = 0;          // entry price
-let levFactor = 1;         // leverage multiple
-let levCollateral = 0;     // cash locked as collateral at entry
-let levUnrealised = 0;     // current unrealised PnL
+let levSide = null;
+let levEntry = 0;
+let levFactor = 1;
+let levCollateral = 0;
+let levUnrealised = 0;
 
 let botInterval;
 let timerInterval;
@@ -50,8 +73,8 @@ let lowestPrice = 1;
 let totalWhaleEnters = 0;
 let totalWhaleExits = 0;
 let totalMegaWhales = 0;
-let biggestUp = 0;    // largest positive move (bot or whale)
-let biggestDown = 0;  // largest negative move (bot or whale)
+let biggestUp = 0;
+let biggestDown = 0;
 
 //----------------------------------------------------------
 // DOM REFERENCES
@@ -68,12 +91,23 @@ const sellAmountBtn = document.getElementById("sellAmountBtn");
 const logBox = document.getElementById("log");
 
 const canvas = document.getElementById("priceChart");
-const ctx    = canvas.getContext("2d");
+const ctx     = canvas.getContext("2d");
 
 //----------------------------------------------------------
-// INTRO → CHARACTER SELECT
+// INTRO → CHARACTER SELECT (with seed)
 //----------------------------------------------------------
 document.getElementById("start-game-btn").addEventListener("click", () => {
+    const seedInput = document.getElementById("seed-input");
+    let seed = parseInt(seedInput.value, 10);
+
+    if (!Number.isFinite(seed) || seed <= 0) {
+        seed = Math.floor(Math.random() * 1_000_000_000);
+        seedInput.value = seed;
+    }
+
+    currentSeed = seed;
+    rng = mulberry32(seed);
+
     document.getElementById("intro-screen").style.display = "none";
     document.getElementById("character-select").style.display = "block";
 });
@@ -82,7 +116,9 @@ document.getElementById("start-game-btn").addEventListener("click", () => {
 // CLICK SOUND WRAPPER
 //----------------------------------------------------------
 function addClick(id, fn) {
-    document.getElementById(id).addEventListener("click", () => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("click", () => {
         SND_CLICK.currentTime = 0;
         SND_CLICK.play();
         fn();
@@ -104,6 +140,11 @@ function attachTradingButtons() {
     document.getElementById("popup-close").addEventListener("click", () => {
         document.getElementById("share-popup").style.display = "none";
     });
+
+    const submitBtn = document.getElementById("submit-score-btn");
+    if (submitBtn) {
+        submitBtn.addEventListener("click", submitScore);
+    }
 }
 
 //----------------------------------------------------------
@@ -117,14 +158,14 @@ document.querySelectorAll(".char-btn").forEach(btn => {
         LUCK = c.LUCK;
         CRT = c.CRT;
 
-        document.getElementById("charName").textContent   = c.name;
-        document.getElementById("statWIS").textContent    = WIS;
-        document.getElementById("statLUCK").textContent   = LUCK;
-        document.getElementById("statCRT").textContent    = CRT;
+        document.getElementById("charName").textContent  = c.name;
+        document.getElementById("statWIS").textContent   = WIS;
+        document.getElementById("statLUCK").textContent  = LUCK;
+        document.getElementById("statCRT").textContent   = CRT;
 
-        maxBuy        = 1 + Math.floor((WIS / 100) * 9);    // up to 10
-        luckMultiplier = 1 + (LUCK / 100);                  // 1–2
-        maxLeverage   = 1 + Math.floor((CRT / 100) * 24);   // up to 25
+        maxBuy        = 1 + Math.floor((WIS / 100) * 9);
+        luckMultiplier = 1 + (LUCK / 100);
+        maxLeverage   = 1 + Math.floor((CRT / 100) * 24);
 
         buyAmountBtn.textContent  = maxBuy;
         sellAmountBtn.textContent = maxBuy;
@@ -145,28 +186,27 @@ document.querySelectorAll(".char-btn").forEach(btn => {
 });
 
 //----------------------------------------------------------
-// BOT RANDOM MOVES
+// BOT RANDOM MOVES (seeded)
 //----------------------------------------------------------
 function botAction() {
-    const r = Math.random();
-    if (r < 0.33) return Math.random() * 0.5;
-    if (r < 0.66) return -(Math.random() * 0.5);
+    const r = rng();
+    if (r < 0.33) return rng() * 0.5;
+    if (r < 0.66) return -(rng() * 0.5);
     return 0;
 }
 
 //----------------------------------------------------------
-// WHALE & MEGA WHALE EVENTS (LUCK-SCALED) + MOVE TRACKING
+// WHALE & MEGA WHALE EVENTS (seeded, LUCK-scaled)
 //----------------------------------------------------------
 function whaleEvents() {
-    const whaleBoost = 1 + (LUCK / 100); // 1.0–2.0
+    const whaleBoost = 1 + (LUCK / 100);
 
     // Whale enter
-    if (Math.random() < 0.01 * whaleBoost) {
-        const boost = Math.floor(Math.random() * 91) + 10;  // +10–100
+    if (rng() < 0.01 * whaleBoost) {
+        const boost = Math.floor(rng() * 91) + 10;
         price += boost;
         whaleCount++;
         totalWhaleEnters++;
-
         if (boost > biggestUp) biggestUp = boost;
 
         SND_WHALE.currentTime = 0;
@@ -175,14 +215,13 @@ function whaleEvents() {
     }
 
     // Whale exit
-    if (whaleCount > 0 && Math.random() < 0.01 * whaleBoost) {
-        const drop = Math.floor(Math.random() * 91) + 10;   // -10–100
+    if (whaleCount > 0 && rng() < 0.01 * whaleBoost) {
+        const drop = Math.floor(rng() * 91) + 10;
         price -= drop;
         if (price < 0.01) price = 0.01;
 
         whaleCount--;
         totalWhaleExits++;
-
         if (-drop < biggestDown) biggestDown = -drop;
 
         SND_WHALE_EXIT.currentTime = 0;
@@ -191,12 +230,11 @@ function whaleEvents() {
     }
 
     // Mega whale
-    if (Math.random() < 0.001 * whaleBoost) {
-        const mega = Math.floor(Math.random() * 1501) + 500; // +500–2000
+    if (rng() < 0.001 * whaleBoost) {
+        const mega = Math.floor(rng() * 1501) + 500;
         price += mega;
         whaleCount += 3;
         totalMegaWhales++;
-
         if (mega > biggestUp) biggestUp = mega;
 
         SND_WHALE.currentTime = 0;
@@ -217,14 +255,12 @@ function updatePrice() {
     if (price < 0.01) price = 0.01;
     price = +price.toFixed(2);
 
-    // Track biggest bot move as well
     if (change > biggestUp)   biggestUp = change;
     if (change < biggestDown) biggestDown = change;
 
     if (price > highestPrice) highestPrice = price;
     if (price < lowestPrice)  lowestPrice = price;
 
-    // Flash color
     if (change > 0)      priceUI.style.color = "#00ff88";
     else if (change < 0) priceUI.style.color = "#ff4444";
     setTimeout(() => priceUI.style.color = "white", 200);
@@ -234,13 +270,11 @@ function updatePrice() {
     priceHistory.push(price);
     if (priceHistory.length > 200) priceHistory.shift();
 
-    // Real-time unrealised PnL for leverage
     if (inLeverage) {
         let returnPct = (price - levEntry) / levEntry;
         if (levSide === "short") {
             returnPct = (levEntry - price) / levEntry;
         }
-        // PnL = % move × leverage × collateral
         levUnrealised = returnPct * levFactor * levCollateral;
     }
 
@@ -250,7 +284,7 @@ function updatePrice() {
 }
 
 //----------------------------------------------------------
-// BUY / SELL (spot)
+// BUY / SELL
 //----------------------------------------------------------
 function buyShare() {
     if (inLeverage) return addLog("Cannot buy while leveraged.");
@@ -301,14 +335,13 @@ function unlockButtons() {
     closeBtn.style.opacity = "0.3";
 }
 
-// Open leverage: lock in entry, factor, and collateral (current cash)
 function openLeverage(side) {
     if (inLeverage) return;
 
-    inLeverage   = true;
-    levSide      = side;
-    levEntry     = price;
-    levFactor    = maxLeverage;
+    inLeverage    = true;
+    levSide       = side;
+    levEntry      = price;
+    levFactor     = maxLeverage;
     levCollateral = cash;
     levUnrealised = 0;
 
@@ -316,11 +349,9 @@ function openLeverage(side) {
     lockButtons();
 }
 
-// Close leverage: realise PnL and free controls
 function closePosition() {
     if (!inLeverage) return;
 
-    // Recompute unrealised PnL at the moment of close
     let returnPct = (price - levEntry) / levEntry;
     if (levSide === "short") {
         returnPct = (levEntry - price) / levEntry;
@@ -333,7 +364,7 @@ function closePosition() {
     addLog(`Closed ${levSide.toUpperCase()} — Realised PnL: $${pnl.toFixed(2)}`);
 
     inLeverage = false;
-    levSide    = null;
+    levSide = null;
     unlockButtons();
     updateWealth();
 }
@@ -344,18 +375,15 @@ function closePosition() {
 function checkLiquidation() {
     if (!inLeverage) return;
 
-    // Return % relative to entry
     let returnPct = (price - levEntry) / levEntry;
     if (levSide === "short") {
         returnPct = (levEntry - price) / levEntry;
     }
 
-    // Liquidation when loss reaches 100% / leverage
-    const liqThreshold = -1 / levFactor;       // e.g. -4% for 25x
-    const liqShort     =  1 / levFactor;
+    const liqLong  = -1 / levFactor;
+    const liqShort =  1 / levFactor;
 
-    // LONG LIQUIDATION
-    if (levSide === "long" && returnPct <= liqThreshold) {
+    if (levSide === "long" && returnPct <= liqLong) {
         addLog("💀 LONG LIQUIDATED");
         cash = 0;
         shares = 0;
@@ -366,7 +394,6 @@ function checkLiquidation() {
         return;
     }
 
-    // SHORT LIQUIDATION
     if (levSide === "short" && returnPct >= liqShort) {
         addLog("💀 SHORT LIQUIDATED");
         cash = 0;
@@ -378,7 +405,6 @@ function checkLiquidation() {
         return;
     }
 
-    // Safety: if total wealth somehow hits zero or below, end game
     const displayCash = cash + (inLeverage ? levUnrealised : 0);
     const w = displayCash + shares * price;
     if (w <= 0) {
@@ -389,13 +415,11 @@ function checkLiquidation() {
 }
 
 //----------------------------------------------------------
-// WEALTH + INSTANT LOSS CHECK
+// WEALTH + INSTANT LOSS
 //----------------------------------------------------------
 function updateWealth() {
     let displayCash = cash;
-    if (inLeverage) {
-        displayCash += levUnrealised;
-    }
+    if (inLeverage) displayCash += levUnrealised;
 
     cashUI.textContent = `$${displayCash.toFixed(2)}`;
 
@@ -419,8 +443,12 @@ function startTimer() {
     }, 1000);
 }
 
+let gameOver = false;
+
 function rugEvent() {
-    // Prevent double-rugging
+    if (gameOver) return;
+    gameOver = true;
+
     clearInterval(timerInterval);
     clearInterval(botInterval);
 
@@ -433,21 +461,14 @@ function rugEvent() {
     price = 0;
     priceUI.textContent = "$0.00";
 
-    // Push final 0 price into chart history
+    // Push final 0 into chart + redraw collapse
     priceHistory.push(0);
+    if (priceHistory.length > 200) priceHistory.shift();
+    drawChart();
 
-    // Ensure we don't exceed chart length limit
-    if (priceHistory.length > 200) {
-        priceHistory.shift();
-    }
-
-// Draw final collapse candle
-drawChart();
-
-
-    // Use current wealth display as final
     let displayCash = cash + (inLeverage ? levUnrealised : 0);
     let finalWealth = displayCash + shares * price;
+    lastFinalWealth = finalWealth;
 
     let percent = ((finalWealth - 100) / 100) * 100;
 
@@ -467,6 +488,9 @@ drawChart();
 
     document.getElementById("popup-bigup").textContent   = biggestUp.toFixed(2);
     document.getElementById("popup-bigdown").textContent = biggestDown.toFixed(2);
+
+    document.getElementById("popup-seed").textContent =
+        currentSeed !== null ? currentSeed : "-";
 
     document.getElementById("share-popup").style.display = "flex";
 }
@@ -530,10 +554,90 @@ function followOnX() {
 }
 
 //----------------------------------------------------------
+// SUPABASE LEADERBOARD
+//----------------------------------------------------------
+async function submitScore() {
+    if (lastFinalWealth == null || currentSeed == null) {
+        alert("Play a full game before submitting your score.");
+        return;
+    }
+
+    const nameInput = document.getElementById("player-name");
+    const nameRaw = (nameInput.value || "").trim();
+
+    if (!nameRaw) {
+        alert("Enter your name (max 10 characters).");
+        return;
+    }
+
+    const name = nameRaw.slice(0, 10);
+
+    const body = {
+        name,
+        score: lastFinalWealth,
+        seed: currentSeed
+    };
+
+    try {
+        await fetch(`${SUPABASE_URL}/rest/v1/leaderboard`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+                Prefer: "return=minimal"
+            },
+            body: JSON.stringify(body)
+        });
+        alert("Score submitted!");
+        loadLeaderboard();
+    } catch (err) {
+        console.error("Error submitting score:", err);
+        alert("Error submitting score. Check console for details.");
+    }
+}
+
+async function loadLeaderboard() {
+    const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/leaderboard?select=*&order=score.desc&limit=20`,
+        { headers: { apikey: SUPABASE_KEY } }
+    );
+
+    const data = await res.json();
+    const list = document.getElementById("leaderboard-list");
+    list.innerHTML = "";
+
+    data.forEach((entry, index) => {
+        const li = document.createElement("li");
+
+        // Rank number (1-based)
+        const rank = index + 1;
+
+        li.innerHTML = `
+            <span class="rank">#${rank}</span>
+            <span class="lb-name">${entry.name}</span>
+            <span class="lb-score">$${entry.score.toFixed(2)}</span>
+            <span class="lb-seed">Seed ${entry.seed}</span>
+        `;
+
+        // Highlight top score
+        if (rank === 1) li.classList.add("lb-top");
+
+        list.appendChild(li);
+    });
+}
+
+
+//----------------------------------------------------------
 // START GAME
 //----------------------------------------------------------
 function startGame() {
     updateUI();
     botInterval = setInterval(updatePrice, 700);
     startTimer();
+    loadLeaderboard();
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+    loadLeaderboard();
+});
